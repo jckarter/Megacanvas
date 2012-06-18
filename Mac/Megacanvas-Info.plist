@@ -7,6 +7,8 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>LSTypeIsPackage</key>
+			<true/>
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>mega</string>
@@ -14,11 +16,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string></string>
 			<key>CFBundleTypeName</key>
-			<string>DocumentType</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>????</string>
-			</array>
+			<string>MegaDocument</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>NSDocumentClass</key>
@@ -48,7 +46,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2012 __MyCompanyName__. All rights reserved.</string>
+	<string>Copyright © 2012 Durian Software. All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

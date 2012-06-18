@@ -18,6 +18,8 @@
 		D8EB12C5158BADCE00ED0404 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12A2158BADCD00ED0404 /* Cocoa.framework */; };
 		D8EB12CD158BADCE00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12CB158BADCE00ED0404 /* InfoPlist.strings */; };
 		D8EB12D0158BADCE00ED0404 /* MegacanvasTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */; };
+		D8EB12DF158BB1C500ED0404 /* MegaCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */; };
+		D8EB12E5158BE2E000ED0404 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12E4158BE2E000ED0404 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,26 +33,30 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8EB129E158BADCD00ED0404 /* Megacanvas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Megacanvas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8EB12A2158BADCD00ED0404 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		D8EB12A5158BADCD00ED0404 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		D8EB12A6158BADCD00ED0404 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		D8EB12A7158BADCD00ED0404 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D8EB12AA158BADCD00ED0404 /* Megacanvas-Info.plist */ = {isa = PBXFileReference; path = "Megacanvas-Info.plist"; sourceTree = "<group>"; };
+		D8EB12AA158BADCD00ED0404 /* Megacanvas-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Megacanvas-Info.plist"; sourceTree = "<group>"; };
 		D8EB12AC158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		D8EB12AE158BADCD00ED0404 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D8EB12B0158BADCD00ED0404 /* Megacanvas-Prefix.pch */ = {isa = PBXFileReference; path = "Megacanvas-Prefix.pch"; sourceTree = "<group>"; };
+		D8EB12AE158BADCD00ED0404 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = main.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D8EB12B0158BADCD00ED0404 /* Megacanvas-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Megacanvas-Prefix.pch"; sourceTree = "<group>"; };
 		D8EB12B2158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		D8EB12B4158BADCD00ED0404 /* MegaDocument.h */ = {isa = PBXFileReference; path = MegaDocument.h; sourceTree = "<group>"; };
+		D8EB12B4158BADCD00ED0404 /* MegaDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D8EB12B5158BADCD00ED0404 /* MegaDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MegaDocument.m; sourceTree = "<group>"; };
 		D8EB12B8158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MegaDocument.xib; sourceTree = "<group>"; };
 		D8EB12BB158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		D8EB12C2158BADCE00ED0404 /* MegacanvasTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MegacanvasTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8EB12C3158BADCE00ED0404 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		D8EB12CA158BADCE00ED0404 /* MegacanvasTests-Info.plist */ = {isa = PBXFileReference; path = "MegacanvasTests-Info.plist"; sourceTree = "<group>"; };
+		D8EB12CA158BADCE00ED0404 /* MegacanvasTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MegacanvasTests-Info.plist"; sourceTree = "<group>"; };
 		D8EB12CC158BADCE00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		D8EB12CE158BADCE00ED0404 /* MegacanvasTests.h */ = {isa = PBXFileReference; path = MegacanvasTests.h; sourceTree = "<group>"; };
-		D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MegacanvasTests.m; sourceTree = "<group>"; };
+		D8EB12CE158BADCE00ED0404 /* MegacanvasTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegacanvasTests.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegacanvasTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaCanvasView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegaCanvasView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D8EB12E4158BE2E000ED0404 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = ../../../../../../System/Library/Frameworks/OpenGL.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */,
+				D8EB12E5158BE2E000ED0404 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,11 +81,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D8B0C3A0158F8E3200A40A70 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
-				D8EB12A8158BADCD00ED0404 /* Megacanvas */,
-				D8EB12C8158BADCE00ED0404 /* MegacanvasTests */,
+				D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */,
+				D8B0C3A0158F8E3200A40A70 /* Engine */,
+				D8EB12A8158BADCD00ED0404 /* Mac */,
+				D8EB12C8158BADCE00ED0404 /* MacTests */,
 				D8EB12A1158BADCD00ED0404 /* Frameworks */,
 				D8EB129F158BADCD00ED0404 /* Products */,
 			);
@@ -96,6 +112,7 @@
 		D8EB12A1158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8EB12E4158BE2E000ED0404 /* OpenGL.framework */,
 				D8EB12A2158BADCD00ED0404 /* Cocoa.framework */,
 				D8EB12C3158BADCE00ED0404 /* SenTestingKit.framework */,
 				D8EB12A4158BADCD00ED0404 /* Other Frameworks */,
@@ -113,16 +130,18 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		D8EB12A8158BADCD00ED0404 /* Megacanvas */ = {
+		D8EB12A8158BADCD00ED0404 /* Mac */ = {
 			isa = PBXGroup;
 			children = (
 				D8EB12B4158BADCD00ED0404 /* MegaDocument.h */,
+				D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */,
+				D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */,
 				D8EB12B5158BADCD00ED0404 /* MegaDocument.m */,
 				D8EB12B7158BADCD00ED0404 /* MegaDocument.xib */,
 				D8EB12BA158BADCD00ED0404 /* MainMenu.xib */,
 				D8EB12A9158BADCD00ED0404 /* Supporting Files */,
 			);
-			path = Megacanvas;
+			path = Mac;
 			sourceTree = "<group>";
 		};
 		D8EB12A9158BADCD00ED0404 /* Supporting Files */ = {
@@ -137,14 +156,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		D8EB12C8158BADCE00ED0404 /* MegacanvasTests */ = {
+		D8EB12C8158BADCE00ED0404 /* MacTests */ = {
 			isa = PBXGroup;
 			children = (
 				D8EB12CE158BADCE00ED0404 /* MegacanvasTests.h */,
 				D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */,
 				D8EB12C9158BADCE00ED0404 /* Supporting Files */,
 			);
-			path = MegacanvasTests;
+			path = MacTests;
 			sourceTree = "<group>";
 		};
 		D8EB12C9158BADCE00ED0404 /* Supporting Files */ = {
@@ -267,6 +286,7 @@
 			files = (
 				D8EB12AF158BADCD00ED0404 /* main.m in Sources */,
 				D8EB12B6158BADCD00ED0404 /* MegaDocument.m in Sources */,
+				D8EB12DF158BB1C500ED0404 /* MegaCanvasView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,6 +402,8 @@
 		D8EB12D4158BADCE00ED0404 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Megacanvas.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Megacanvas/Megacanvas-Prefix.pch";
 				INFOPLIST_FILE = "Megacanvas/Megacanvas-Info.plist";
@@ -393,6 +415,8 @@
 		D8EB12D5158BADCE00ED0404 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Megacanvas.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Megacanvas/Megacanvas-Prefix.pch";
 				INFOPLIST_FILE = "Megacanvas/Megacanvas-Info.plist";
@@ -448,6 +472,7 @@
 				D8EB12D5158BADCE00ED0404 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8EB12D6158BADCE00ED0404 /* Build configuration list for PBXNativeTarget "MegacanvasTests" */ = {
 			isa = XCConfigurationList;
@@ -456,6 +481,7 @@
 				D8EB12D8158BADCE00ED0404 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
