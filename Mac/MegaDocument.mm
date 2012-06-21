@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Durian Software. All rights reserved.
 //
 
-#import "MegaDocument.h"
+#import "MegaDocument.hh"
 
 @implementation MegaDocument
 
