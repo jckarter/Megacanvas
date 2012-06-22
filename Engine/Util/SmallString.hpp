@@ -14,8 +14,8 @@
 #ifndef LLVM_ADT_SMALLSTRING_H
 #define LLVM_ADT_SMALLSTRING_H
 
-#include "Engine/Util/SmallVector.h"
-#include "Engine/Util/StringRef.h"
+#include "Engine/Util/SmallVector.hpp"
+#include "Engine/Util/StringRef.hpp"
 
 namespace Mega {
 
