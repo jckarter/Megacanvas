@@ -1,5 +1,5 @@
 //
-//  megacanvas.cpp
+//  Canvas.cpp
 //  Megacanvas
 //
 //  Created by Joe Groff on 6/20/12.
@@ -7,6 +7,7 @@
 //
 
 #include "Engine/Canvas.hpp"
+#include "Engine/Layer.hpp"
 #include <vector>
 
 namespace Mega {
@@ -15,7 +16,7 @@ namespace Mega {
     };
     
     Canvas::Canvas()
-    : that(new priv()) {
+    : that(nullptr) {
         
     }
     
@@ -26,6 +27,9 @@ namespace Mega {
     
     ArrayRef<Layer> Canvas::layers()
     {
-        return makeArrayRef(that->layers);
+        if (that)
+            return that->layers;
+        else
+            return ArrayRef<Layer>();
     }
 }

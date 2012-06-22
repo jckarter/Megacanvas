@@ -1,5 +1,5 @@
 //
-//  megacanvas.h
+//  Canvas.hpp
 //  Megacanvas
 //
 //  Created by Joe Groff on 6/20/12.
@@ -14,9 +14,7 @@
 #include <memory>
 
 namespace Mega {
-    class Layer {
-        
-    };
+    class Layer;
     
     class Canvas {
         struct priv;
