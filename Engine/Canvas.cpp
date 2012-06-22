@@ -11,25 +11,27 @@
 #include <vector>
 
 namespace Mega {
-    struct Canvas::priv {
-        std::vector<Layer> layers;
+    template<>
+    struct Priv<Canvas> {
+        std::vector<Priv<Layer>> layers;
     };
     
-    Canvas::Canvas()
-    : that(nullptr) {
+    MEGA_PRIV_DTOR(Canvas)
+    
+    template<>
+    struct Priv<Layer> {
         
+    };
+    
+    MEGA_PRIV_DTOR(Layer)
+    
+    PrivOwner<Canvas> Canvas::create()
+    {
+        return PrivOwner<Canvas>();
     }
     
-    Canvas::~Canvas()
+    ArrayRef<Priv<Layer>> Canvas::layers()
     {
-        
-    }
-    
-    ArrayRef<Layer> Canvas::layers()
-    {
-        if (that)
-            return that->layers;
-        else
-            return ArrayRef<Layer>();
+        return that->layers;
     }
 }

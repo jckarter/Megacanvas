@@ -10,14 +10,11 @@
 #define Megacanvas_Layer_hpp
 
 #include <memory>
+#include "Engine/Util/Priv.hpp"
 
 namespace Mega {
-    class Layer {
-        struct priv;
-        std::unique_ptr<priv> that;
-    public:
-        Layer();
-        ~Layer();
+    struct Layer : HasPriv<Layer> {
+        MEGA_PRIV_CTORS(Layer)
     };
 }
 

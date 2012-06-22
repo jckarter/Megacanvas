@@ -29,8 +29,8 @@ namespace Mega { namespace test {
         
         void testInitialization()
         {
-            Mega::Canvas canvas;
-            CPPUNIT_ASSERT(canvas.layers().empty());
+            PrivOwner<Canvas> canvas = Canvas::create();
+            CPPUNIT_ASSERT(canvas.get().layers().empty());
         }
     };
     

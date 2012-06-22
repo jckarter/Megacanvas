@@ -11,19 +11,19 @@
 
 #include "Engine/Util/ArrayRef.hpp"
 #include "Engine/Util/StringRef.hpp"
+#include "Engine/Util/Priv.hpp"
 #include <memory>
 
 namespace Mega {
-    class Layer;
+    struct Layer;
     
-    class Canvas {
-        struct priv;
-        std::unique_ptr<priv> that;
-    public:
-        Canvas();
-        ~Canvas();
+    struct Canvas : HasPriv<Canvas> {        
+        MEGA_PRIV_CTORS(Canvas)
         
-        ArrayRef<Layer> layers();
+        static PrivOwner<Canvas> create();
+        static PrivOwner<Canvas> load(StringRef path);
+        
+        ArrayRef<Priv<Layer>> layers();
     };
 }
 
