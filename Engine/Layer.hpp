@@ -15,6 +15,8 @@
 namespace Mega {
     struct Layer : HasPriv<Layer> {
         MEGA_PRIV_CTORS(Layer)
+        
+        
     };
 }
 

@@ -21,6 +21,8 @@ namespace Mega {
         HasPriv() = default;
         /*implicit*/ HasPriv(Priv<T> &that) : that(&that) {}
         /*implicit*/ HasPriv(Priv<T> *that) : that(that) {}
+        
+        explicit operator bool() { return that != nullptr; }
     };
 
 // inheriting constructors seem to be busted in xcode 4.3
@@ -41,10 +43,11 @@ namespace Mega {
         void operator=(const PrivOwner &) = delete;
         
         template<typename...AA>
-        PrivOwner(AA&&...args) : that(new Priv<T>(std::forward(args)...)) {}
+        PrivOwner(AA&&...args) : that(new Priv<T>(std::forward<AA>(args)...)) {}
         ~PrivOwner();
         
         T get() { return that; }
+        explicit operator bool() { return that != nullptr; }
     };
 
 #define MEGA_PRIV_DTOR(T) \

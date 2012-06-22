@@ -15,7 +15,9 @@
 #include <memory>
 
 namespace Mega {
+    typedef std::pair<double, double> Point;
     struct Layer;
+    struct Tile;
     
     struct Canvas : HasPriv<Canvas> {        
         MEGA_PRIV_CTORS(Canvas)
@@ -24,6 +26,10 @@ namespace Mega {
         static PrivOwner<Canvas> load(StringRef path);
         
         ArrayRef<Priv<Layer>> layers();
+        ArrayRef<Priv<Tile>> tiles();
+        
+        Layer layer(size_t i);
+        Tile tile(size_t i);
     };
 }
 

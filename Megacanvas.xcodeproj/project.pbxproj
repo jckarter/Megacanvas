@@ -91,6 +91,7 @@
 		D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegacanvasTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaCanvasView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegaCanvasView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D8FEA312159445FB005A2EF3 /* Tile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				D8C986DB159408E7000D554E /* Canvas.cpp */,
+				D8FEA312159445FB005A2EF3 /* Tile.hpp */,
 				D8C986DC159408E7000D554E /* Canvas.hpp */,
 				D8C986DE159408E7000D554E /* Layer.hpp */,
 				D8C986DF159408E7000D554E /* Util */,
