@@ -36,7 +36,7 @@
 {
     return YES;
 }
-
+/*
 + (BOOL)canConcurrentlyReadDocumentsOfType:(NSString *)typeName
 {
     return YES;
@@ -46,7 +46,7 @@
 {
     return YES;
 }
-
+*/
 -(BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
 {
     NSLog(@"read from %@ type %@", fileWrapper, typeName);

@@ -7,19 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D813707F15929ADF00A58ADD /* megacanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D813707E15929ADF00A58ADD /* megacanvas.cpp */; };
 		D813708B1592EEE000A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
-		D81370951592EF5400A58ADD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81370941592EF5400A58ADD /* main.cpp */; };
-		D813709B1592EFA600A58ADD /* megacanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D813707E15929ADF00A58ADD /* megacanvas.cpp */; };
-		D813709F1592FCDD00A58ADD /* pimpled_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D813709E1592FCDD00A58ADD /* pimpled_test.cpp */; };
 		D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */; };
-		D81370A5159316E600A58ADD /* PimpledTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81370A4159316E600A58ADD /* PimpledTest.cpp */; };
+		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
+		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
+		D8C986E8159408E7000D554E /* Layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DD159408E7000D554E /* Layer.cpp */; };
+		D8C986E9159408E7000D554E /* Layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DD159408E7000D554E /* Layer.cpp */; };
+		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
+		D8C986EF159408F6000D554E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EC159408F6000D554E /* main.cpp */; };
+		D8C986F0159408F6000D554E /* TransformArrayRefTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */; };
 		D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12A2158BADCD00ED0404 /* Cocoa.framework */; };
 		D8EB12AD158BADCD00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12AB158BADCD00ED0404 /* InfoPlist.strings */; };
 		D8EB12AF158BADCD00ED0404 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12AE158BADCD00ED0404 /* main.m */; };
 		D8EB12B3158BADCD00ED0404 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12B1158BADCD00ED0404 /* Credits.rtf */; };
-		D8EB12B6158BADCD00ED0404 /* MegaDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12B5158BADCD00ED0404 /* MegaDocument.m */; };
+		D8EB12B6158BADCD00ED0404 /* MegaDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12B5158BADCD00ED0404 /* MegaDocument.mm */; };
 		D8EB12B9158BADCD00ED0404 /* MegaDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12B7158BADCD00ED0404 /* MegaDocument.xib */; };
 		D8EB12BC158BADCD00ED0404 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12BA158BADCD00ED0404 /* MainMenu.xib */; };
 		D8EB12C4158BADCE00ED0404 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12C3158BADCE00ED0404 /* SenTestingKit.framework */; };
@@ -52,18 +54,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D813707E15929ADF00A58ADD /* megacanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = megacanvas.cpp; sourceTree = "<group>"; };
-		D813708115929AF500A58ADD /* megacanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = megacanvas.hpp; sourceTree = "<group>"; };
-		D81370841592DAFB00A58ADD /* pimpled.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pimpled.hpp; sourceTree = "<group>"; };
 		D813708A1592EEE000A58ADD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D81370911592EF5400A58ADD /* EngineTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EngineTests; sourceTree = BUILT_PRODUCTS_DIR; };
-		D81370941592EF5400A58ADD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		D813709E1592FCDD00A58ADD /* pimpled_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pimpled_test.cpp; sourceTree = "<group>"; };
-		D81370A01593005700A58ADD /* array_ref.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = array_ref.hpp; sourceTree = "<group>"; };
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
-		D81370A3159315E400A58ADD /* pimpled_test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = pimpled_test.hpp; sourceTree = "<group>"; };
-		D81370A4159316E600A58ADD /* PimpledTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PimpledTest.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
+		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Canvas.cpp; sourceTree = "<group>"; };
+		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Canvas.hpp; sourceTree = "<group>"; };
+		D8C986DD159408E7000D554E /* Layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Layer.cpp; sourceTree = "<group>"; };
+		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Layer.hpp; sourceTree = "<group>"; };
+		D8C986E0159408E7000D554E /* ArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ArrayRef.hpp; sourceTree = "<group>"; };
+		D8C986E1159408E7000D554E /* SmallString.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmallString.hpp; sourceTree = "<group>"; };
+		D8C986E2159408E7000D554E /* SmallVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmallVector.hpp; sourceTree = "<group>"; };
+		D8C986E3159408E7000D554E /* StringRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringRef.hpp; sourceTree = "<group>"; };
+		D8C986E4159408E7000D554E /* TransformArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TransformArrayRef.hpp; sourceTree = "<group>"; };
+		D8C986E5159408E7000D554E /* View.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
+		D8C986EB159408F6000D554E /* CanvasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasTest.cpp; sourceTree = "<group>"; };
+		D8C986EC159408F6000D554E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformArrayRefTest.cpp; sourceTree = "<group>"; };
 		D8EB129E158BADCD00ED0404 /* Megacanvas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Megacanvas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8EB12A2158BADCD00ED0404 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		D8EB12A5158BADCD00ED0404 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -72,10 +79,10 @@
 		D8EB12AA158BADCD00ED0404 /* Megacanvas-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Megacanvas-Info.plist"; sourceTree = "<group>"; };
 		D8EB12AC158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D8EB12AE158BADCD00ED0404 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = main.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		D8EB12B0158BADCD00ED0404 /* Megacanvas-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Megacanvas-Prefix.pch"; sourceTree = "<group>"; };
+		D8EB12B0158BADCD00ED0404 /* prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = prefix.pch; sourceTree = "<group>"; };
 		D8EB12B2158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		D8EB12B4158BADCD00ED0404 /* MegaDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaDocument.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		D8EB12B5158BADCD00ED0404 /* MegaDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MegaDocument.m; sourceTree = "<group>"; };
+		D8EB12B4158BADCD00ED0404 /* MegaDocument.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = MegaDocument.hh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		D8EB12B5158BADCD00ED0404 /* MegaDocument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MegaDocument.mm; sourceTree = "<group>"; };
 		D8EB12B8158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MegaDocument.xib; sourceTree = "<group>"; };
 		D8EB12BB158BADCD00ED0404 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		D8EB12C2158BADCE00ED0404 /* MegacanvasTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MegacanvasTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -119,42 +126,48 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D81370851592E34F00A58ADD /* util */ = {
+		D8C986DA159408E7000D554E /* Engine */ = {
 			isa = PBXGroup;
 			children = (
-				D81370A01593005700A58ADD /* array_ref.hpp */,
-				D81370841592DAFB00A58ADD /* pimpled.hpp */,
-			);
-			path = util;
-			sourceTree = "<group>";
-		};
-		D81370931592EF5400A58ADD /* EngineTests */ = {
-			isa = PBXGroup;
-			children = (
-				D81370941592EF5400A58ADD /* main.cpp */,
-				D813709E1592FCDD00A58ADD /* pimpled_test.cpp */,
-				D81370A4159316E600A58ADD /* PimpledTest.cpp */,
-				D81370A3159315E400A58ADD /* pimpled_test.hpp */,
-			);
-			path = EngineTests;
-			sourceTree = "<group>";
-		};
-		D8B0C3A0158F8E3200A40A70 /* Engine */ = {
-			isa = PBXGroup;
-			children = (
-				D81370851592E34F00A58ADD /* util */,
-				D813707E15929ADF00A58ADD /* megacanvas.cpp */,
-				D813708115929AF500A58ADD /* megacanvas.hpp */,
+				D8C986DB159408E7000D554E /* Canvas.cpp */,
+				D8C986DC159408E7000D554E /* Canvas.hpp */,
+				D8C986DD159408E7000D554E /* Layer.cpp */,
+				D8C986DE159408E7000D554E /* Layer.hpp */,
+				D8C986DF159408E7000D554E /* Util */,
+				D8C986E5159408E7000D554E /* View.hpp */,
 			);
 			path = Engine;
+			sourceTree = "<group>";
+		};
+		D8C986DF159408E7000D554E /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				D8C986E0159408E7000D554E /* ArrayRef.hpp */,
+				D8C986E1159408E7000D554E /* SmallString.hpp */,
+				D8C986E2159408E7000D554E /* SmallVector.hpp */,
+				D8C986E3159408E7000D554E /* StringRef.hpp */,
+				D8C986E4159408E7000D554E /* TransformArrayRef.hpp */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		D8C986EA159408F6000D554E /* EngineTests */ = {
+			isa = PBXGroup;
+			children = (
+				D8C986EB159408F6000D554E /* CanvasTest.cpp */,
+				D8C986EC159408F6000D554E /* main.cpp */,
+				D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */,
+			);
+			path = EngineTests;
 			sourceTree = "<group>";
 		};
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
+				D8C986EA159408F6000D554E /* EngineTests */,
+				D8C986DA159408E7000D554E /* Engine */,
+				D8EB12B0158BADCD00ED0404 /* prefix.pch */,
 				D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */,
-				D8B0C3A0158F8E3200A40A70 /* Engine */,
-				D81370931592EF5400A58ADD /* EngineTests */,
 				D8EB12A8158BADCD00ED0404 /* Mac */,
 				D8EB12C8158BADCE00ED0404 /* MacTests */,
 				D8EB12A1158BADCD00ED0404 /* Frameworks */,
@@ -197,10 +210,10 @@
 		D8EB12A8158BADCD00ED0404 /* Mac */ = {
 			isa = PBXGroup;
 			children = (
-				D8EB12B4158BADCD00ED0404 /* MegaDocument.h */,
+				D8EB12B4158BADCD00ED0404 /* MegaDocument.hh */,
 				D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */,
 				D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */,
-				D8EB12B5158BADCD00ED0404 /* MegaDocument.m */,
+				D8EB12B5158BADCD00ED0404 /* MegaDocument.mm */,
 				D8EB12B7158BADCD00ED0404 /* MegaDocument.xib */,
 				D8EB12BA158BADCD00ED0404 /* MainMenu.xib */,
 				D8EB12A9158BADCD00ED0404 /* Supporting Files */,
@@ -214,7 +227,6 @@
 				D8EB12AA158BADCD00ED0404 /* Megacanvas-Info.plist */,
 				D8EB12AB158BADCD00ED0404 /* InfoPlist.strings */,
 				D8EB12AE158BADCD00ED0404 /* main.m */,
-				D8EB12B0158BADCD00ED0404 /* Megacanvas-Prefix.pch */,
 				D8EB12B1158BADCD00ED0404 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
@@ -367,10 +379,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D81370951592EF5400A58ADD /* main.cpp in Sources */,
-				D813709B1592EFA600A58ADD /* megacanvas.cpp in Sources */,
-				D813709F1592FCDD00A58ADD /* pimpled_test.cpp in Sources */,
-				D81370A5159316E600A58ADD /* PimpledTest.cpp in Sources */,
+				D8C986E7159408E7000D554E /* Canvas.cpp in Sources */,
+				D8C986E9159408E7000D554E /* Layer.cpp in Sources */,
+				D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */,
+				D8C986EF159408F6000D554E /* main.cpp in Sources */,
+				D8C986F0159408F6000D554E /* TransformArrayRefTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,9 +392,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8EB12AF158BADCD00ED0404 /* main.m in Sources */,
-				D8EB12B6158BADCD00ED0404 /* MegaDocument.m in Sources */,
+				D8EB12B6158BADCD00ED0404 /* MegaDocument.mm in Sources */,
 				D8EB12DF158BB1C500ED0404 /* MegaCanvasView.m in Sources */,
-				D813707F15929ADF00A58ADD /* megacanvas.cpp in Sources */,
+				D8C986E6159408E7000D554E /* Canvas.cpp in Sources */,
+				D8C986E8159408E7000D554E /* Layer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -450,6 +464,8 @@
 		D81370991592EF5400A58ADD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.pch;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/cppunit/lib,
@@ -461,6 +477,8 @@
 		D813709A1592EF5400A58ADD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.pch;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/cppunit/lib,
@@ -537,7 +555,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = Megacanvas.entitlements;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Mac/Megacanvas-Prefix.pch";
+				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "Mac/Megacanvas-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -551,7 +569,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = Megacanvas.entitlements;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Mac/Megacanvas-Prefix.pch";
+				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "Mac/Megacanvas-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -566,7 +584,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Mac/Megacanvas-Prefix.pch";
+				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "MacTests/MegacanvasTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -582,7 +600,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Mac/Megacanvas-Prefix.pch";
+				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "MacTests/MegacanvasTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -600,6 +618,7 @@
 				D813709A1592EF5400A58ADD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8EB1298158BADCD00ED0404 /* Build configuration list for PBXProject "Megacanvas" */ = {
 			isa = XCConfigurationList;
