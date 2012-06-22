@@ -1,0 +1,29 @@
+//
+// Prefix header for all source files of the 'Megacanvas' target in the 'Megacanvas' project
+//
+
+#include <OpenGL/gl.h>
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+#ifdef __cplusplus
+    #include <array>
+    #include <algorithm>
+    #include <cassert>
+    #include <cstddef>
+    #include <cstdlib>
+    #include <cstring>
+    #include <iterator>
+    #include <limits>
+    #include <memory>
+    #include <string>
+    #include <type_traits>
+    #include <utility>
+    #include <vector>
+    #include "Engine/Util/ArrayRef.hpp"
+    #include "Engine/Util/StringRef.hpp"
+    #include "Engine/Util/SmallString.hpp"
+    #include "Engine/Util/SmallVector.hpp"
+#endif
