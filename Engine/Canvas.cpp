@@ -73,8 +73,8 @@ namespace Mega {
         return PrivOwner<Canvas>();
     }
     
-    MEGA_PRIV_GETTER(Canvas, layers, MutableArrayRef<Priv<Layer>>)
-    MEGA_PRIV_GETTER(Canvas, tiles, MutableArrayRef<Priv<Tile>>)
+    MEGA_PRIV_GETTER(Canvas, layers, PrivArrayRef<Layer>)
+    MEGA_PRIV_GETTER(Canvas, tiles, PrivArrayRef<Tile>)
         
     Layer Canvas::layer(size_t i)
     {

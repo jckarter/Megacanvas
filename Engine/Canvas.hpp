@@ -24,8 +24,8 @@ namespace Mega {
         static PrivOwner<Canvas> create();
         static PrivOwner<Canvas> load(StringRef path);
         
-        MutableArrayRef<Priv<Layer>> layers();
-        MutableArrayRef<Priv<Tile>> tiles();
+        PrivArrayRef<Layer> layers();
+        PrivArrayRef<Tile> tiles();
         
         Layer layer(size_t i);
         Tile tile(size_t i);

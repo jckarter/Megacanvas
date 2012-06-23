@@ -34,7 +34,7 @@ namespace Mega { namespace test {
             Canvas canvas = canvasOwner.get();
             CPPUNIT_ASSERT(canvas.tiles().empty());
             CPPUNIT_ASSERT(canvas.layers().size() == 1);
-            Layer layer = canvas.layer(0);
+            Layer layer = canvas.layers()[0];
             CPPUNIT_ASSERT(layer.parallax() == makeVec(1., 1.));
             CPPUNIT_ASSERT(layer.priority() == 0);
         }
