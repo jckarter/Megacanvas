@@ -15,7 +15,6 @@
 #include <memory>
 
 namespace Mega {
-    typedef std::pair<double, double> Point;
     struct Layer;
     struct Tile;
     
@@ -25,8 +24,8 @@ namespace Mega {
         static PrivOwner<Canvas> create();
         static PrivOwner<Canvas> load(StringRef path);
         
-        ArrayRef<Priv<Layer>> layers();
-        ArrayRef<Priv<Tile>> tiles();
+        MutableArrayRef<Priv<Layer>> layers();
+        MutableArrayRef<Priv<Tile>> tiles();
         
         Layer layer(size_t i);
         Tile tile(size_t i);

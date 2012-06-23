@@ -92,6 +92,7 @@
 		D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaCanvasView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegaCanvasView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D8FEA312159445FB005A2EF3 /* Tile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
+		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +135,7 @@
 				D8C986DE159408E7000D554E /* Layer.hpp */,
 				D8C986DF159408E7000D554E /* Util */,
 				D8C986E5159408E7000D554E /* View.hpp */,
+				D8FEA31415953EF1005A2EF3 /* Vec.hpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";

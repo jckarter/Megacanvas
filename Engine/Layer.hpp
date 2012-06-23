@@ -11,12 +11,17 @@
 
 #include <memory>
 #include "Engine/Util/Priv.hpp"
+#include "Engine/Vec.hpp"
 
 namespace Mega {
     struct Layer : HasPriv<Layer> {
         MEGA_PRIV_CTORS(Layer)
         
+        Vec parallax();
+        void parallax(Vec x);
         
+        int priority();
+        void priority(int x);
     };
 }
 

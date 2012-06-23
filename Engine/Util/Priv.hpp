@@ -53,6 +53,22 @@ namespace Mega {
 #define MEGA_PRIV_DTOR(T) \
     template<> PrivOwner<T>::~PrivOwner() { delete that; }
 
+#define MEGA_PRIV_GETTER(T, name, type) \
+    type T::name() \
+    { \
+        return that->name; \
+    }
+
+#define MEGA_PRIV_SETTER(T, name, type) \
+    void T::name(type value) \
+    { \
+        that->name = value; \
+    }
+
+#define MEGA_PRIV_GETTER_SETTER(T, name, type) \
+    MEGA_PRIV_GETTER(T, name, type) \
+    MEGA_PRIV_SETTER(T, name, type)
+
 #ifndef NDEBUG
     struct _PrevTest : HasPriv<_PrevTest> { MEGA_PRIV_CTORS(_PrevTest); };
     template<> struct Priv<_PrevTest> { Priv(int); ~Priv(); };

@@ -11,6 +11,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include "Engine/Canvas.hpp"
+#include "Engine/Layer.hpp"
 
 namespace Mega { namespace test {
     class CanvasTest : public CppUnit::TestFixture {
@@ -29,8 +30,13 @@ namespace Mega { namespace test {
         
         void testInitialization()
         {
-            PrivOwner<Canvas> canvas = Canvas::create();
-            CPPUNIT_ASSERT(canvas.get().layers().empty());
+            PrivOwner<Canvas> canvasOwner = Canvas::create();
+            Canvas canvas = canvasOwner.get();
+            CPPUNIT_ASSERT(canvas.tiles().empty());
+            CPPUNIT_ASSERT(canvas.layers().size() == 1);
+            Layer layer = canvas.layer(0);
+            CPPUNIT_ASSERT(layer.parallax() == makeVec(1., 1.));
+            CPPUNIT_ASSERT(layer.priority() == 0);
         }
     };
     

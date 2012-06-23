@@ -19,18 +19,29 @@ namespace Mega {
     struct Priv<Canvas> {
         std::vector<Priv<Layer>> layers;
         std::vector<Priv<Tile>> tiles;
+        
+        Priv() { layers.emplace_back(); }
     };
     MEGA_PRIV_DTOR(Canvas)
 
-    template<typename T>
-    struct Quadtree {};
+    struct Quadtree {
+        enum class NodeRef : size_t {};
+        typedef std::array<NodeRef, 4> Node;
+        std::vector<Node> nodes;
+        size_t root;
+        size_t logSize;
+    };
     
     template<>
     struct Priv<Layer> {
-        double parallax;
+        Vec parallax;
+        Vec origin;
+        Quadtree tiles;
         int priority;
-        Point origin;
-        Quadtree<size_t> tiles;
+        
+        Priv()
+        : parallax(makeVec(1.0, 1.0)), origin(makeVec(0.0, 0.0)), priority(0)
+        {}
     };
     MEGA_PRIV_DTOR(Layer)
     
@@ -62,16 +73,9 @@ namespace Mega {
         return PrivOwner<Canvas>();
     }
     
-    ArrayRef<Priv<Layer>> Canvas::layers()
-    {
-        return that->layers;
-    }
-    
-    ArrayRef<Priv<Tile>> Canvas::tiles()
-    {
-        return that->tiles;
-    }
-    
+    MEGA_PRIV_GETTER(Canvas, layers, MutableArrayRef<Priv<Layer>>)
+    MEGA_PRIV_GETTER(Canvas, tiles, MutableArrayRef<Priv<Tile>>)
+        
     Layer Canvas::layer(size_t i)
     {
         return that->layers[i];
@@ -85,6 +89,8 @@ namespace Mega {
     //
     // Layer implementation
     //
+    MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
+    MEGA_PRIV_GETTER_SETTER(Layer, priority, int)
     
     //
     // Tile implementation
@@ -92,5 +98,10 @@ namespace Mega {
     ArrayRef<std::uint8_t> Tile::pixels()
     {
         return makeArrayRef(that->pixels.get(), that->area());
+    }
+    
+    size_t Tile::size()
+    {
+        return that->size();
     }
 }
