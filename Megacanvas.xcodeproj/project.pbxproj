@@ -27,6 +27,9 @@
 		D8EB12CD158BADCE00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12CB158BADCE00ED0404 /* InfoPlist.strings */; };
 		D8EB12D0158BADCE00ED0404 /* MegacanvasTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */; };
 		D8EB12DF158BB1C500ED0404 /* MegaCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */; };
+		D8FEA31615967838005A2EF3 /* libyaml-cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31515967838005A2EF3 /* libyaml-cpp.a */; };
+		D8FEA31715967838005A2EF3 /* libyaml-cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31515967838005A2EF3 /* libyaml-cpp.a */; };
+		D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA319159A7CA5005A2EF3 /* TestData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,8 +94,9 @@
 		D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegacanvasTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D8EB12DD158BB1C500ED0404 /* MegaCanvasView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MegaCanvasView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D8EB12DE158BB1C500ED0404 /* MegaCanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegaCanvasView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		D8FEA312159445FB005A2EF3 /* Tile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
 		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
+		D8FEA31515967838005A2EF3 /* libyaml-cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libyaml-cpp.a"; path = "../../../../../usr/local/yaml-cpp/lib/libyaml-cpp.a"; sourceTree = "<group>"; };
+		D8FEA319159A7CA5005A2EF3 /* TestData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestData; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +105,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */,
+				D8FEA31715967838005A2EF3 /* libyaml-cpp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +115,7 @@
 			files = (
 				D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */,
 				D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */,
+				D8FEA31615967838005A2EF3 /* libyaml-cpp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,7 +136,6 @@
 			isa = PBXGroup;
 			children = (
 				D8C986DB159408E7000D554E /* Canvas.cpp */,
-				D8FEA312159445FB005A2EF3 /* Tile.hpp */,
 				D8C986DC159408E7000D554E /* Canvas.hpp */,
 				D8C986DE159408E7000D554E /* Layer.hpp */,
 				D8C986DF159408E7000D554E /* Util */,
@@ -156,6 +161,7 @@
 		D8C986EA159408F6000D554E /* EngineTests */ = {
 			isa = PBXGroup;
 			children = (
+				D8FEA319159A7CA5005A2EF3 /* TestData */,
 				D8C986EB159408F6000D554E /* CanvasTest.cpp */,
 				D8C986EC159408F6000D554E /* main.cpp */,
 				D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */,
@@ -190,6 +196,7 @@
 		D8EB12A1158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8FEA31515967838005A2EF3 /* libyaml-cpp.a */,
 				D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */,
 				D813708A1592EEE000A58ADD /* OpenGL.framework */,
 				D8EB12A2158BADCD00ED0404 /* Cocoa.framework */,
@@ -347,6 +354,7 @@
 				D8EB12B3158BADCD00ED0404 /* Credits.rtf in Resources */,
 				D8EB12B9158BADCD00ED0404 /* MegaDocument.xib in Resources */,
 				D8EB12BC158BADCD00ED0404 /* MainMenu.xib in Resources */,
+				D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +477,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/cppunit/lib,
+					"\"/usr/local/yaml-cpp/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -482,6 +491,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/cppunit/lib,
+					"\"/usr/local/yaml-cpp/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -513,11 +523,12 @@
 				HEADER_SEARCH_PATHS = (
 					.,
 					/usr/local/cppunit/include,
+					"/usr/local/yaml-cpp/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include";
 			};
 			name = Debug;
 		};
@@ -541,10 +552,11 @@
 				HEADER_SEARCH_PATHS = (
 					.,
 					/usr/local/cppunit/include,
+					"/usr/local/yaml-cpp/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include";
 			};
 			name = Release;
 		};
@@ -557,6 +569,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "Mac/Megacanvas-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/usr/local/yaml-cpp/lib\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -571,6 +587,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = prefix.pch;
 				INFOPLIST_FILE = "Mac/Megacanvas-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/usr/local/yaml-cpp/lib\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

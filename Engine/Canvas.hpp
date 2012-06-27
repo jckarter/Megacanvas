@@ -16,7 +16,6 @@
 
 namespace Mega {
     struct Layer;
-    struct Tile;
     
     struct Canvas : HasPriv<Canvas> {        
         MEGA_PRIV_CTORS(Canvas)
@@ -25,10 +24,13 @@ namespace Mega {
         static PrivOwner<Canvas> load(StringRef path);
         
         PrivArrayRef<Layer> layers();
-        PrivArrayRef<Tile> tiles();
+        
+        size_t tileLogSize();
+        size_t tileSize();
+        size_t tileArea();
         
         Layer layer(size_t i);
-        Tile tile(size_t i);
+        ArrayRef<std::uint8_t> tile(size_t i);
     };
 }
 

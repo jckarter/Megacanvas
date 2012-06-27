@@ -8,7 +8,6 @@
 
 #include "Engine/Canvas.hpp"
 #include "Engine/Layer.hpp"
-#include "Engine/Tile.hpp"
 #include <vector>
 
 namespace Mega {
@@ -17,8 +16,9 @@ namespace Mega {
     //
     template<>
     struct Priv<Canvas> {
+        size_t tileSize;
         std::vector<Priv<Layer>> layers;
-        std::vector<Priv<Tile>> tiles;
+        std::vector<std::uint8_t> tiles;
         
         Priv() { layers.emplace_back(); }
     };
@@ -45,29 +45,12 @@ namespace Mega {
     };
     MEGA_PRIV_DTOR(Layer)
     
-    constexpr size_t tileSize(size_t logSize) { return 1 << logSize; }
-    constexpr size_t tileArea(size_t logSize) { auto s = tileSize(logSize); return s*s; }
-    
-    template<>
-    struct Priv<Tile> {
-        std::unique_ptr<std::uint8_t[]> pixels;
-        size_t logSize;
-        
-        size_t size() const { return tileSize(logSize); }
-        size_t area() const { return tileArea(logSize); }
-        
-        Priv(size_t logSize)
-        : pixels(new std::uint8_t[tileArea(logSize)]), logSize(logSize) {}
-        
-        // takes ownership of pixels
-        Priv(std::uint8_t *pixels, size_t logSize)
-        : pixels(pixels), logSize(logSize) {}
-    };
-    MEGA_PRIV_DTOR(Tile)
-
     //
     // Canvas implementation
     //
+    constexpr size_t tileSize(size_t logSize) { return 1 << logSize; }
+    constexpr size_t tileArea(size_t logSize) { auto s = tileSize(logSize); return s*s; }
+    
     PrivOwner<Canvas> Canvas::create()
     {
         return PrivOwner<Canvas>();
