@@ -196,27 +196,27 @@ namespace Mega {
     MEGA_PRIV_SETTER(T, name, type)
 
 #ifndef NDEBUG
-    struct _PrevTest : HasPriv<_PrevTest> { MEGA_PRIV_CTORS(_PrevTest); };
-    template<> struct Priv<_PrevTest> { Priv(int); ~Priv(); };
+    struct _PrivTest : HasPriv<_PrivTest> { MEGA_PRIV_CTORS(_PrivTest); };
+    template<> struct Priv<_PrivTest> { Priv(int); ~Priv(); };
     
-    static_assert(std::is_trivially_default_constructible<HasPriv<_PrevTest>>::value, "HasPriv should be trivially default constructible");
-    static_assert(std::is_trivially_copy_constructible<HasPriv<_PrevTest>>::value, "HasPriv should be trivially copy constructible");
-    static_assert(std::is_trivially_copy_assignable<HasPriv<_PrevTest>>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivially_destructible<HasPriv<_PrevTest>>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivial<HasPriv<_PrevTest>>::value, "HasPriv should be trivial");
-    static_assert(std::is_standard_layout<HasPriv<_PrevTest>>::value, "HasPriv should be standard layout");
+    static_assert(std::is_trivially_default_constructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially default constructible");
+    static_assert(std::is_trivially_copy_constructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy constructible");
+    static_assert(std::is_trivially_copy_assignable<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy assignable");
+    static_assert(std::is_trivially_destructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy assignable");
+    static_assert(std::is_trivial<HasPriv<_PrivTest>>::value, "HasPriv should be trivial");
+    static_assert(std::is_standard_layout<HasPriv<_PrivTest>>::value, "HasPriv should be standard layout");
     // xcode 4.3 believes it's not pod even though the above are all true...
-    //static_assert(std::is_pod<HasPriv<_PrevTest>>::value, "HasPriv should be pod");
-    static_assert(sizeof(HasPriv<_PrevTest>) == sizeof(void*), "HasPriv should be pointer-sized");
+    //static_assert(std::is_pod<HasPriv<_PrivTest>>::value, "HasPriv should be pod");
+    static_assert(sizeof(HasPriv<_PrivTest>) == sizeof(void*), "HasPriv should be pointer-sized");
 
-    static_assert(std::is_trivially_default_constructible<_PrevTest>::value, "HasPriv should be trivially constructible");
-    static_assert(std::is_trivially_copy_constructible<_PrevTest>::value, "HasPriv should be trivially copy constructible");
-    static_assert(std::is_trivially_copy_assignable<_PrevTest>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivially_destructible<_PrevTest>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivial<_PrevTest>::value, "HasPriv should be trivial");
-    static_assert(std::is_standard_layout<_PrevTest>::value, "HasPriv should be standard layout");
-    //static_assert(std::is_pod<_PrevTest>::value, "HasPriv should be pod");
-    static_assert(sizeof(_PrevTest) == sizeof(void*), "HasPriv should be pointer-sized");
+    static_assert(std::is_trivially_default_constructible<_PrivTest>::value, "HasPriv should be trivially constructible");
+    static_assert(std::is_trivially_copy_constructible<_PrivTest>::value, "HasPriv should be trivially copy constructible");
+    static_assert(std::is_trivially_copy_assignable<_PrivTest>::value, "HasPriv should be trivially copy assignable");
+    static_assert(std::is_trivially_destructible<_PrivTest>::value, "HasPriv should be trivially copy assignable");
+    static_assert(std::is_trivial<_PrivTest>::value, "HasPriv should be trivial");
+    static_assert(std::is_standard_layout<_PrivTest>::value, "HasPriv should be standard layout");
+    //static_assert(std::is_pod<_PrivTest>::value, "HasPriv should be pod");
+    static_assert(sizeof(_PrivTest) == sizeof(void*), "HasPriv should be pointer-sized");
 #endif
 }
 
