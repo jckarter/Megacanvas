@@ -80,7 +80,7 @@ namespace Mega { namespace test {
             std::string error;
             PrivOwner<Canvas> canvasOwner = Canvas::load("nonexistent.mega", &error); // must not exist
             CPPUNIT_ASSERT(!canvasOwner);
-            CPPUNIT_ASSERT(error.find("unable to open for reading") != std::string::npos);
+            CPPUNIT_ASSERT(error.find("unable to read file") != std::string::npos);
         }
     };
     

@@ -41,7 +41,7 @@ namespace Mega {
         explicit PrivOwner() : that(nullptr) {}
         explicit PrivOwner(Priv<T> *that) : that(that) {}
         PrivOwner(PrivOwner &&x) : that(x.that) { x.that = nullptr; }
-        PrivOwner &operator=(PrivOwner &&x) { std::swap(that, x.that); }
+        PrivOwner &operator=(PrivOwner &&x) { std::swap(that, x.that); return *this; }
 
         PrivOwner(const PrivOwner &) = delete;
         void operator=(const PrivOwner &) = delete;

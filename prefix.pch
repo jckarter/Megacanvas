@@ -16,20 +16,15 @@
     #include <cstdint>
     #include <cstdlib>
     #include <cstring>
-    #include <fstream>
     #include <functional>
-    #include <iostream>
     #include <iterator>
     #include <limits>
     #include <memory>
-    #include <sstream>
     #include <stdexcept>
     #include <string>
     #include <type_traits>
     #include <utility>
     #include <vector>
-
-    #include <yaml-cpp/yaml.h>
 
     #include <llvm/ADT/ArrayRef.h>
     #include <llvm/ADT/Optional.h>
@@ -37,4 +32,11 @@
     #include <llvm/ADT/SmallVector.h>
     #include <llvm/ADT/StringRef.h>
     #include <llvm/ADT/StringSwitch.h>
+    #include <llvm/Support/Casting.h>
+    #include <llvm/Support/Path.h>
+    #include <llvm/Support/MemoryBuffer.h>
+    #include <llvm/Support/SourceMgr.h>
+    #include <llvm/Support/YAMLParser.h>
+    #include <llvm/Support/raw_ostream.h>
+    #include <llvm/Support/system_error.h>
 #endif
