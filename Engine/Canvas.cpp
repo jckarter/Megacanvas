@@ -78,7 +78,7 @@ namespace Mega {
     //
     PrivOwner<Canvas> Canvas::create()
     {
-        PrivOwner<Canvas> r;
+        auto r = PrivOwner<Canvas>::create();
         r.getPriv()->layers.emplace_back();
         return r;
     }
@@ -91,6 +91,8 @@ namespace Mega {
             std::clog << "parsing " << metapath << '\n';
 
             std::ifstream meta(metapath);
+            if (!meta.good())
+                throw std::runtime_error("unable to read mega.yaml metadata");
             
             YAML::Parser metaParser(meta);
             YAML::Node doc;
@@ -102,7 +104,8 @@ namespace Mega {
             Optional<size_t> logSize;
             Optional<YAML::Node const &> layersNode;
             
-            metaParser.GetNextDocument(doc);
+            if (!metaParser.GetNextDocument(doc))
+                throw std::runtime_error("no yaml documents in mega.yaml");
             for (auto i = doc.begin(), end = doc.end(); i != end; ++i) {
                 std::string key;
                 i.first() >> key;
@@ -126,7 +129,7 @@ namespace Mega {
             if (!layersNode)
                 throw std::runtime_error("missing 'layers' key");
             
-            PrivOwner<Canvas> r(*logSize);
+            auto r = PrivOwner<Canvas>::create(*logSize);
             std::vector<Priv<Layer>> &layers = r.getPriv()->layers;
             
             //
