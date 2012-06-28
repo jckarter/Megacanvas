@@ -9,8 +9,8 @@
 #include "Engine/Canvas.hpp"
 #include "Engine/Layer.hpp"
 #include "Engine/Util/ErrorStream.hpp"
-#include "Engine/Util/Optional.hpp"
-#include "Engine/Util/StringSwitch.hpp"
+#include <llvm/ADT/Optional.h>
+#include <llvm/ADT/StringSwitch.h>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -32,7 +32,7 @@ namespace Mega {
         }
 
         template<typename T>
-        void operator>>(YAML::Node const &node, Optional<T> &o) {
+        void operator>>(YAML::Node const &node, llvm::Optional<T> &o) {
             T x;
             node >> x;
             o = x;
@@ -55,12 +55,12 @@ namespace Mega {
         { }
         
         void resizeTiles(size_t count) { tiles.resize(count << this->tileLogByteSize); }
-        MutableArrayRef<std::uint8_t> tile(size_t i)
+        llvm::MutableArrayRef<std::uint8_t> tile(size_t i)
         {
             size_t byteSize = this->tileLogByteSize;
             assert(((i+1) << byteSize) <= this->tiles.size());
             std::uint8_t *begin = this->tiles.data() + (i << byteSize);
-            return MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
+            return llvm::MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
         }
     };
     MEGA_PRIV_DTOR(Canvas)
@@ -93,7 +93,7 @@ namespace Mega {
         return r;
     }
     
-    PrivOwner<Canvas> Canvas::load(StringRef path, std::string *outError)
+    PrivOwner<Canvas> Canvas::load(llvm::StringRef path, std::string *outError)
     {
         std::string root(path.begin(), path.end());
         std::string metapath = root + "/mega.yaml";
@@ -108,10 +108,10 @@ namespace Mega {
             //
             // parse top-level
             //
-            Optional<size_t> version;
-            Optional<size_t> tileCount;
-            Optional<size_t> logSize;
-            Optional<YAML::Node const &> layersNode;
+            llvm::Optional<size_t> version;
+            llvm::Optional<size_t> tileCount;
+            llvm::Optional<size_t> logSize;
+            YAML::Node const *layersNode;
             
             if (!metaParser.GetNextDocument(doc))
                 MEGA_RUNTIME_ERROR(metapath << ": no yaml documents");
@@ -125,7 +125,7 @@ namespace Mega {
                 } else if (key == "tile-count") {
                     i.second() >> tileCount;
                 } else if (key == "layers") {
-                    layersNode = i.second();
+                    layersNode = &i.second();
                 } else {
                     MEGA_RUNTIME_ERROR(metapath << ": unexpected key " << key);
                 }
@@ -151,11 +151,11 @@ namespace Mega {
             //
             size_t layer = 0;
             for (YAML::Node const & layerNode : *layersNode) {
-                Optional<Vec> parallax;
-                Optional<Vec> origin;
-                Optional<int> priority;
-                Optional<size_t> quadtreeDepth;
-                Optional<YAML::Node const &> tilesNode;
+                llvm::Optional<Vec> parallax;
+                llvm::Optional<Vec> origin;
+                llvm::Optional<int> priority;
+                llvm::Optional<size_t> quadtreeDepth;
+                YAML::Node const *tilesNode;
                 
                 for (auto i = layerNode.begin(), end = layerNode.end(); i != end; ++i) {
                     std::string key;
@@ -169,7 +169,7 @@ namespace Mega {
                     } else if (key == "size") {
                         i.second() >> quadtreeDepth;
                     } else if (key == "tiles") {
-                        tilesNode = i.second();
+                        tilesNode = &i.second();
                     }
                 }
                 
@@ -262,7 +262,7 @@ namespace Mega {
         return size >> byteSize;
     }
     
-    MutableArrayRef<std::uint8_t> Canvas::tile(size_t i)
+    llvm::MutableArrayRef<std::uint8_t> Canvas::tile(size_t i)
     {
         return that->tile(i);
     }

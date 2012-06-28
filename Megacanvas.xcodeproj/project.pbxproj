@@ -30,6 +30,8 @@
 		D8FEA31615967838005A2EF3 /* libyaml-cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31515967838005A2EF3 /* libyaml-cpp.a */; };
 		D8FEA31715967838005A2EF3 /* libyaml-cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31515967838005A2EF3 /* libyaml-cpp.a */; };
 		D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA319159A7CA5005A2EF3 /* TestData */; };
+		D8FEA31F159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
+		D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,18 +61,14 @@
 		D81370911592EF5400A58ADD /* EngineTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EngineTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
-		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Canvas.cpp; sourceTree = "<group>"; };
-		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Canvas.hpp; sourceTree = "<group>"; };
-		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Layer.hpp; sourceTree = "<group>"; };
-		D8C986E0159408E7000D554E /* ArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ArrayRef.hpp; sourceTree = "<group>"; };
-		D8C986E1159408E7000D554E /* SmallString.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmallString.hpp; sourceTree = "<group>"; };
-		D8C986E2159408E7000D554E /* SmallVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmallVector.hpp; sourceTree = "<group>"; };
-		D8C986E3159408E7000D554E /* StringRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringRef.hpp; sourceTree = "<group>"; };
-		D8C986E4159408E7000D554E /* TransformArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TransformArrayRef.hpp; sourceTree = "<group>"; };
+		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Layer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		D8C986E4159408E7000D554E /* TransformArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = TransformArrayRef.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986E5159408E7000D554E /* View.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
 		D8C986EB159408F6000D554E /* CanvasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasTest.cpp; sourceTree = "<group>"; };
 		D8C986EC159408F6000D554E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformArrayRefTest.cpp; sourceTree = "<group>"; };
+		D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TransformArrayRefTest.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986F1159416D0000D554E /* Priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Priv.hpp; sourceTree = "<group>"; };
 		D8EB129E158BADCD00ED0404 /* Megacanvas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Megacanvas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8EB12A2158BADCD00ED0404 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -97,9 +95,8 @@
 		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
 		D8FEA31515967838005A2EF3 /* libyaml-cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libyaml-cpp.a"; path = "../../../../../usr/local/yaml-cpp/lib/libyaml-cpp.a"; sourceTree = "<group>"; };
 		D8FEA319159A7CA5005A2EF3 /* TestData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestData; sourceTree = "<group>"; };
-		D8FEA31B159AB791005A2EF3 /* StringSwitch.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringSwitch.hpp; sourceTree = "<group>"; };
-		D8FEA31C159ABC43005A2EF3 /* Optional.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Optional.hpp; sourceTree = "<group>"; };
 		D8FEA31D159BFEDE005A2EF3 /* ErrorStream.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ErrorStream.hpp; sourceTree = "<group>"; };
+		D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLLVMSupport.a; path = "../../../../../usr/local/llvm-svn/lib/libLLVMSupport.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +106,7 @@
 			files = (
 				D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */,
 				D8FEA31715967838005A2EF3 /* libyaml-cpp.a in Frameworks */,
+				D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +117,7 @@
 				D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */,
 				D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */,
 				D8FEA31615967838005A2EF3 /* libyaml-cpp.a in Frameworks */,
+				D8FEA31F159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,12 +150,6 @@
 		D8C986DF159408E7000D554E /* Util */ = {
 			isa = PBXGroup;
 			children = (
-				D8FEA31C159ABC43005A2EF3 /* Optional.hpp */,
-				D8FEA31B159AB791005A2EF3 /* StringSwitch.hpp */,
-				D8C986E0159408E7000D554E /* ArrayRef.hpp */,
-				D8C986E1159408E7000D554E /* SmallString.hpp */,
-				D8C986E2159408E7000D554E /* SmallVector.hpp */,
-				D8C986E3159408E7000D554E /* StringRef.hpp */,
 				D8C986E4159408E7000D554E /* TransformArrayRef.hpp */,
 				D8C986F1159416D0000D554E /* Priv.hpp */,
 				D8FEA31D159BFEDE005A2EF3 /* ErrorStream.hpp */,
@@ -202,6 +195,7 @@
 		D8EB12A1158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */,
 				D8FEA31515967838005A2EF3 /* libyaml-cpp.a */,
 				D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */,
 				D813708A1592EEE000A58ADD /* OpenGL.framework */,
@@ -484,6 +478,7 @@
 					"$(inherited)",
 					/usr/local/cppunit/lib,
 					"\"/usr/local/yaml-cpp/lib\"",
+					"\"/usr/local/llvm-svn/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -498,6 +493,7 @@
 					"$(inherited)",
 					/usr/local/cppunit/lib,
 					"\"/usr/local/yaml-cpp/lib\"",
+					"\"/usr/local/llvm-svn/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -518,6 +514,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
+					__STDC_LIMIT_MACROS,
+					__STDC_CONSTANT_MACROS,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -530,11 +528,12 @@
 					.,
 					/usr/local/cppunit/include,
 					"/usr/local/yaml-cpp/include",
+					"/usr/local/llvm-svn/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include /usr/local/llvm-svn/include";
 			};
 			name = Debug;
 		};
@@ -550,6 +549,10 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					__STDC_LIMIT_MACROS,
+					__STDC_CONSTANT_MACROS,
+				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -559,10 +562,11 @@
 					.,
 					/usr/local/cppunit/include,
 					"/usr/local/yaml-cpp/include",
+					"/usr/local/llvm-svn/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/yaml-cpp/include /usr/local/llvm-svn/include";
 			};
 			name = Release;
 		};
@@ -578,6 +582,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"/usr/local/yaml-cpp/lib\"",
+					"\"/usr/local/llvm-svn/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -596,6 +601,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"/usr/local/yaml-cpp/lib\"",
+					"\"/usr/local/llvm-svn/lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

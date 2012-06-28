@@ -9,7 +9,7 @@
 #ifndef Megacanvas_TransformArrayRef_hpp
 #define Megacanvas_TransformArrayRef_hpp
 
-#include "Engine/Util/ArrayRef.hpp"
+#include <llvm/ADT/ArrayRef.h>
 #include <iterator>
 
 namespace Mega {
