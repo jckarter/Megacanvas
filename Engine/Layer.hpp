@@ -9,6 +9,7 @@
 #ifndef Megacanvas_Layer_hpp
 #define Megacanvas_Layer_hpp
 
+#include <functional>
 #include <memory>
 #include "Engine/Util/Priv.hpp"
 #include "Engine/Vec.hpp"

@@ -16,15 +16,24 @@
     #include <cstdint>
     #include <cstdlib>
     #include <cstring>
+    #include <fstream>
+    #include <functional>
+    #include <iostream>
     #include <iterator>
     #include <limits>
     #include <memory>
+    #include <stdexcept>
     #include <string>
     #include <type_traits>
     #include <utility>
     #include <vector>
+
+    #include <yaml-cpp/yaml.h>
+
     #include "Engine/Util/ArrayRef.hpp"
-    #include "Engine/Util/StringRef.hpp"
+    #include "Engine/Util/Optional.hpp"
     #include "Engine/Util/SmallString.hpp"
     #include "Engine/Util/SmallVector.hpp"
+    #include "Engine/Util/StringRef.hpp"
+    #include "Engine/Util/StringSwitch.hpp"
 #endif

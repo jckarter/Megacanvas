@@ -11,7 +11,7 @@ layers:
       - 2
       - 3
   - parallax: [1,1]
-    origin: [0,0]
+    origin: [0.0625,0.0625]
     priority: 0
     size: 2
     tiles:

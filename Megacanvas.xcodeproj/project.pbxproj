@@ -97,6 +97,8 @@
 		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
 		D8FEA31515967838005A2EF3 /* libyaml-cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libyaml-cpp.a"; path = "../../../../../usr/local/yaml-cpp/lib/libyaml-cpp.a"; sourceTree = "<group>"; };
 		D8FEA319159A7CA5005A2EF3 /* TestData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestData; sourceTree = "<group>"; };
+		D8FEA31B159AB791005A2EF3 /* StringSwitch.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StringSwitch.hpp; sourceTree = "<group>"; };
+		D8FEA31C159ABC43005A2EF3 /* Optional.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Optional.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +150,8 @@
 		D8C986DF159408E7000D554E /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				D8FEA31C159ABC43005A2EF3 /* Optional.hpp */,
+				D8FEA31B159AB791005A2EF3 /* StringSwitch.hpp */,
 				D8C986E0159408E7000D554E /* ArrayRef.hpp */,
 				D8C986E1159408E7000D554E /* SmallString.hpp */,
 				D8C986E2159408E7000D554E /* SmallVector.hpp */,
