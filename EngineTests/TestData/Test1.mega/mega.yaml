@@ -1,5 +1,6 @@
 mega: 1
 tile-size: 7
+tile-count: 20
 layers:
   - parallax: [0.5,0.5]
     origin: [0,0]

@@ -53,6 +53,15 @@ namespace Mega {
         Priv(size_t logSize = DEFAULT_LOG_SIZE)
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2)
         { }
+        
+        void resizeTiles(size_t count) { tiles.resize(count << this->tileLogByteSize); }
+        MutableArrayRef<std::uint8_t> tile(size_t i)
+        {
+            size_t byteSize = this->tileLogByteSize;
+            assert(((i+1) << byteSize) <= this->tiles.size());
+            std::uint8_t *begin = this->tiles.data() + (i << byteSize);
+            return MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
+        }
     };
     MEGA_PRIV_DTOR(Canvas)
 
@@ -89,8 +98,6 @@ namespace Mega {
         std::string root(path.begin(), path.end());
         std::string metapath = root + "/mega.yaml";
         try {
-            std::clog << "parsing " << metapath << '\n';
-
             std::ifstream meta(metapath);
             if (!meta.good())
                 MEGA_RUNTIME_ERROR(metapath << ": unable to open for reading");
@@ -102,6 +109,7 @@ namespace Mega {
             // parse top-level
             //
             Optional<size_t> version;
+            Optional<size_t> tileCount;
             Optional<size_t> logSize;
             Optional<YAML::Node const &> layersNode;
             
@@ -114,6 +122,8 @@ namespace Mega {
                     i.second() >> version;
                 } else if (key == "tile-size") {
                     i.second() >> logSize;
+                } else if (key == "tile-count") {
+                    i.second() >> tileCount;
                 } else if (key == "layers") {
                     layersNode = i.second();
                 } else {
@@ -127,11 +137,14 @@ namespace Mega {
                 MEGA_RUNTIME_ERROR(metapath << ": 'mega' version not supported (must be 1)");
             if (!logSize)
                 MEGA_RUNTIME_ERROR(metapath << ": missing 'tile-size' key");
+            if (!tileCount)
+                MEGA_RUNTIME_ERROR(metapath << ": missing 'tile-count' key");
             if (!layersNode)
                 MEGA_RUNTIME_ERROR(metapath << ": missing 'layers' key");
             
             auto r = PrivOwner<Canvas>::create(*logSize);
-            std::vector<Priv<Layer>> &layers = r.getPriv()->layers;
+            auto priv = r.getPriv();
+            auto &layers = priv->layers;
             
             //
             // parse layers
@@ -172,16 +185,39 @@ namespace Mega {
                     MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer missing 'tiles' key");
                 
                 layers.emplace_back(*parallax, *origin, *priority, *quadtreeDepth);
-                *tilesNode >> layers.back().tiles;
                 
-                if (layers.back().tiles.size() != (1 << (*quadtreeDepth << 1)))
+                auto &layerTiles = layers.back().tiles;
+                for (YAML::Node const & tileNode : *tilesNode) {
+                    ptrdiff_t tile;
+                    tileNode >> tile;
+                    if (tile > PTRDIFF_MAX || tile < -1)
+                        MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": references invalid tile index " << tile);
+                    size_t utile = tile;
+                    if (utile >= *tileCount && utile != -1)
+                        MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": references out of bounds tile index " << tile);
+                    layerTiles.push_back(utile);
+                }
+                
+                if (layerTiles.size() != (1 << (*quadtreeDepth << 1)))
                     MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer has wrong number of tiles for given size");
                 ++layer;
             }
+            meta.close();
             
             //
-            // XXX load tiles
+            // load tiles
             //
+            priv->resizeTiles(*tileCount);
+            for (size_t tile = 0; tile < *tileCount; ++tile) {
+                auto tileData = priv->tile(tile);
+                std::string tilepath = MEGA_STRING(root << '/' << tile << ".rgba");
+                std::ifstream tilefile(tilepath, std::ios::in | std::ios::binary);
+                if (!tilefile.good())
+                    MEGA_RUNTIME_ERROR(tilepath << ": unable to open for reading");
+                tilefile.read(reinterpret_cast<char*>(tileData.begin()), tileData.size());
+                if (tilefile.fail())
+                    MEGA_RUNTIME_ERROR(tilepath << ": not enough data for tile");
+            }
             
             return r;
         } catch (std::exception const &ex) {
@@ -214,6 +250,11 @@ namespace Mega {
         return 1 << (that->tileLogSize << 1);
     }
     
+    size_t Canvas::tileByteSize()
+    {
+        return 1 << that->tileLogByteSize;
+    }
+    
     size_t Canvas::tileCount()
     {
         size_t size = that->tiles.size(), byteSize = that->tileLogByteSize;
@@ -221,12 +262,9 @@ namespace Mega {
         return size >> byteSize;
     }
     
-    ArrayRef<std::uint8_t> Canvas::tile(size_t i)
+    MutableArrayRef<std::uint8_t> Canvas::tile(size_t i)
     {
-        assert(i < this->tileCount());
-        std::uint8_t *begin = that->tiles.data();
-        size_t byteSize = that->tileLogByteSize;
-        return makeArrayRef(begin + (i << byteSize), begin + ((i+1) << byteSize));
+        return that->tile(i);
     }
     
     //

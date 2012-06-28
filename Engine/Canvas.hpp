@@ -28,8 +28,9 @@ namespace Mega {
         size_t tileLogSize();
         size_t tileSize();
         size_t tileArea();
+        size_t tileByteSize();
         size_t tileCount();
-        ArrayRef<std::uint8_t> tile(size_t i);
+        MutableArrayRef<std::uint8_t> tile(size_t i);
     };
 }
 

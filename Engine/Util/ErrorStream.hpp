@@ -12,9 +12,11 @@
 #include <sstream>
 #include <stdexcept>
 
+#define MEGA_STRING(inserts) \
+    (static_cast<::std::ostringstream const &>(::std::ostringstream() << inserts).str())
+
 #define MEGA_RUNTIME_ERROR(inserts) \
-    throw ::std::runtime_error( \
-        static_cast<::std::ostringstream const &>(::std::ostringstream() << inserts).str())
+    throw ::std::runtime_error(MEGA_STRING(inserts))
 
 namespace Mega {
     

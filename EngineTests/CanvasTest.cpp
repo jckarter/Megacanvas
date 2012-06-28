@@ -46,12 +46,15 @@ namespace Mega { namespace test {
         
         void testLoadCanvasTest1()
         {
-            PrivOwner<Canvas> canvasOwner = Canvas::load("test1.mega", nullptr);
+            std::string error;
+            PrivOwner<Canvas> canvasOwner = Canvas::load("test1.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
             CPPUNIT_ASSERT(canvasOwner);
             Canvas canvas = canvasOwner.get();
             CPPUNIT_ASSERT(canvas.tileLogSize() == 7);
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
-            CPPUNIT_ASSERT(canvas.tileArea() == 16384);
+            CPPUNIT_ASSERT(canvas.tileArea() == 128*128);
+            CPPUNIT_ASSERT(canvas.tileByteSize() == 128*128*4);
             
             auto layers = canvas.layers();
             CPPUNIT_ASSERT(layers.size() == 2);
@@ -66,10 +69,10 @@ namespace Mega { namespace test {
             auto tile0 = canvas.tile(0);
             auto tile1 = canvas.tile(1);
             auto tile19 = canvas.tile(19);
-            CPPUNIT_ASSERT(tile0.size() == 16384*4);
-            CPPUNIT_ASSERT(tile1.size() == 16384*4);
+            CPPUNIT_ASSERT(tile0.size() == 128*128*4);
+            CPPUNIT_ASSERT(tile1.size() == 128*128*4);
             CPPUNIT_ASSERT(tile0.end() <= tile1.begin() || tile1.end() <= tile0.begin());
-            CPPUNIT_ASSERT(tile19.size() == 16384*4);
+            CPPUNIT_ASSERT(tile19.size() == 128*128*4);
         }
         
         void testLoadCanvasFailsWhenNonexistent()
