@@ -38,15 +38,18 @@ namespace Mega {
     private:
         Priv<T> *that;
     public:
+        explicit PrivOwner() : that(nullptr) {}
+        explicit PrivOwner(Priv<T> *that) : that(that) {}
         PrivOwner(PrivOwner &&x) : that(x.that) { x.that = nullptr; }
         PrivOwner &operator=(PrivOwner &&x) { std::swap(that, x.that); }
 
         PrivOwner(const PrivOwner &) = delete;
         void operator=(const PrivOwner &) = delete;
         
-        template<typename...AA>
-        PrivOwner(AA&&...args) : that(new Priv<T>(std::forward<AA>(args)...)) {}
         ~PrivOwner();
+
+        template<typename...AA>
+        static PrivOwner create(AA&&...args) { return PrivOwner(new Priv<T>(std::forward<AA>(args)...)); }
         
         T get() { return that; }
         Priv<T> *getPriv() { return that; }
