@@ -8,6 +8,7 @@
 
 #include "Engine/Canvas.hpp"
 #include "Engine/Layer.hpp"
+#include "Engine/Util/ErrorStream.hpp"
 #include "Engine/Util/Optional.hpp"
 #include "Engine/Util/StringSwitch.hpp"
 #include <fstream>
@@ -83,7 +84,7 @@ namespace Mega {
         return r;
     }
     
-    PrivOwner<Canvas> Canvas::load(StringRef path)
+    PrivOwner<Canvas> Canvas::load(StringRef path, std::string *outError)
     {
         std::string root(path.begin(), path.end());
         std::string metapath = root + "/mega.yaml";
@@ -92,7 +93,7 @@ namespace Mega {
 
             std::ifstream meta(metapath);
             if (!meta.good())
-                throw std::runtime_error("unable to read mega.yaml metadata");
+                MEGA_RUNTIME_ERROR(metapath << ": unable to open for reading");
             
             YAML::Parser metaParser(meta);
             YAML::Node doc;
@@ -105,7 +106,7 @@ namespace Mega {
             Optional<YAML::Node const &> layersNode;
             
             if (!metaParser.GetNextDocument(doc))
-                throw std::runtime_error("no yaml documents in mega.yaml");
+                MEGA_RUNTIME_ERROR(metapath << ": no yaml documents");
             for (auto i = doc.begin(), end = doc.end(); i != end; ++i) {
                 std::string key;
                 i.first() >> key;
@@ -116,18 +117,18 @@ namespace Mega {
                 } else if (key == "layers") {
                     layersNode = i.second();
                 } else {
-                    throw std::runtime_error("unexpected key string " + key);
+                    MEGA_RUNTIME_ERROR(metapath << ": unexpected key " << key);
                 }
             }
             
             if (!version)
-                throw std::runtime_error("missing 'mega' version key");
+                MEGA_RUNTIME_ERROR(metapath << ": missing 'mega' version key");
             if (*version != 1)
-                throw std::runtime_error("'mega' version not supported (must be 1)");
+                MEGA_RUNTIME_ERROR(metapath << ": 'mega' version not supported (must be 1)");
             if (!logSize)
-                throw std::runtime_error("missing 'tile-size' key");
+                MEGA_RUNTIME_ERROR(metapath << ": missing 'tile-size' key");
             if (!layersNode)
-                throw std::runtime_error("missing 'layers' key");
+                MEGA_RUNTIME_ERROR(metapath << ": missing 'layers' key");
             
             auto r = PrivOwner<Canvas>::create(*logSize);
             std::vector<Priv<Layer>> &layers = r.getPriv()->layers;
@@ -135,7 +136,7 @@ namespace Mega {
             //
             // parse layers
             //
-            
+            size_t layer = 0;
             for (YAML::Node const & layerNode : *layersNode) {
                 Optional<Vec> parallax;
                 Optional<Vec> origin;
@@ -160,21 +161,22 @@ namespace Mega {
                 }
                 
                 if (!parallax)
-                    throw std::runtime_error("layer missing 'parallax' key");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": missing 'parallax' key");
                 if (!origin)
-                    throw std::runtime_error("layer missing 'origin' key");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer missing 'origin' key");
                 if (!priority)
-                    throw std::runtime_error("layer missing 'priority' key");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer missing 'priority' key");
                 if (!quadtreeDepth)
-                    throw std::runtime_error("layer missing 'size' key");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer missing 'size' key");
                 if (!tilesNode)
-                    throw std::runtime_error("layer missing 'tiles' key");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer missing 'tiles' key");
                 
                 layers.emplace_back(*parallax, *origin, *priority, *quadtreeDepth);
                 *tilesNode >> layers.back().tiles;
                 
                 if (layers.back().tiles.size() != (1 << (*quadtreeDepth << 1)))
-                    throw std::runtime_error("layer has wrong number of tiles for given size");
+                    MEGA_RUNTIME_ERROR(metapath << ": layer " << layer << ": layer has wrong number of tiles for given size");
+                ++layer;
             }
             
             //
@@ -183,10 +185,18 @@ namespace Mega {
             
             return r;
         } catch (std::exception const &ex) {
-            std::clog << "error while loading " << root << ": " << ex.what() << '\n';
+            if (outError) {
+                *outError = "exception while loading ";
+                *outError += root;
+                *outError += ": ";
+                *outError += ex.what();
+            }
             return PrivOwner<Canvas>();
         } catch (...) {
-            std::clog << "unknown exception while loading " << root << '\n';
+            if (outError) {
+                *outError = "unknown exception while loading ";
+                *outError += root;
+            }
             return PrivOwner<Canvas>();
         }
     }

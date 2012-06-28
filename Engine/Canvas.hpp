@@ -21,7 +21,7 @@ namespace Mega {
         MEGA_PRIV_CTORS(Canvas)
         
         static PrivOwner<Canvas> create();
-        static PrivOwner<Canvas> load(StringRef path);
+        static PrivOwner<Canvas> load(StringRef path, std::string *outError);
         
         PrivArrayRef<Layer> layers();
         
