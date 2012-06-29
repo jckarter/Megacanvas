@@ -9,20 +9,28 @@
 #ifndef Megacanvas_View_hpp
 #define Megacanvas_View_hpp
 
-#include <memory>
+#include "Engine/Util/Priv.hpp"
 
 namespace Mega {
     class Canvas;
     
-    class View {
-        struct priv;
-        std::unique_ptr<priv> that;
-    public:
+    struct View : HasPriv<View> {
+        MEGA_PRIV_CTORS(View)
+        
         View(Canvas c);
         
         void prepare();
         void resize(double width, double height);
+
         void render();
+        
+        Vec center();
+        void center(Vec c);
+        
+        double zoom();
+        void zoom(double z);
+        
+        Vec viewToCanvas(Vec viewPoint);
     };
 }
 

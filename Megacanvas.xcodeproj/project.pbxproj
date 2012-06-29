@@ -14,7 +14,6 @@
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
 		D8C986EF159408F6000D554E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EC159408F6000D554E /* main.cpp */; };
-		D8C986F0159408F6000D554E /* TransformArrayRefTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */; };
 		D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12A2158BADCD00ED0404 /* Cocoa.framework */; };
 		D8EB12AD158BADCD00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12AB158BADCD00ED0404 /* InfoPlist.strings */; };
 		D8EB12AF158BADCD00ED0404 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12AE158BADCD00ED0404 /* main.m */; };
@@ -30,6 +29,7 @@
 		D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA319159A7CA5005A2EF3 /* TestData */; };
 		D8FEA31F159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
+		D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,11 +62,10 @@
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Layer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		D8C986E4159408E7000D554E /* TransformArrayRef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = TransformArrayRef.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		D8C986E4159408E7000D554E /* OpaqueIterator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = OpaqueIterator.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986E5159408E7000D554E /* View.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
 		D8C986EB159408F6000D554E /* CanvasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasTest.cpp; sourceTree = "<group>"; };
 		D8C986EC159408F6000D554E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = TransformArrayRefTest.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986F1159416D0000D554E /* Priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Priv.hpp; sourceTree = "<group>"; };
 		D8EB129E158BADCD00ED0404 /* Megacanvas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Megacanvas.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8EB12A2158BADCD00ED0404 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -93,6 +92,7 @@
 		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
 		D8FEA319159A7CA5005A2EF3 /* TestData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestData; sourceTree = "<group>"; };
 		D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLLVMSupport.a; path = "../../../../../usr/local/llvm-svn/lib/libLLVMSupport.a"; sourceTree = "<group>"; };
+		D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpaqueIteratorTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,7 +144,7 @@
 		D8C986DF159408E7000D554E /* Util */ = {
 			isa = PBXGroup;
 			children = (
-				D8C986E4159408E7000D554E /* TransformArrayRef.hpp */,
+				D8C986E4159408E7000D554E /* OpaqueIterator.hpp */,
 				D8C986F1159416D0000D554E /* Priv.hpp */,
 			);
 			path = Util;
@@ -155,8 +155,8 @@
 			children = (
 				D8FEA319159A7CA5005A2EF3 /* TestData */,
 				D8C986EB159408F6000D554E /* CanvasTest.cpp */,
+				D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */,
 				D8C986EC159408F6000D554E /* main.cpp */,
-				D8C986ED159408F6000D554E /* TransformArrayRefTest.cpp */,
 			);
 			path = EngineTests;
 			sourceTree = "<group>";
@@ -384,7 +384,7 @@
 				D8C986E7159408E7000D554E /* Canvas.cpp in Sources */,
 				D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */,
 				D8C986EF159408F6000D554E /* main.cpp in Sources */,
-				D8C986F0159408F6000D554E /* TransformArrayRefTest.cpp in Sources */,
+				D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
