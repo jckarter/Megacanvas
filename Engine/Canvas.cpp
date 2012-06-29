@@ -318,16 +318,9 @@ error:
         return 1 << that->tileLogByteSize;
     }
     
-    size_t Canvas::tileCount()
+    Array2DRef<std::uint8_t> Canvas::tiles()
     {
-        size_t size = that->tiles.size(), byteSize = that->tileLogByteSize;
-        assert((size & ((1 << byteSize) - 1)) == 0);
-        return size >> byteSize;
-    }
-    
-    llvm::MutableArrayRef<std::uint8_t> Canvas::tile(size_t i)
-    {
-        return that->tile(i);
+        return Array2DRef<std::uint8_t>(that->tiles, 1 << that->tileLogByteSize);
     }
     
     //

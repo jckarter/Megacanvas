@@ -11,6 +11,7 @@
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
+#include "Engine/Util/OpaqueIterator.hpp"
 #include "Engine/Util/Priv.hpp"
 #include <memory>
 
@@ -30,7 +31,8 @@ namespace Mega {
         size_t tileArea();
         size_t tileByteSize();
         size_t tileCount();
-        llvm::MutableArrayRef<std::uint8_t> tile(size_t i);
+        
+        Array2DRef<std::uint8_t> tiles();
     };
 }
 

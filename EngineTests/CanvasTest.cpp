@@ -37,7 +37,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(canvas.tileLogSize() == 7);
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
             CPPUNIT_ASSERT(canvas.tileArea() == 16384);
-            CPPUNIT_ASSERT(canvas.tileCount() == 0);
+            CPPUNIT_ASSERT(canvas.tiles().size() == 0);
             CPPUNIT_ASSERT(canvas.layers().size() == 1);
             Layer layer = canvas.layers()[0];
             CPPUNIT_ASSERT(layer.parallax() == Vec(1., 1.));
@@ -65,10 +65,11 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(layers[1].parallax() == Vec(1., 1.));
             CPPUNIT_ASSERT(layers[1].priority() == 0);
         
-            CPPUNIT_ASSERT(canvas.tileCount() == 20);
-            auto tile0 = canvas.tile(0);
-            auto tile1 = canvas.tile(1);
-            auto tile19 = canvas.tile(19);
+            auto tiles = canvas.tiles();
+            CPPUNIT_ASSERT(tiles.size() == 20);
+            auto tile0 = tiles[0];
+            auto tile1 = tiles[1];
+            auto tile19 = tiles[19];
             CPPUNIT_ASSERT(tile0.size() == 128*128*4);
             CPPUNIT_ASSERT(tile1.size() == 128*128*4);
             CPPUNIT_ASSERT(tile0.end() <= tile1.begin() || tile1.end() <= tile0.begin());
