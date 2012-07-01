@@ -2,7 +2,7 @@
 // Prefix header for all source files of the 'Megacanvas' target in the 'Megacanvas' project
 //
 
-#include <OpenGL/gl.h>
+#include "Engine/Util/GL.h"
 
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
@@ -12,6 +12,7 @@
     #include <array>
     #include <algorithm>
     #include <cassert>
+    #include <cmath>
     #include <cstddef>
     #include <cstdint>
     #include <cstdlib>
@@ -22,6 +23,7 @@
     #include <memory>
     #include <stdexcept>
     #include <string>
+    #include <tuple>
     #include <type_traits>
     #include <utility>
     #include <vector>

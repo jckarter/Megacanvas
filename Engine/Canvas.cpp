@@ -75,10 +75,10 @@ namespace Mega {
     //
     // Canvas implementation
     //
-    PrivOwner<Canvas> Canvas::create()
+    Owner<Canvas> Canvas::create()
     {
-        auto r = PrivOwner<Canvas>::create();
-        r.getPriv()->layers.emplace_back();
+        auto r = createOwner<Canvas>();
+        r.priv().layers.emplace_back();
         return r;
     }
     
@@ -123,7 +123,7 @@ namespace Mega {
         }
     }
     
-    PrivOwner<Canvas> Canvas::load(llvm::StringRef path, std::string *outError)
+    Owner<Canvas> Canvas::load(llvm::StringRef path, std::string *outError)
     {
         using namespace std;
         using namespace llvm;
@@ -133,7 +133,7 @@ namespace Mega {
 #define _MEGA_LOAD_ERROR_IF(cond, inserts) \
     if (cond) { errors << inserts; errors.str(); goto error; } else
 
-        PrivOwner<Canvas> result;
+        Owner<Canvas> result;
         Optional<size_t> version;
         Optional<size_t> tileCount;
         Optional<size_t> logSize;
@@ -258,16 +258,14 @@ namespace Mega {
             _MEGA_LOAD_ERROR_IF(!tileCount, metaPath << ": missing 'tile-count' key");
             _MEGA_LOAD_ERROR_IF(layers.empty(), metaPath << ": must be at least one layer");
             
-            result = PrivOwner<Canvas>::create(*logSize, move(layers));
+            result = createOwner<Canvas>(*logSize, move(layers));
         }
         
         {
-            auto priv = result.getPriv();
-            
             //
             // load tiles
             //
-            priv->resizeTiles(*tileCount);
+            result.priv().resizeTiles(*tileCount);
             std::string tileFilename;
             for (size_t tile = 0; tile < *tileCount; ++tile) {
                 tileFilename.clear();
@@ -281,7 +279,7 @@ namespace Mega {
                 _MEGA_LOAD_ERROR_IF(errorCode,
                                     tilePath << ": unable to read file: " << errorCode.message());
                 
-                MutableArrayRef<uint8_t> destTileData = priv->tile(tile);
+                MutableArrayRef<uint8_t> destTileData = result.priv().tile(tile);
                 
                 _MEGA_LOAD_ERROR_IF(destTileData.size() != tileBuf->getBufferSize(),
                                     tilePath << ": expected " << destTileData.size() << " bytes, but file has " << tileBuf->getBufferSize() << "bytes");
@@ -297,7 +295,7 @@ namespace Mega {
 #undef _MEGA_LOAD_ERROR_IF
 error:
         assert(!outError->empty());
-        return PrivOwner<Canvas>();
+        return Owner<Canvas>();
     }
     
     MEGA_PRIV_GETTER(Canvas, tileLogSize, size_t)

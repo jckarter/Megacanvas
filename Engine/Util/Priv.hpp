@@ -26,8 +26,9 @@ namespace Mega {
         /*implicit*/ HasPriv(Priv<T> *that) : that(that) {}
         
         explicit operator bool() { return that != nullptr; }
+        T *operator->() { return static_cast<T*>(this); }
     };
-
+    
 // inheriting constructors seem to be busted in xcode 4.3
 #define MEGA_PRIV_CTORS(T) \
     T(Priv<T> &that) : HasPriv(that) {} \
@@ -35,27 +36,28 @@ namespace Mega {
     T() = default;
 
     template<typename T>
-    struct PrivOwner {
+    struct Owner {
     private:
         Priv<T> *that;
     public:
-        explicit PrivOwner() : that(nullptr) {}
-        explicit PrivOwner(Priv<T> *that) : that(that) {}
-        PrivOwner(PrivOwner &&x) : that(x.that) { x.that = nullptr; }
-        PrivOwner &operator=(PrivOwner &&x) { std::swap(that, x.that); return *this; }
+        explicit Owner() : that(nullptr) {}
+        explicit Owner(Priv<T> *that) : that(that) {}
+        Owner(Owner &&x) : that(x.that) { x.that = nullptr; }
+        Owner &operator=(Owner &&x) { std::swap(that, x.that); return *this; }
 
-        PrivOwner(const PrivOwner &) = delete;
-        void operator=(const PrivOwner &) = delete;
+        Owner(const Owner &) = delete;
+        void operator=(const Owner &) = delete;
         
-        ~PrivOwner();
+        ~Owner();
 
-        template<typename...AA>
-        static PrivOwner create(AA&&...args) { return PrivOwner(new Priv<T>(std::forward<AA>(args)...)); }
-        
         T get() { return that; }
-        Priv<T> *getPriv() { return that; }
+        T operator->() { return that; }
+        Priv<T> &priv() { return *that; }
         explicit operator bool() { return that != nullptr; }
     };
+    
+    template<typename T, typename...AA>
+    inline Owner<T> createOwner(AA&&...args) { return Owner<T>(new Priv<T>(std::forward<AA>(args)...)); }
 
     namespace {
         template<typename T>
@@ -82,7 +84,7 @@ namespace Mega {
     };
 
 #define MEGA_PRIV_DTOR(T) \
-    template<> PrivOwner<T>::~PrivOwner() { delete that; }
+    template<> Owner<T>::~Owner() { delete that; }
 
 #define MEGA_PRIV_GETTER(T, name, type) \
     type T::name() \
@@ -101,27 +103,24 @@ namespace Mega {
     MEGA_PRIV_SETTER(T, name, type)
 
 #ifndef NDEBUG
-    struct _PrivTest : HasPriv<_PrivTest> { MEGA_PRIV_CTORS(_PrivTest); };
+    namespace {
+        struct _PrivTest : HasPriv<_PrivTest> { MEGA_PRIV_CTORS(_PrivTest); };
+    }
+    
     template<> struct Priv<_PrivTest> { Priv(int); ~Priv(); };
     
-    static_assert(std::is_trivially_default_constructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially default constructible");
-    static_assert(std::is_trivially_copy_constructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy constructible");
-    static_assert(std::is_trivially_copy_assignable<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivially_destructible<HasPriv<_PrivTest>>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivial<HasPriv<_PrivTest>>::value, "HasPriv should be trivial");
-    static_assert(std::is_standard_layout<HasPriv<_PrivTest>>::value, "HasPriv should be standard layout");
-    // xcode 4.3 believes it's not pod even though the above are all true...
-    //static_assert(std::is_pod<HasPriv<_PrivTest>>::value, "HasPriv should be pod");
-    static_assert(sizeof(HasPriv<_PrivTest>) == sizeof(void*), "HasPriv should be pointer-sized");
-
-    static_assert(std::is_trivially_default_constructible<_PrivTest>::value, "HasPriv should be trivially constructible");
-    static_assert(std::is_trivially_copy_constructible<_PrivTest>::value, "HasPriv should be trivially copy constructible");
-    static_assert(std::is_trivially_copy_assignable<_PrivTest>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivially_destructible<_PrivTest>::value, "HasPriv should be trivially copy assignable");
-    static_assert(std::is_trivial<_PrivTest>::value, "HasPriv should be trivial");
-    static_assert(std::is_standard_layout<_PrivTest>::value, "HasPriv should be standard layout");
-    //static_assert(std::is_pod<_PrivTest>::value, "HasPriv should be pod");
-    static_assert(sizeof(_PrivTest) == sizeof(void*), "HasPriv should be pointer-sized");
+    namespace {
+        static_assert(std::is_trivial<HasPriv<_PrivTest>>::value, "HasPriv should be trivial");
+        static_assert(std::is_standard_layout<HasPriv<_PrivTest>>::value, "HasPriv should be standard layout");
+        // xcode 4.3 believes it's not pod even though the above are all true...
+        //static_assert(std::is_pod<HasPriv<_PrivTest>>::value, "HasPriv should be pod");
+        static_assert(sizeof(HasPriv<_PrivTest>) == sizeof(void*), "HasPriv should be pointer-sized");
+        
+        static_assert(std::is_trivial<_PrivTest>::value, "HasPriv should be trivial");
+        static_assert(std::is_standard_layout<_PrivTest>::value, "HasPriv should be standard layout");
+        //static_assert(std::is_pod<_PrivTest>::value, "HasPriv should be pod");
+        static_assert(sizeof(_PrivTest) == sizeof(void*), "HasPriv should be pointer-sized");
+    }
 #endif
 }
 

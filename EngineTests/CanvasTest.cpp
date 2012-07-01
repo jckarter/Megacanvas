@@ -32,7 +32,7 @@ namespace Mega { namespace test {
         
         void testNewCanvas()
         {
-            PrivOwner<Canvas> canvasOwner = Canvas::create();
+            Owner<Canvas> canvasOwner = Canvas::create();
             Canvas canvas = canvasOwner.get();
             CPPUNIT_ASSERT(canvas.tileLogSize() == 7);
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
@@ -47,7 +47,7 @@ namespace Mega { namespace test {
         void testLoadCanvasTest1()
         {
             std::string error;
-            PrivOwner<Canvas> canvasOwner = Canvas::load("test1.mega", &error);
+            Owner<Canvas> canvasOwner = Canvas::load("test1.mega", &error);
             CPPUNIT_ASSERT_EQUAL(std::string(""), error);
             CPPUNIT_ASSERT(canvasOwner);
             Canvas canvas = canvasOwner.get();
@@ -79,7 +79,7 @@ namespace Mega { namespace test {
         void testLoadCanvasFailsWhenNonexistent()
         {
             std::string error;
-            PrivOwner<Canvas> canvasOwner = Canvas::load("nonexistent.mega", &error); // must not exist
+            Owner<Canvas> canvasOwner = Canvas::load("nonexistent.mega", &error); // must not exist
             CPPUNIT_ASSERT(!canvasOwner);
             CPPUNIT_ASSERT(error.find("unable to read file") != std::string::npos);
         }

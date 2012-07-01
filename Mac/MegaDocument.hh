@@ -14,7 +14,7 @@
 @interface MegaDocument : NSDocument <NSWindowDelegate>
 {
     IBOutlet MegaCanvasView *view;
-    Mega::Canvas canvas;
+    Mega::Owner<Mega::Canvas> canvas;
 }
 
 @end

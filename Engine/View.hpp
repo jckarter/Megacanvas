@@ -17,7 +17,7 @@ namespace Mega {
     struct View : HasPriv<View> {
         MEGA_PRIV_CTORS(View)
         
-        View(Canvas c);
+        static Owner<View> create(Canvas c);
         
         void prepare();
         void resize(double width, double height);
@@ -31,6 +31,7 @@ namespace Mega {
         void zoom(double z);
         
         Vec viewToCanvas(Vec viewPoint);
+        Vec viewToLayer(Vec viewPoint, Layer l);
     };
 }
 

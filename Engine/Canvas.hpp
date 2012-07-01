@@ -21,8 +21,8 @@ namespace Mega {
     struct Canvas : HasPriv<Canvas> {        
         MEGA_PRIV_CTORS(Canvas)
         
-        static PrivOwner<Canvas> create();
-        static PrivOwner<Canvas> load(llvm::StringRef path, std::string *outError);
+        static Owner<Canvas> create();
+        static Owner<Canvas> load(llvm::StringRef path, std::string *outError);
         
         PrivArrayRef<Layer> layers();
         
