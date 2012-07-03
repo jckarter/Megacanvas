@@ -35,9 +35,6 @@ namespace Mega {
         };
         template<template<typename T> class FieldTemplate, typename FieldInstance, typename...FieldInstances>
         struct find_field<FieldTemplate, FieldInstance, FieldInstances...> : find_field<FieldTemplate, FieldInstances...> {};
-
-        template<typename...X>
-        void discard(X&&...x) {}
     }
     
     template<typename...Fields>
@@ -68,7 +65,7 @@ namespace Mega {
         template<template<typename T> class Trait, typename Function>
         static void eachField(Function &&f)
         {
-            discard((f(Fields::name(), offset_of<Fields>(), size_of<Fields>(), Trait<typename Fields::type>::value), 0)...);            
+            char __attribute__((unused)) discard[] = {(f(Fields::name(), offset_of<Fields>(), size_of<Fields>(), Trait<typename Fields::type>::value()), '\0')...};
         }
     };
 

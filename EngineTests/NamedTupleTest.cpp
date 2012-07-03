@@ -14,9 +14,9 @@
 
 namespace Mega { namespace test {
     template<typename T> struct test_trait;
-    template<> struct test_trait<int> : std::integral_constant<int, 1> {};
-    template<> struct test_trait<float> : std::integral_constant<int, 2> {};
-    template<> struct test_trait<char> : std::integral_constant<int, 3> {};
+    template<> struct test_trait<int> { static int value() { return 1; } };
+    template<> struct test_trait<float> { static int value() { return 2; } };
+    template<> struct test_trait<char> { static int value() { return 3; } };
     
     class NamedTupleTest : public CppUnit::TestFixture {
         CPPUNIT_TEST_SUITE(NamedTupleTest);
@@ -67,15 +67,15 @@ namespace Mega { namespace test {
             if (name == "foo") {
                 CPPUNIT_ASSERT_EQUAL(sizeof(int), size);
                 CPPUNIT_ASSERT_EQUAL(SomeTuple::offset_of<foo>(), offset);
-                CPPUNIT_ASSERT_EQUAL(test_trait<int>::value, type);
+                CPPUNIT_ASSERT_EQUAL(test_trait<int>::value(), type);
             } else if (name == "bar") {
                 CPPUNIT_ASSERT_EQUAL(sizeof(char), size);
                 CPPUNIT_ASSERT_EQUAL(SomeTuple::offset_of<bar>(), offset);
-                CPPUNIT_ASSERT_EQUAL(test_trait<char>::value, type);                
+                CPPUNIT_ASSERT_EQUAL(test_trait<char>::value(), type);                
             } else if (name == "bas") {
                 CPPUNIT_ASSERT_EQUAL(sizeof(float), size);
                 CPPUNIT_ASSERT_EQUAL(SomeTuple::offset_of<bas>(), offset);
-                CPPUNIT_ASSERT_EQUAL(test_trait<float>::value, type);                
+                CPPUNIT_ASSERT_EQUAL(test_trait<float>::value(), type);                
             }
         }
         

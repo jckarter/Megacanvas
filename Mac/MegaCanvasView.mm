@@ -13,7 +13,6 @@
 - (void)awakeFromNib
 {
     NSOpenGLPixelFormatAttribute pfa[] = {
-        NSOpenGLPFADepthSize, 32,
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
         0

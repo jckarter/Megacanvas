@@ -32,6 +32,10 @@
 		D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */; };
 		D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
 		D8FEA32C15A034CC005A2EF3 /* NamedTupleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */; };
+		D8FEA32F15A14380005A2EF3 /* GLMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */; };
+		D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33015A171D3005A2EF3 /* TestGLContext.c */; };
+		D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
+		D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +103,10 @@
 		D8FEA329159EC7C0005A2EF3 /* GL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GL.h; sourceTree = "<group>"; };
 		D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NamedTuple.hpp; sourceTree = "<group>"; };
 		D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NamedTupleTest.cpp; sourceTree = "<group>"; };
+		D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLMeta.hpp; sourceTree = "<group>"; };
+		D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMetaTest.cpp; sourceTree = "<group>"; };
+		D8FEA33015A171D3005A2EF3 /* TestGLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TestGLContext.c; sourceTree = "<group>"; };
+		D8FEA33215A24788005A2EF3 /* GLMeta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMeta.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +116,7 @@
 			files = (
 				D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */,
 				D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */,
+				D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,6 +153,7 @@
 				D8FEA323159E5D9F005A2EF3 /* View.cpp */,
 				D8C986E5159408E7000D554E /* View.hpp */,
 				D8FEA31415953EF1005A2EF3 /* Vec.hpp */,
+				D8FEA33215A24788005A2EF3 /* GLMeta.cpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -154,6 +164,7 @@
 				D8C986E4159408E7000D554E /* OpaqueIterator.hpp */,
 				D8C986F1159416D0000D554E /* Priv.hpp */,
 				D8FEA329159EC7C0005A2EF3 /* GL.h */,
+				D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */,
 				D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */,
 			);
 			path = Util;
@@ -167,6 +178,7 @@
 				D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */,
 				D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */,
 				D8C986EC159408F6000D554E /* main.cpp */,
+				D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */,
 			);
 			path = EngineTests;
 			sourceTree = "<group>";
@@ -228,6 +240,7 @@
 				D8EB12B7158BADCD00ED0404 /* MegaDocument.xib */,
 				D8EB12BA158BADCD00ED0404 /* MainMenu.xib */,
 				D8EB12A9158BADCD00ED0404 /* Supporting Files */,
+				D8FEA33015A171D3005A2EF3 /* TestGLContext.c */,
 			);
 			path = Mac;
 			sourceTree = "<group>";
@@ -396,6 +409,9 @@
 				D8C986EF159408F6000D554E /* main.cpp in Sources */,
 				D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */,
 				D8FEA32C15A034CC005A2EF3 /* NamedTupleTest.cpp in Sources */,
+				D8FEA32F15A14380005A2EF3 /* GLMetaTest.cpp in Sources */,
+				D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */,
+				D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
