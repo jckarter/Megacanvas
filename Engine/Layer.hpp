@@ -23,6 +23,8 @@ namespace Mega {
 
         int priority();
         void priority(int x);
+        
+        Vec origin();
     };
 }
 

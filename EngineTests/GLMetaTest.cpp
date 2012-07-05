@@ -19,6 +19,7 @@ namespace Mega { namespace test {
     MEGA_FIELD(texcoord)
     MEGA_FIELD(color)
     MEGA_FIELD(scalar)
+    MEGA_FIELD(pad)
 
     class GLMetaContextTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(GLMetaContextTest);
@@ -129,7 +130,7 @@ namespace Mega { namespace test {
 
         void testBindVertexAttributes()
         {
-            using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>>;
+            using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, pad<Pad<float>>>;
 
             GLuint vert, frag, prog;
             loadTestProgram("test1", &vert, &frag, &prog);
@@ -150,8 +151,11 @@ namespace Mega { namespace test {
 
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
 
+            CPPUNIT_ASSERT_EQUAL(GLint(-1), glGetAttribLocation(prog, "pad"));
+
             GLint param;
             GLvoid *pointerParam;
+            
 #define _MEGA_ASSERT_ATTRIBUTE(name, type, normalized, size) \
             GLuint name##Index = glGetAttribLocation(prog, #name); \
             CPPUNIT_ASSERT(name##Index != -1); \
@@ -186,7 +190,7 @@ namespace Mega { namespace test {
         void tearDown() override { }
         void testVertexShaderInputs()
         {
-            using SomeVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, scalar<float>>;
+            using SomeVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, scalar<float>, pad<Pad<float>>>;
 
             CPPUNIT_ASSERT_EQUAL(std::string("in vec3 position;\n"
                                              "in vec2 texcoord;\n"

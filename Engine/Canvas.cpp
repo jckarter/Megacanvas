@@ -326,4 +326,5 @@ error:
     //
     MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
     MEGA_PRIV_GETTER_SETTER(Layer, priority, int)
+    MEGA_PRIV_GETTER(Layer, origin, Vec)
 }

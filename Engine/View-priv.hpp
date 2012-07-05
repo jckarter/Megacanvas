@@ -14,7 +14,13 @@
 
 namespace Mega {
     using ViewUniforms = NamedTuple<>;
-    using ViewVertex = NamedTuple<tileCoord<float[2]>, tileCorner<float>, layerIndex<float>>;
+    using ViewVertex = NamedTuple<
+        tileCoord<float[3]>,
+        padding1<float>,
+        tileCorner<float[2]>,
+        layerParallax<float[2]>,
+        layerOrigin<float[2]>,
+        padding2<float[2]>>;
 
     template<>
     struct Priv<View> {

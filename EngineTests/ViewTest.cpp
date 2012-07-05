@@ -60,38 +60,32 @@ namespace Mega { namespace test {
             glGetBufferSubData(GL_ARRAY_BUFFER, 0, 4*2*2*2*sizeof(ViewVertex),
                                reinterpret_cast<GLvoid*>(vertexData));
             MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 0].tileCoord, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 3].tileCoord, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 4].tileCoord, 0.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 7].tileCoord, 0.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[11].tileCoord, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[12].tileCoord, 1.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[15].tileCoord, 1.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 0].tileCoord, 0.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 3].tileCoord, 0.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 4].tileCoord, 1.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 7].tileCoord, 1.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 0.0f, 1.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[11].tileCoord, 0.0f, 1.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[12].tileCoord, 1.0f, 1.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[15].tileCoord, 1.0f, 1.0f, 0.0f));
 
-            CPPUNIT_ASSERT_EQUAL(0.0f, vertexData[ 0].layerIndex);
-            CPPUNIT_ASSERT_EQUAL(0.0f, vertexData[15].layerIndex);
-
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 0].tileCoord, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 3].tileCoord, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 4].tileCoord, 0.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 7].tileCoord, 0.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 8].tileCoord, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+11].tileCoord, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+12].tileCoord, 1.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+15].tileCoord, 1.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 0].tileCoord, 0.0f, 0.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 3].tileCoord, 0.0f, 0.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 4].tileCoord, 1.0f, 0.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 7].tileCoord, 1.0f, 0.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 8].tileCoord, 0.0f, 1.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+11].tileCoord, 0.0f, 1.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+12].tileCoord, 1.0f, 1.0f, 1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+15].tileCoord, 1.0f, 1.0f, 1.0f));
             
-            CPPUNIT_ASSERT_EQUAL(1.0f, vertexData[16+ 0].layerIndex);
-            CPPUNIT_ASSERT_EQUAL(1.0f, vertexData[16+15].layerIndex);
-
-            CPPUNIT_ASSERT_EQUAL(0.0f, vertexData[ 0].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(1.0f, vertexData[ 5].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(2.0f, vertexData[10].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(3.0f, vertexData[15].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(0.0f, vertexData[16+ 0].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(1.0f, vertexData[16+ 5].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(2.0f, vertexData[16+10].tileCorner);
-            CPPUNIT_ASSERT_EQUAL(3.0f, vertexData[16+15].tileCorner);
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 0].tileCorner, -1.0f, -1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 5].tileCorner,  1.0f, -1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[10].tileCorner, -1.0f,  1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[15].tileCorner,  1.0f,  1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 0].tileCorner, -1.0f, -1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 5].tileCorner,  1.0f, -1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+10].tileCorner, -1.0f,  1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+15].tileCorner,  1.0f,  1.0f));
             
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, priv.eltBuffer);
             MEGA_GL_ASSERT_NO_ERROR;
@@ -102,14 +96,14 @@ namespace Mega { namespace test {
             glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 6*2*2*2*sizeof(GLuint), &elementData);
             MEGA_GL_ASSERT_NO_ERROR;
             CPPUNIT_ASSERT(arrayEquals(elementData,
-                                        0,  2,  1,  1,  2,  3,
-                                        4,  6,  5,  5,  6,  7,
-                                        8, 10,  9,  9, 10, 11,
-                                       12, 14, 13, 13, 14, 15,
-                                       16, 18, 17, 17, 18, 19,
-                                       20, 22, 21, 21, 22, 23,
-                                       24, 26, 25, 25, 26, 27,
-                                       28, 30, 29, 29, 30, 31));
+                                        0,  1,  2,  1,  3,  2,
+                                        4,  5,  6,  5,  7,  6,
+                                        8,  9, 10,  9, 11, 10,
+                                       12, 13, 14, 13, 15, 14,
+                                       16, 17, 18, 17, 19, 18,
+                                       20, 21, 22, 21, 23, 22,
+                                       24, 25, 26, 25, 27, 26,
+                                       28, 29, 30, 29, 31, 30));
         }
         
         void testMeshSize()
@@ -148,9 +142,8 @@ namespace Mega { namespace test {
             glGetBufferSubData(GL_ARRAY_BUFFER, 0, 4*2*3*2*sizeof(ViewVertex),
                                reinterpret_cast<GLvoid*>(vertexData));
             MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 4].tileCoord, 0.0f, 1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16].tileCoord, 2.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 2.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[12].tileCoord, 0.0f, 1.0f, 0.0f));
             
             view->resize(127.0, 127.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*3), priv.viewTileCount);
@@ -162,8 +155,16 @@ namespace Mega { namespace test {
             glGetBufferSubData(GL_ARRAY_BUFFER, 0, 4*2*3*2*sizeof(ViewVertex),
                                reinterpret_cast<GLvoid*>(vertexData));
             MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 0.0f, 2.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[12].tileCoord, 1.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 4].tileCoord, 1.0f, 0.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 0.0f, 1.0f, 0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16].tileCoord, 0.0f, 2.0f, 0.0f));
+            
+            view->resize(254.0, 254.0);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileCount);
+            view->zoom(2.0);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);
+            view->zoom(0.5);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileCount);
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);

@@ -99,8 +99,10 @@ namespace Mega {
     namespace fields {
         MEGA_FIELD(tileCoord)
         MEGA_FIELD(tileCorner)
-        MEGA_FIELD(layerIndex)
-        MEGA_FIELD(padding)
+        MEGA_FIELD(layerParallax)
+        MEGA_FIELD(layerOrigin)
+        MEGA_FIELD(padding1)
+        MEGA_FIELD(padding2)
     }
     using namespace fields;
 }
