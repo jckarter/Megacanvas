@@ -11,16 +11,17 @@
 
 #include "Engine/View.hpp"
 #include "Engine/Util/NamedTuple.hpp"
+#include "Engine/Util/GLMeta.hpp"
 
 namespace Mega {
     using ViewUniforms = NamedTuple<>;
     using ViewVertex = NamedTuple<
         tileCoord<float[3]>,
-        padding1<float>,
+        padding1<Pad<float>>,
         tileCorner<float[2]>,
         layerParallax<float[2]>,
         layerOrigin<float[2]>,
-        padding2<float[2]>>;
+        padding2<Pad<float[2]>>>;
 
     template<>
     struct Priv<View> {
