@@ -17,16 +17,16 @@ namespace Mega { namespace test {
         CPPUNIT_TEST_SUITE(OpaqueIteratorTest);
         CPPUNIT_TEST(testArray2DRef);
         CPPUNIT_TEST_SUITE_END();
-        
+
     public:
         void setUp() override
         {
         }
-        
+
         void tearDown() override
         {
         }
-        
+
         void testArray2DRef()
         {
             using namespace std;
@@ -40,7 +40,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(3, a3[0][2]);
             CPPUNIT_ASSERT_EQUAL(7, a3[2][0]);
             CPPUNIT_ASSERT_EQUAL(9, a3[2][2]);
-            
+
             int bb3[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
             auto i = begin(a3), ibegin = i, iend = end(a3);
             auto j = begin(bb3), jbegin = j, jend = end(bb3);
@@ -49,6 +49,6 @@ namespace Mega { namespace test {
             while (i-- != ibegin && j-- != jbegin)
                 CPPUNIT_ASSERT(i->equals(*j));
         }
-    };    
+    };
     CPPUNIT_TEST_SUITE_REGISTRATION(OpaqueIteratorTest);
 }}

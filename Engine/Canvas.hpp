@@ -17,21 +17,21 @@
 
 namespace Mega {
     struct Layer;
-    
-    struct Canvas : HasPriv<Canvas> {        
+
+    struct Canvas : HasPriv<Canvas> {
         MEGA_PRIV_CTORS(Canvas)
-        
+
         static Owner<Canvas> create();
         static Owner<Canvas> load(llvm::StringRef path, std::string *outError);
-        
+
         PrivArrayRef<Layer> layers();
-        
+
         size_t tileLogSize();
         size_t tileSize();
         size_t tileArea();
         size_t tileByteSize();
         size_t tileCount();
-        
+
         Array2DRef<std::uint8_t> tiles();
     };
 }

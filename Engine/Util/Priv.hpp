@@ -17,18 +17,18 @@
 
 namespace Mega {
     template<typename T> struct Priv;
-    
+
     template<typename T>
     struct HasPriv {
         Priv<T> *that;
         HasPriv() = default;
         /*implicit*/ HasPriv(Priv<T> &that) : that(&that) {}
         /*implicit*/ HasPriv(Priv<T> *that) : that(that) {}
-        
+
         explicit operator bool() { return that != nullptr; }
         T *operator->() { return static_cast<T*>(this); }
     };
-    
+
 // inheriting constructors seem to be busted in xcode 4.3
 #define MEGA_PRIV_CTORS(T) \
     T(Priv<T> &that) : HasPriv(that) {} \
@@ -41,21 +41,24 @@ namespace Mega {
         Priv<T> *that;
     public:
         explicit Owner() : that(nullptr) {}
+        explicit Owner(std::nullptr_t) : that(nullptr) {}
         explicit Owner(Priv<T> *that) : that(that) {}
         Owner(Owner &&x) : that(x.that) { x.that = nullptr; }
         Owner &operator=(Owner &&x) { std::swap(that, x.that); return *this; }
+        Owner &operator=(std::nullptr_t) { reset(); return *this; }
 
         Owner(const Owner &) = delete;
         void operator=(const Owner &) = delete;
-        
+
         ~Owner();
 
         T get() { return that; }
+        void reset() { this->~Owner(); that = nullptr; }
         T operator->() { return that; }
         Priv<T> &priv() { return *that; }
         explicit operator bool() { return that != nullptr; }
     };
-    
+
     template<typename T, typename...AA>
     inline Owner<T> createOwner(AA&&...args) { return Owner<T>(new Priv<T>(std::forward<AA>(args)...)); }
 
@@ -65,14 +68,14 @@ namespace Mega {
             return reinterpret_cast<Priv<T>*>(data);
         }
     }
-        
+
     template<typename T>
     using PrivIterator = OpaqueIterator<std::uint8_t, T, fromOpaque<T>>;
-    
+
     template<typename T>
     struct PrivArrayRef : OpaqueArrayRef<std::uint8_t, T, fromOpaque<T>> {
         typedef OpaqueArrayRef<std::uint8_t, T, fromOpaque<T>> super;
-        
+
         PrivArrayRef() : super(nullptr, sizeof(Priv<T>), 0) {}
         PrivArrayRef(T oneElt) : super(*oneElt.that) {}
         PrivArrayRef(Priv<T> &oneElt) : super(oneElt) {}
@@ -103,19 +106,19 @@ namespace Mega {
     MEGA_PRIV_SETTER(T, name, type)
 
 #ifndef NDEBUG
-    namespace {
+    namespace test {
         struct _PrivTest : HasPriv<_PrivTest> { MEGA_PRIV_CTORS(_PrivTest); };
     }
-    
-    template<> struct Priv<_PrivTest> { Priv(int); ~Priv(); };
-    
-    namespace {
+
+    template<> struct Priv<test::_PrivTest> { Priv(int); ~Priv(); };
+
+    namespace test {
         static_assert(std::is_trivial<HasPriv<_PrivTest>>::value, "HasPriv should be trivial");
         static_assert(std::is_standard_layout<HasPriv<_PrivTest>>::value, "HasPriv should be standard layout");
         // xcode 4.3 believes it's not pod even though the above are all true...
         //static_assert(std::is_pod<HasPriv<_PrivTest>>::value, "HasPriv should be pod");
         static_assert(sizeof(HasPriv<_PrivTest>) == sizeof(void*), "HasPriv should be pointer-sized");
-        
+
         static_assert(std::is_trivial<_PrivTest>::value, "HasPriv should be trivial");
         static_assert(std::is_standard_layout<_PrivTest>::value, "HasPriv should be standard layout");
         //static_assert(std::is_pod<_PrivTest>::value, "HasPriv should be pod");

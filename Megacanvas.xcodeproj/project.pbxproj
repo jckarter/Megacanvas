@@ -36,6 +36,8 @@
 		D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33015A171D3005A2EF3 /* TestGLContext.c */; };
 		D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
+		D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
+		D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +109,9 @@
 		D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMetaTest.cpp; sourceTree = "<group>"; };
 		D8FEA33015A171D3005A2EF3 /* TestGLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TestGLContext.c; sourceTree = "<group>"; };
 		D8FEA33215A24788005A2EF3 /* GLMeta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMeta.cpp; sourceTree = "<group>"; };
+		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLTest.hpp; sourceTree = "<group>"; };
+		D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "View-priv.hpp"; sourceTree = "<group>"; };
+		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +156,7 @@
 				D8C986DE159408E7000D554E /* Layer.hpp */,
 				D8C986DF159408E7000D554E /* Util */,
 				D8FEA323159E5D9F005A2EF3 /* View.cpp */,
+				D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */,
 				D8C986E5159408E7000D554E /* View.hpp */,
 				D8FEA31415953EF1005A2EF3 /* Vec.hpp */,
 				D8FEA33215A24788005A2EF3 /* GLMeta.cpp */,
@@ -179,6 +185,8 @@
 				D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */,
 				D8C986EC159408F6000D554E /* main.cpp */,
 				D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */,
+				D8FEA33715A3573E005A2EF3 /* GLTest.hpp */,
+				D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */,
 			);
 			path = EngineTests;
 			sourceTree = "<group>";
@@ -412,6 +420,8 @@
 				D8FEA32F15A14380005A2EF3 /* GLMetaTest.cpp in Sources */,
 				D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */,
 				D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */,
+				D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */,
+				D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

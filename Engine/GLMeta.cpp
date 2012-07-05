@@ -19,7 +19,7 @@ namespace Mega {
             outLog->resize(length);
             glGet_InfoLog(object, length, NULL, outLog->data());
         }
-        
+
         bool compileShader(llvm::ArrayRef<llvm::StringRef> sources, GLenum type, GLuint *outShader, llvm::SmallVectorImpl<char> *outLog)
         {
             using namespace llvm;
@@ -42,7 +42,7 @@ namespace Mega {
             }
             return true;
         }
-        
+
         bool linkProgram(GLuint vert, GLuint frag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
         {
             *outProg = glCreateProgram();
@@ -62,7 +62,7 @@ namespace Mega {
             return true;
         }
     }
-    
+
     bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
                         GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
     {
@@ -75,7 +75,7 @@ namespace Mega {
         if (!linkProgram(*outVert, *outFrag, outProg, outLog))
             goto error_after_compiling_frag;
         return true;
-        
+
     error_after_compiling_frag:
         glDeleteShader(*outFrag);
         outFrag = 0;

@@ -12,33 +12,23 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_ostream.h>
 #include "Engine/Util/GLMeta.hpp"
+#include "GLTest.hpp"
 
 namespace Mega { namespace test {
     MEGA_FIELD(position)
     MEGA_FIELD(texcoord)
     MEGA_FIELD(color)
     MEGA_FIELD(scalar)
-    
-    class GLMetaContextTest : public CppUnit::TestFixture {
+
+    class GLMetaContextTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(GLMetaContextTest);
         CPPUNIT_TEST(testGLContext);
         CPPUNIT_TEST(testCompileProgram);
         CPPUNIT_TEST(testCompileProgramAutoInputs);
         CPPUNIT_TEST(testBindVertexAttributes);
         CPPUNIT_TEST_SUITE_END();
-        
+
     public:
-        void setUp() override
-        {
-            if (!createTestGLContext())
-                throw std::runtime_error("unable to create opengl context");
-        }
-        
-        void tearDown() override
-        {
-            destroyTestGLContext();
-        }
-        
         void testGLContext()
         {
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
@@ -48,9 +38,9 @@ namespace Mega { namespace test {
             glGetIntegerv(GL_MINOR_VERSION, &min);
             CPPUNIT_ASSERT(maj > 3 || (maj == 3 && min >= 2));
         }
-        
+
         void loadTestProgramSource(llvm::StringRef basename, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource)
-        {            
+        {
             using namespace llvm;
             std::string vertname, fragname;
             raw_string_ostream vertnames(vertname), fragnames(fragname);
@@ -62,7 +52,7 @@ namespace Mega { namespace test {
             error = MemoryBuffer::getFile(fragnames.str(), *outFragSource);
             CPPUNIT_ASSERT(!error);
         }
-        
+
         void loadTestProgram(llvm::StringRef basename, GLuint *vert, GLuint *frag, GLuint *prog)
         {
             using namespace llvm;
@@ -85,12 +75,12 @@ namespace Mega { namespace test {
                 throw std::runtime_error(log.c_str());
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
         }
-        
+
         void testCompileProgram()
         {
             GLuint vert, frag, prog;
             loadTestProgram("test1", &vert, &frag, &prog);
-            
+
             CPPUNIT_ASSERT(glIsProgram(prog));
             CPPUNIT_ASSERT(glIsShader(vert));
             CPPUNIT_ASSERT(glIsShader(frag));
@@ -102,25 +92,25 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(status);
             glGetProgramiv(prog, GL_LINK_STATUS, &status);
             CPPUNIT_ASSERT(status);
-            
+
             GLint type;
             glGetShaderiv(vert, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_VERTEX_SHADER);
             glGetShaderiv(frag, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
         }
-        
+
         void testCompileProgramAutoInputs()
         {
             using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>>;
 
             GLuint vert, frag, prog;
             loadTestProgramAutoInputs<TestVertex>("test1-auto", &vert, &frag, &prog);
-            
+
             CPPUNIT_ASSERT(glIsProgram(prog));
             CPPUNIT_ASSERT(glIsShader(vert));
             CPPUNIT_ASSERT(glIsShader(frag));
-            
+
             GLint status;
             glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
             CPPUNIT_ASSERT(status);
@@ -128,36 +118,36 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(status);
             glGetProgramiv(prog, GL_LINK_STATUS, &status);
             CPPUNIT_ASSERT(status);
-            
+
             GLint type;
             glGetShaderiv(vert, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_VERTEX_SHADER);
             glGetShaderiv(frag, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
-            
+
         }
-        
+
         void testBindVertexAttributes()
         {
             using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>>;
 
             GLuint vert, frag, prog;
             loadTestProgram("test1", &vert, &frag, &prog);
-            
+
             glUseProgram(prog);
-            
+
             GLuint buffer;
             glGenBuffers(1, &buffer);
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
             glBufferData(GL_ARRAY_BUFFER, sizeof(TestVertex), nullptr, GL_STATIC_DRAW);
-            
+
             GLuint array;
             glGenVertexArrays(1, &array);
             glBindVertexArray(array);
-            
+
             bool ok = bindVertexAttributes<TestVertex>(prog);
             CPPUNIT_ASSERT(ok);
-            
+
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
 
             GLint param;
@@ -179,7 +169,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(normalized, param); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_SIZE, &param); \
             CPPUNIT_ASSERT_EQUAL(size, param);
-            
+
             _MEGA_ASSERT_ATTRIBUTE(position, GL_FLOAT, GL_FALSE, 3)
             _MEGA_ASSERT_ATTRIBUTE(texcoord, GL_FLOAT, GL_FALSE, 2)
             _MEGA_ASSERT_ATTRIBUTE(color, GL_UNSIGNED_BYTE, GL_TRUE, 4)
@@ -197,7 +187,7 @@ namespace Mega { namespace test {
         void testVertexShaderInputs()
         {
             using SomeVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, scalar<float>>;
-            
+
             CPPUNIT_ASSERT_EQUAL(std::string("in vec3 position;\n"
                                              "in vec2 texcoord;\n"
                                              "in vec4 color;\n"

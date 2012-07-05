@@ -23,11 +23,11 @@ namespace Mega {
         constexpr __T const &value() const & { return this->fieldname; } \
         constexpr __T &&value() && { return this->fieldname; } \
     };
-    
+
     namespace {
         template<template<typename T> class FieldTemplate, typename...FieldInstances>
         struct find_field;
-        
+
         template<template<typename T> class FieldTemplate, typename T, typename...FieldInstances>
         struct find_field<FieldTemplate, FieldTemplate<T>, FieldInstances...> {
             using field = FieldTemplate<T>;
@@ -36,32 +36,32 @@ namespace Mega {
         template<template<typename T> class FieldTemplate, typename FieldInstance, typename...FieldInstances>
         struct find_field<FieldTemplate, FieldInstance, FieldInstances...> : find_field<FieldTemplate, FieldInstances...> {};
     }
-    
+
     template<typename...Fields>
     struct NamedTuple : Fields... {
         using tuple_type = NamedTuple;
-        
+
         NamedTuple() = default;
         NamedTuple(NamedTuple const &) = default;
         template<typename...TT>
         constexpr NamedTuple(TT &&...x) : Fields{static_cast<TT&&>(x)}... {} // can't use std::forward because it isn't constexpr
-        
+
         // FIXME relies on undefined behavior, can't be constexpr
         template<typename Field>
         /*constexpr*/ static uintptr_t offset_of() { return reinterpret_cast<uintptr_t>(&static_cast<NamedTuple*>(nullptr)->Field::value()); }
-        
+
         template<template<typename T> class Field>
         /*constexpr*/ static uintptr_t offset_of() { return reinterpret_cast<uintptr_t>(&static_cast<NamedTuple*>(nullptr)->find_field<Field, Fields...>::field::value()); }
-        
+
         template<typename Field>
         constexpr static uintptr_t size_of() { return sizeof(typename Field::type); }
 
         template<template<typename T> class Field>
         constexpr static uintptr_t size_of() { return sizeof(typename find_field<Field, Fields...>::type); }
-        
+
         template<template<typename T> class Field>
         using type_of = typename find_field<Field, Fields...>::type;
-        
+
         template<template<typename T> class Trait, typename Function>
         static void eachField(Function &&f)
         {
@@ -70,7 +70,7 @@ namespace Mega {
     };
 
 #ifndef NDEBUG
-    namespace {
+    namespace test {
         MEGA_FIELD(_x)
         MEGA_FIELD(_y)
         MEGA_FIELD(_z)
@@ -95,6 +95,14 @@ namespace Mega {
 #endif
     }
 #endif
+    
+    namespace fields {
+        MEGA_FIELD(tileCoord)
+        MEGA_FIELD(tileCorner)
+        MEGA_FIELD(layerIndex)
+        MEGA_FIELD(padding)
+    }
+    using namespace fields;
 }
 
 #endif

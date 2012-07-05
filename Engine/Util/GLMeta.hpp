@@ -16,30 +16,30 @@
 
 namespace Mega {
     struct GLVertexType { GLenum type; GLint size; GLboolean normalized; };
-        
+
     template<GLenum Type, GLboolean Normalized>
     struct GLScalarVertexTraits {
         constexpr static GLenum type = Type;
         constexpr static GLint size = 1;
         constexpr static GLboolean normalized = Normalized;
     };
-    
+
     template<typename> struct _GLVertexTraits;
     template<>
     struct _GLVertexTraits<float> : GLScalarVertexTraits<GL_FLOAT, GL_FALSE> {};
     template<>
     struct _GLVertexTraits<std::uint8_t> : GLScalarVertexTraits<GL_UNSIGNED_BYTE, GL_TRUE> {};
-    
+
     template<typename T, GLint N>
     struct _GLVertexTraits<T[N]> : _GLVertexTraits<T> {
         constexpr static GLint size = N;
     };
-    
+
     template<typename T>
     struct GLVertexTraits : _GLVertexTraits<T> {
         static GLVertexType value() { return {_GLVertexTraits<T>::type, _GLVertexTraits<T>::size, _GLVertexTraits<T>::normalized}; }
     };
-    
+
     template<typename T>
     struct GLSLType {
         static char const *value() { return "float"; }
@@ -75,7 +75,7 @@ namespace Mega {
                 glEnableVertexAttribArray(location);
             }
         };
-        
+
         struct _VertexShaderInputCollector {
             std::string code;
             llvm::raw_string_ostream codes;
@@ -93,7 +93,7 @@ namespace Mega {
         T::template eachField<GLVertexTraits>(iter);
         return iter.ok;
     }
-    
+
     template<typename T>
     std::string vertexShaderInputs()
     {
@@ -101,7 +101,7 @@ namespace Mega {
         T::template eachField<GLSLType>(iter);
         return std::move(iter.codes.str());
     }
-    
+
     bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
                         GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog);
     inline bool compileProgram(llvm::StringRef vert, llvm::StringRef frag,
@@ -109,7 +109,7 @@ namespace Mega {
     {
         return compileProgram(makeArrayRef(vert), makeArrayRef(frag), outVert, outFrag, outProg, outLog);
     }
-    
+
     template<typename T>
     inline bool compileProgramAutoInputs(llvm::StringRef vertMain, llvm::StringRef fragMain,
                                          GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)

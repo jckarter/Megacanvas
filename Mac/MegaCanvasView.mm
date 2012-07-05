@@ -17,7 +17,7 @@
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
         0
     };
-    
+
     NSOpenGLPixelFormat *pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:pfa];
     if (!pf) {
         NSLog(@"failed to create pixel buffer");

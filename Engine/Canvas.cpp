@@ -28,21 +28,21 @@ namespace Mega {
     // internal representations
     //
     constexpr size_t DEFAULT_LOG_SIZE = 7;
-    
+
     template<>
     struct Priv<Canvas> {
         const size_t tileLogSize, tileLogByteSize;
         std::vector<Priv<Layer>> layers;
         std::vector<std::uint8_t> tiles;
-        
+
         Priv(size_t logSize = DEFAULT_LOG_SIZE)
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2)
         { }
-        
+
         Priv(size_t logSize, std::vector<Priv<Layer>> &&layers)
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers)
         { }
-        
+
         void resizeTiles(size_t count) { tiles.resize(count << this->tileLogByteSize); }
         llvm::MutableArrayRef<std::uint8_t> tile(size_t i)
         {
@@ -61,17 +61,17 @@ namespace Mega {
         std::vector<size_t> tiles;
         int priority;
         size_t quadtreeDepth;
-        
+
         Priv()
         : parallax(Vec(1.0, 1.0)), origin(Vec(0.0, 0.0)), priority(0), quadtreeDepth(0)
         {}
-        
+
         Priv(Vec parallax, Vec origin, int priority, size_t quadtreeDepth, std::vector<size_t> &&tiles)
         : parallax(parallax), origin(origin), priority(priority), quadtreeDepth(quadtreeDepth), tiles(tiles)
         {}
     };
     MEGA_PRIV_DTOR(Layer)
-    
+
     //
     // Canvas implementation
     //
@@ -81,7 +81,7 @@ namespace Mega {
         r.priv().layers.emplace_back();
         return r;
     }
-    
+
     namespace {
         template<typename T>
         llvm::Optional<T> intFromNode(llvm::yaml::Node *node, llvm::SmallVectorImpl<char> &scratch)
@@ -90,13 +90,13 @@ namespace Mega {
             auto sNode = dyn_cast<yaml::ScalarNode>(node);
             if (sNode) {
                 T result;
-                
+
                 if (!sNode->getValue(scratch).getAsInteger(10, result))
                     return result;
             }
             return Optional<T>();
         }
-        
+
         llvm::Optional<Vec> vecFromNode(llvm::yaml::Node *node, llvm::SmallVectorImpl<char> &scratch)
         {
             using namespace llvm;
@@ -122,7 +122,7 @@ namespace Mega {
             return Optional<Vec>();
         }
     }
-    
+
     Owner<Canvas> Canvas::load(llvm::StringRef path, std::string *outError)
     {
         using namespace std;
@@ -137,7 +137,7 @@ namespace Mega {
         Optional<size_t> version;
         Optional<size_t> tileCount;
         Optional<size_t> logSize;
-        
+
         {
             SmallString<256> metaPath(path);
             path::append(metaPath, "mega.yaml");
@@ -145,32 +145,32 @@ namespace Mega {
             OwningPtr<MemoryBuffer> metaBuf;
             auto errorCode = MemoryBuffer::getFile(metaPath, metaBuf);
             _MEGA_LOAD_ERROR_IF(errorCode, metaPath << ": unable to read file: " << errorCode.message());
-            
+
             yaml::Stream metaStream(metaBuf->getBuffer(), metaSM);
             _MEGA_LOAD_ERROR_IF(metaStream.failed(),
                                 metaPath << ": unable to parse yaml");
             yaml::document_iterator metaDoc = metaStream.begin();
             _MEGA_LOAD_ERROR_IF(metaDoc == metaStream.end(),
                                 metaPath << ": no yaml documents in stream");
-            
+
             //
             // parse metadata
             //
             auto metaRoot = dyn_cast<yaml::MappingNode>(metaDoc->getRoot());
             _MEGA_LOAD_ERROR_IF(!metaRoot,
                                 metaPath << ": root node is not a mapping node");
-            
+
             vector<Priv<Layer>> layers;
-            
+
             size_t largestTileIndex = 0;
-            
+
             SmallString<16> scratch;
             for (auto &kv : *metaRoot) {
                 auto keyNode = dyn_cast<yaml::ScalarNode>(kv.getKey());
                 _MEGA_LOAD_ERROR_IF(!keyNode,
                                     metaPath << ": root node has non-string key");
                 StringRef key = keyNode->getValue(scratch);
-                
+
                 auto valueNode = kv.getValue();
                 if (key == "mega") {
                     _MEGA_LOAD_ERROR_IF(!(version = intFromNode<size_t>(valueNode, scratch)),
@@ -190,19 +190,19 @@ namespace Mega {
                         auto layerMap = dyn_cast<yaml::MappingNode>(&layerNode);
                         _MEGA_LOAD_ERROR_IF(!layerMap,
                                             metaPath << ": layer " << layerI << ": node is not a mapping node");
-                        
+
                         Optional<Vec> parallax;
                         Optional<Vec> origin;
                         Optional<int> priority;
                         Optional<size_t> quadtreeDepth;
                         vector<size_t> tiles;
-                        
+
                         for (auto &layerKV : *layerMap) {
                             auto layerKeyNode = dyn_cast<yaml::ScalarNode>(layerKV.getKey());
                             _MEGA_LOAD_ERROR_IF(!layerKeyNode,
                                                 metaPath << ": layer " << layerI << ": node has non-string key");
                             StringRef layerKey = layerKeyNode->getValue(scratch);
-                            
+
                             auto layerValueNode = layerKV.getValue();
                             if (layerKey == "parallax") {
                                 _MEGA_LOAD_ERROR_IF(!(parallax = vecFromNode(layerValueNode, scratch)),
@@ -232,7 +232,7 @@ namespace Mega {
                                                     metaPath << ": layer " << layerI << ": unexpected key '" << layerKey << "'");
                             }
                         }
-                        
+
                         _MEGA_LOAD_ERROR_IF(!parallax,
                                             metaPath << ": layer " << layerI << ": missing 'parallax' key");
                         _MEGA_LOAD_ERROR_IF(!origin,
@@ -243,24 +243,24 @@ namespace Mega {
                                             metaPath << ": layer " << layerI << ": layer missing 'size' key");
                         _MEGA_LOAD_ERROR_IF(tiles.size() != (1 << (*quadtreeDepth << 1)),
                                             metaPath << ": layer " << layerI << ": layer has 'size' value " << *quadtreeDepth << " (tile count " << (1 << (*quadtreeDepth << 1)) << ") but 'tiles' value only lists " << tiles.size() << "tiles");
-                        
+
                         layers.emplace_back(*parallax, *origin, *priority, *quadtreeDepth, move(tiles));
-                        
+
                         ++layerI;
                     }
                 } else
                     _MEGA_LOAD_ERROR_IF(true, metaPath << ": unexpected key '" << key << "'");
             }
-            
+
             _MEGA_LOAD_ERROR_IF(!version, metaPath << ": missing 'mega' key");
             _MEGA_LOAD_ERROR_IF(*version != 1, metaPath << ": 'mega' version not supported (must be 1)");
             _MEGA_LOAD_ERROR_IF(!logSize, metaPath << ": missing 'tile-size' key");
             _MEGA_LOAD_ERROR_IF(!tileCount, metaPath << ": missing 'tile-count' key");
             _MEGA_LOAD_ERROR_IF(layers.empty(), metaPath << ": must be at least one layer");
-            
+
             result = createOwner<Canvas>(*logSize, move(layers));
         }
-        
+
         {
             //
             // load tiles
@@ -273,23 +273,23 @@ namespace Mega {
                 paths << tile << ".rgba";
                 SmallString<256> tilePath(path);
                 path::append(tilePath, paths.str());
-                
+
                 OwningPtr<MemoryBuffer> tileBuf;
                 auto errorCode = MemoryBuffer::getFile(tilePath.c_str(), tileBuf);
                 _MEGA_LOAD_ERROR_IF(errorCode,
                                     tilePath << ": unable to read file: " << errorCode.message());
-                
+
                 MutableArrayRef<uint8_t> destTileData = result.priv().tile(tile);
-                
+
                 _MEGA_LOAD_ERROR_IF(destTileData.size() != tileBuf->getBufferSize(),
                                     tilePath << ": expected " << destTileData.size() << " bytes, but file has " << tileBuf->getBufferSize() << "bytes");
-                
-                memcpy(reinterpret_cast<void*>(destTileData.begin()), 
+
+                memcpy(reinterpret_cast<void*>(destTileData.begin()),
                        reinterpret_cast<const void*>(tileBuf->getBufferStart()),
                        destTileData.size());
             }
         }
-        
+
         return result;
 
 #undef _MEGA_LOAD_ERROR_IF
@@ -297,7 +297,7 @@ error:
         assert(!outError->empty());
         return Owner<Canvas>();
     }
-    
+
     MEGA_PRIV_GETTER(Canvas, tileLogSize, size_t)
     MEGA_PRIV_GETTER(Canvas, layers, PrivArrayRef<Layer>)
 
@@ -305,22 +305,22 @@ error:
     {
         return 1 << that->tileLogSize;
     }
-    
+
     size_t Canvas::tileArea()
     {
         return 1 << (that->tileLogSize << 1);
     }
-    
+
     size_t Canvas::tileByteSize()
     {
         return 1 << that->tileLogByteSize;
     }
-    
+
     Array2DRef<std::uint8_t> Canvas::tiles()
     {
         return Array2DRef<std::uint8_t>(that->tiles, 1 << that->tileLogByteSize);
     }
-    
+
     //
     // Layer implementation
     //

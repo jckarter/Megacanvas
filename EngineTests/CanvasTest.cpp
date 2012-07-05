@@ -20,16 +20,16 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLoadCanvasTest1);
         CPPUNIT_TEST(testLoadCanvasFailsWhenNonexistent);
         CPPUNIT_TEST_SUITE_END();
-        
+
     public:
         void setUp() override
         {
         }
-        
+
         void tearDown() override
         {
         }
-        
+
         void testNewCanvas()
         {
             Owner<Canvas> canvasOwner = Canvas::create();
@@ -43,7 +43,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(layer.parallax() == Vec(1., 1.));
             CPPUNIT_ASSERT(layer.priority() == 0);
         }
-        
+
         void testLoadCanvasTest1()
         {
             std::string error;
@@ -55,16 +55,16 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
             CPPUNIT_ASSERT(canvas.tileArea() == 128*128);
             CPPUNIT_ASSERT(canvas.tileByteSize() == 128*128*4);
-            
+
             auto layers = canvas.layers();
             CPPUNIT_ASSERT(layers.size() == 2);
-            
+
             CPPUNIT_ASSERT(layers[0].parallax() == Vec(0.5, 0.5));
             CPPUNIT_ASSERT(layers[0].priority() == 0);
-            
+
             CPPUNIT_ASSERT(layers[1].parallax() == Vec(1., 1.));
             CPPUNIT_ASSERT(layers[1].priority() == 0);
-        
+
             auto tiles = canvas.tiles();
             CPPUNIT_ASSERT(tiles.size() == 20);
             auto tile0 = tiles[0];
@@ -75,7 +75,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(tile0.end() <= tile1.begin() || tile1.end() <= tile0.begin());
             CPPUNIT_ASSERT(tile19.size() == 128*128*4);
         }
-        
+
         void testLoadCanvasFailsWhenNonexistent()
         {
             std::string error;
@@ -84,6 +84,6 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(error.find("unable to read file") != std::string::npos);
         }
     };
-    
+
     CPPUNIT_TEST_SUITE_REGISTRATION(CanvasTest);
 }}

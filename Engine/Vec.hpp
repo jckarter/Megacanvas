@@ -14,7 +14,7 @@ namespace Mega {
         double x, y;
         constexpr Vec() = default;
         constexpr Vec(double x, double y) : x(x), y(y) {}
-        
+
         constexpr bool operator==(Vec o) { return x == o.x && y == o.y; }
         constexpr bool operator!=(Vec o) { return x != o.x || y != o.y; }
     };

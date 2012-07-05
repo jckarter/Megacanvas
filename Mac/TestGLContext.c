@@ -21,11 +21,11 @@ int createTestGLContext(void) {
     CGLPixelFormatObj pixelFormat;
     GLint numScreens;
     CGLError error;
-    
+
     error = CGLChoosePixelFormat(attributes, &pixelFormat, &numScreens);
     if (error != kCGLNoError)
         return 0;
-    
+
     error = CGLCreateContext(pixelFormat, 0, &g_context);
     CGLReleasePixelFormat(pixelFormat);
     if (error != kCGLNoError)
