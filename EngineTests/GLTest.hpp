@@ -19,6 +19,7 @@ extern "C" {
 #endif
     int createTestGLContext(void);
     void destroyTestGLContext(void);
+    void syncTestGLContext(void);
 #ifdef __cplusplus
 }
 #endif

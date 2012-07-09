@@ -38,3 +38,7 @@ int createTestGLContext(void) {
 void destroyTestGLContext(void) {
     CGLReleaseContext(g_context);
 }
+
+void syncTestGLContext(void) {
+    CGLFlushDrawable(g_context);
+}

@@ -14,13 +14,14 @@
 
 namespace Mega {
     class Canvas;
+    class Layer;
 
     struct View : HasPriv<View> {
         MEGA_PRIV_CTORS(View)
 
         static Owner<View> create(Canvas c);
 
-        void prepare();
+        bool prepare(std::string *outError);
         void resize(double width, double height);
 
         void render();

@@ -8,6 +8,11 @@
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include "Engine/View-priv.hpp"
+
+namespace Mega {
+    char const *shaderPath = "Engine/Shaders";
+}
 
 int main(int argc, const char * argv[])
 {

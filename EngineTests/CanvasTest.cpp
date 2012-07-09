@@ -47,7 +47,7 @@ namespace Mega { namespace test {
         void testLoadCanvasTest1()
         {
             std::string error;
-            Owner<Canvas> canvasOwner = Canvas::load("test1.mega", &error);
+            Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test1.mega", &error);
             CPPUNIT_ASSERT_EQUAL(std::string(""), error);
             CPPUNIT_ASSERT(canvasOwner);
             Canvas canvas = canvasOwner.get();

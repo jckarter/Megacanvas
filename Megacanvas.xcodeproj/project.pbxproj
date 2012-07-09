@@ -26,7 +26,6 @@
 		D8EB12CD158BADCE00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12CB158BADCE00ED0404 /* InfoPlist.strings */; };
 		D8EB12D0158BADCE00ED0404 /* MegacanvasTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */; };
 		D8EB12DF158BB1C500ED0404 /* MegaCanvasView.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12DE158BB1C500ED0404 /* MegaCanvasView.mm */; };
-		D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA319159A7CA5005A2EF3 /* TestData */; };
 		D8FEA31F159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */; };
@@ -38,6 +37,7 @@
 		D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
 		D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
+		D8FEA34115A929E8005A2EF3 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA34015A929E8005A2EF3 /* Shaders */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +112,7 @@
 		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLTest.hpp; sourceTree = "<group>"; };
 		D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "View-priv.hpp"; sourceTree = "<group>"; };
 		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewTest.cpp; sourceTree = "<group>"; };
+		D8FEA34015A929E8005A2EF3 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Shaders; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +152,7 @@
 		D8C986DA159408E7000D554E /* Engine */ = {
 			isa = PBXGroup;
 			children = (
+				D8FEA34015A929E8005A2EF3 /* Shaders */,
 				D8C986DB159408E7000D554E /* Canvas.cpp */,
 				D8C986DC159408E7000D554E /* Canvas.hpp */,
 				D8C986DE159408E7000D554E /* Layer.hpp */,
@@ -377,7 +379,7 @@
 				D8EB12B3158BADCD00ED0404 /* Credits.rtf in Resources */,
 				D8EB12B9158BADCD00ED0404 /* MegaDocument.xib in Resources */,
 				D8EB12BC158BADCD00ED0404 /* MainMenu.xib in Resources */,
-				D8FEA31A159A7CA5005A2EF3 /* TestData in Resources */,
+				D8FEA34115A929E8005A2EF3 /* Shaders in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

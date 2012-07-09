@@ -45,8 +45,8 @@ namespace Mega { namespace test {
             using namespace llvm;
             std::string vertname, fragname;
             raw_string_ostream vertnames(vertname), fragnames(fragname);
-            vertnames << "shaders/" << basename << ".v.glsl";
-            fragnames << "shaders/" << basename << ".f.glsl";
+            vertnames << "EngineTests/TestData/shaders/" << basename << ".v.glsl";
+            fragnames << "EngineTests/TestData/shaders/" << basename << ".f.glsl";
             error_code error;
             error = MemoryBuffer::getFile(vertnames.str(), *outVertSource);
             CPPUNIT_ASSERT(!error);

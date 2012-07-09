@@ -17,13 +17,14 @@ namespace Mega {
     MEGA_PRIV_DTOR(View)
 
     Priv<View>::Priv(Canvas c)
-    : canvas(c)
+    : canvas(c), prepared(false), good(false)
     {}
 
     Priv<View>::~Priv()
     {
         if (this->prepared) {
             this->deleteProgram();
+            glDeleteTextures(1, &this->mappingTexture);
             glDeleteTextures(1, &this->tilesTexture);
             glDeleteBuffers(1, &this->eltBuffer);
             glDeleteBuffers(1, &this->meshBuffer);
@@ -49,14 +50,18 @@ namespace Mega {
     void Priv<View>::updateMesh()
     {
         using namespace std;
+        assert(this->good);
+        
         double invTileSize = 1.0/double(this->canvas.tileSize() - 1);
         double invZoom = 1.0/this->zoom;
         auto layers = this->canvas.layers();
-        GLuint tilew = GLuint(ceil(this->width*invZoom*invTileSize)) + 1, tileh = GLuint(ceil(this->height*invZoom*invTileSize)) + 1;
-        GLuint tileCount = this->viewTileCount = layers.size() * tilew * tileh;        
+        GLuint tilew = this->viewTileCount[0] = GLuint(ceil(this->width*invZoom*invTileSize)) + 1;
+        GLuint tileh = this->viewTileCount[1] = GLuint(ceil(this->height*invZoom*invTileSize)) + 1;
+        
+        GLuint tileCount = this->viewTileTotal = layers.size() * tilew * tileh;        
 
         unique_ptr<ViewVertex[]> vertices(new ViewVertex[4*tileCount]);
-        unique_ptr<GLuint> elements(new GLuint[6*tileCount]);
+        unique_ptr<GLuint[]> elements(new GLuint[6*tileCount]);
 
         ViewVertex *vertex = vertices.get();
         GLuint *element = elements.get();
@@ -64,10 +69,10 @@ namespace Mega {
         for (GLuint layer = 0; layer < layers.size(); ++layer)
             for (GLuint y = 0; y < tileh; ++y)
                 for (GLuint x = 0; x < tilew; ++x, tile += 4) {
-                    initVertex(vertex++, x, y, layer, layers[layer], -1.0f, -1.0);
-                    initVertex(vertex++, x, y, layer, layers[layer],  1.0f, -1.0);
-                    initVertex(vertex++, x, y, layer, layers[layer], -1.0f,  1.0);
-                    initVertex(vertex++, x, y, layer, layers[layer],  1.0f,  1.0);
+                    initVertex(vertex++, x, y, layer, layers[layer], 0.0f, 0.0);
+                    initVertex(vertex++, x, y, layer, layers[layer], 1.0f, 0.0);
+                    initVertex(vertex++, x, y, layer, layers[layer], 0.0f, 1.0);
+                    initVertex(vertex++, x, y, layer, layers[layer], 1.0f, 1.0);
                     
                     *element++ = tile  ;
                     *element++ = tile+1;
@@ -83,11 +88,58 @@ namespace Mega {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->eltBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*tileCount*sizeof(GLuint),
                      reinterpret_cast<const GLvoid*>(elements.get()), GL_STATIC_DRAW);
+        
+        assert(glGetError() == GL_NO_ERROR);
+        
+        GLuint segmentSizeGoal = max(tilew, tileh), segmentSize = 2;
+        while (segmentSize < segmentSizeGoal)
+            segmentSize <<= 1;
+
+        if (segmentSize != this->mappingTextureSegmentSize) {
+            this->mappingTextureSegmentSize = segmentSize;
+
+            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, this->mappingTexture);
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
+                         0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+
+            assert(glGetError() == GL_NO_ERROR);
+            this->updateMappings();
+        }
     }
     
-    void Priv<View>::createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg)
+    void Priv<View>::loadAllTiles()
+    {
+        auto tiles = this->canvas.tiles();
+        size_t tileCount = this->tilesTextureCount = tiles.size();
+        size_t tileSize = this->canvas.tileSize();
+        
+        glActiveTexture(GL_TEXTURE0 + TILES_TU);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, this->tilesTexture);
+        
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        
+        for (size_t i = 0; i < tileCount; ++i) {
+            auto tile = tiles[i];
+            assert(tile.size() == tileSize*tileSize*4);
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                            0, 0, i,
+                            tileSize, tileSize, 1,
+                            GL_RGBA, GL_UNSIGNED_BYTE, tile.data());
+        }
+        assert(glGetError() == GL_NO_ERROR);
+    }
+    
+    void Priv<View>::updateMappings()
     {
         //todo;
+    }
+    
+    bool Priv<View>::createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg, std::string *outError)
+    {
+        //todo;
+        return true;
     }
 
     void Priv<View>::deleteProgram()
@@ -100,31 +152,64 @@ namespace Mega {
         return createOwner<View>(c);
     }
 
-    void View::prepare()
+    bool View::prepare(std::string *outError)
     {
         assert(!that->prepared);
+        llvm::raw_string_ostream errors(*outError);
+        
         that->prepared = true;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glGenBuffers(1, &that->meshBuffer);
         glGenBuffers(1, &that->eltBuffer);
+
         glGenTextures(1, &that->tilesTexture);
+        glActiveTexture(GL_TEXTURE0 + TILES_TU);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, that->tilesTexture);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
         glGenTextures(1, &that->mappingTexture);
-        that->createProgram(&that->fragShader, &that->vertShader, &that->program);
+        glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, that->mappingTexture);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        that->loadAllTiles();
+        
+        auto error = glGetError();
+        if (error != GL_NO_ERROR) {
+            errors << "OpenGL error " << error;
+            errors.flush();
+            return false;
+        }
+
+        if (!that->createProgram(&that->fragShader, &that->vertShader, &that->program, outError))
+            return false;
+        
+        that->good = true;
+        return true;
     }
 
     void View::resize(double width, double height)
     {
-        assert(that->prepared);
+        assert(that->good);
         that->width = width;
         that->height = height;
         //viewport
         that->updateMesh();
+
+        assert(glGetError() == GL_NO_ERROR);
     }
 
     void View::render()
     {
-        assert(that->prepared);
+        assert(that->good);
         //todo;
+        assert(glGetError() == GL_NO_ERROR);
     }
 
     MEGA_PRIV_GETTER_SETTER(View, center, Vec)
@@ -133,8 +218,10 @@ namespace Mega {
     void View::zoom(double x)
     {
         that->zoom = x;
-        if (that->prepared)
+        if (that->good) {
             that->updateMesh();
+            assert(glGetError() == GL_NO_ERROR);
+        }
     }
 
     Vec View::viewToCanvas(Vec viewPoint)

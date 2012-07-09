@@ -27,7 +27,7 @@ namespace Mega { namespace test {
         {
             this->GLContextTestFixture::setUp();
             std::string error;
-            this->canvas = Canvas::load("Test1.mega", &error);
+            this->canvas = Canvas::load("EngineTests/TestData/Test1.mega", &error);
             if (!this->canvas)
                 throw std::runtime_error(error);
         }
@@ -41,7 +41,9 @@ namespace Mega { namespace test {
         void testMeshContents()
         {
             Owner<View> view = View::create(this->canvas.get());
-            view->prepare();
+            std::string error;
+            if (!view->prepare(&error))
+                throw std::runtime_error(error);
             MEGA_GL_ASSERT_NO_ERROR;
 
             //Test1.mega has tile size 128, 2 layers 
@@ -49,7 +51,7 @@ namespace Mega { namespace test {
             MEGA_GL_ASSERT_NO_ERROR;
             
             Priv<View> &priv = view.priv();
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             GLint param;
             glBindBuffer(GL_ARRAY_BUFFER, priv.meshBuffer);
             MEGA_GL_ASSERT_NO_ERROR;
@@ -78,13 +80,13 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(arrayEquals(vertexData[16+12].tileCoord, 1.0f, 1.0f, 1.0f));
             CPPUNIT_ASSERT(arrayEquals(vertexData[16+15].tileCoord, 1.0f, 1.0f, 1.0f));
             
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 0].tileCorner, -1.0f, -1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 5].tileCorner,  1.0f, -1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[10].tileCorner, -1.0f,  1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 0].tileCorner,  0.0f,  0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[ 5].tileCorner,  1.0f,  0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[10].tileCorner,  0.0f,  1.0f));
             CPPUNIT_ASSERT(arrayEquals(vertexData[15].tileCorner,  1.0f,  1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 0].tileCorner, -1.0f, -1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 5].tileCorner,  1.0f, -1.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16+10].tileCorner, -1.0f,  1.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 0].tileCorner,  0.0f,  0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+ 5].tileCorner,  1.0f,  0.0f));
+            CPPUNIT_ASSERT(arrayEquals(vertexData[16+10].tileCorner,  0.0f,  1.0f));
             CPPUNIT_ASSERT(arrayEquals(vertexData[16+15].tileCorner,  1.0f,  1.0f));
             
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, priv.eltBuffer);
@@ -110,61 +112,72 @@ namespace Mega { namespace test {
         {
             Owner<View> view = View::create(this->canvas.get());
             Priv<View> &priv = view.priv();
-            view->prepare();
+            std::string error;
+            if (!view->prepare(&error))
+                throw std::runtime_error(error);
             MEGA_GL_ASSERT_NO_ERROR;
             
             view->resize(127.0, 127.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 2, 2));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             view->resize(126.5, 126.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);            
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);            
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 2, 2));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             view->resize(0.5, 0.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 2, 2));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             
             view->resize(127.5, 127.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 3, 3));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
             view->resize(253.5, 253.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileCount);            
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);            
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 3, 3));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
             view->resize(254.0, 254.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileCount);            
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);            
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 3, 3));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
             view->resize(254.5, 254.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*4*4), priv.viewTileCount);            
-
-            GLint param;
-            ViewVertex vertexData[4*2*3*2];
-
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*4*4), priv.viewTileTotal);            
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 4, 4));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            view->resize(381.5, 381.5);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileTotal);            
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 5, 5));
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
+            
             view->resize(127.5, 127.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*2), priv.viewTileCount);
-            glBindBuffer(GL_ARRAY_BUFFER, priv.meshBuffer);
-            MEGA_GL_ASSERT_NO_ERROR;
-            glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &param);
-            MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT_EQUAL(GLint(4*2*3*2*sizeof(ViewVertex)), param);
-            glGetBufferSubData(GL_ARRAY_BUFFER, 0, 4*2*3*2*sizeof(ViewVertex),
-                               reinterpret_cast<GLvoid*>(vertexData));
-            MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 2.0f, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[12].tileCoord, 0.0f, 1.0f, 0.0f));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*2), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 3, 2));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
             
             view->resize(127.0, 127.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*3), priv.viewTileCount);
-            glBindBuffer(GL_ARRAY_BUFFER, priv.meshBuffer);
-            MEGA_GL_ASSERT_NO_ERROR;
-            glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &param);
-            MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT_EQUAL(GLint(4*2*3*2*sizeof(ViewVertex)), param);
-            glGetBufferSubData(GL_ARRAY_BUFFER, 0, 4*2*3*2*sizeof(ViewVertex),
-                               reinterpret_cast<GLvoid*>(vertexData));
-            MEGA_GL_ASSERT_NO_ERROR;
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 4].tileCoord, 1.0f, 0.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[ 8].tileCoord, 0.0f, 1.0f, 0.0f));
-            CPPUNIT_ASSERT(arrayEquals(vertexData[16].tileCoord, 0.0f, 2.0f, 0.0f));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*3), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 2, 3));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            
+            view->resize(381.5, 127.0);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
+            view->resize(127.0, 381.5);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
             
             view->resize(254.0, 254.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 3, 3));
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
             view->zoom(2.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 2, 2));
+            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             view->zoom(0.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileCount);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileTotal);
+            CPPUNIT_ASSERT(arrayEquals(priv.viewTileCount, 5, 5));
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);

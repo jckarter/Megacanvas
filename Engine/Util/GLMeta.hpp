@@ -139,6 +139,12 @@ namespace Mega {
         llvm::StringRef frag[] = {versionString, fragMain};
         return compileProgram(vert, frag, outVert, outFrag, outProg, outLog);
     }
+    
+    inline void bindTextureUnitTarget(GLuint unit, GLenum target, GLuint name)
+    {
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glBindTexture(target, name);
+    }
 }
 
 #endif
