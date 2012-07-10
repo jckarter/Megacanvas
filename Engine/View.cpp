@@ -80,14 +80,11 @@ namespace Mega {
                     *element++ = tile+2;
                 }
         
-        glBindBuffer(GL_ARRAY_BUFFER, $.meshBuffer);
         glBufferData(GL_ARRAY_BUFFER, 4*tileCount*sizeof(ViewVertex),
                      reinterpret_cast<const GLvoid*>(vertices.get()), GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, $.eltBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*tileCount*sizeof(GLuint),
                      reinterpret_cast<const GLvoid*>(elements.get()), GL_STATIC_DRAW);
         
-        glBindVertexArray($.meshArray);
         bindVertexAttributes<ViewVertex>($.program);
         
         MEGA_ASSERT_GL_NO_ERROR;
@@ -100,7 +97,6 @@ namespace Mega {
             $.mappingTextureSegmentSize = segmentSize;
 
             glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, $.mappingTexture);
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
                          0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
@@ -121,14 +117,12 @@ namespace Mega {
         size_t tileCount = $.tilesTextureCount = tiles.size();
         size_t tileSize = $.canvas.tileSize();
         
-        glActiveTexture(GL_TEXTURE0 + TILES_TU);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, $.tilesTexture);
-        
+        glActiveTexture(GL_TEXTURE0 + TILES_TU);        
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount+1,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         
         // Tile 0 is the empty tile; all transparent
-        std::unique_ptr<std::uint8_t[]> zeroes(new std::uint8_t[tileSize*tileSize*4]);
+        std::unique_ptr<std::uint8_t[]> zeroes(new std::uint8_t[tileSize*tileSize*4]());
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                         0, 0, 0, 
                         tileSize, tileSize, 1, 
@@ -226,6 +220,10 @@ namespace Mega {
         
         $.prepared = true;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
         glGenBuffers(1, &$.meshBuffer);
         glGenBuffers(1, &$.eltBuffer);
         glGenVertexArrays(1, &$.meshArray);
@@ -264,16 +262,28 @@ namespace Mega {
             return false;
         }
         
-        glUseProgram($.program);
-        
+        this->bindState();        
         $.updateShaderParams();
         $.updateCenter();
         $.updateViewport();
+        
         
         MEGA_ASSERT_GL_NO_ERROR;
         
         $.good = true;
         return true;
+    }
+    
+    void View::bindState()
+    {
+        glUseProgram($.program);
+        glBindVertexArray($.meshArray);
+        glBindBuffer(GL_ARRAY_BUFFER, $.meshBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, $.eltBuffer);
+        glActiveTexture(GL_TEXTURE0 + TILES_TU);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, $.tilesTexture);
+        glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, $.mappingTexture);
     }
 
     void View::resize(double width, double height)
@@ -281,10 +291,8 @@ namespace Mega {
         $.width = width;
         $.height = height;
         if ($.good) {
-            //viewport
             $.updateViewport();
             $.updateMesh();
-
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }
@@ -292,7 +300,10 @@ namespace Mega {
     void View::render()
     {
         assert($.good);
-        //todo;
+        
+        glClear(GL_COLOR_BUFFER_BIT); //FIXME checkered background
+        
+        glDrawElements(GL_TRIANGLES, 6*$.viewTileTotal, GL_UNSIGNED_INT, nullptr);
         MEGA_ASSERT_GL_NO_ERROR;
     }
 

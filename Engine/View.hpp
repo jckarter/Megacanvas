@@ -22,6 +22,7 @@ namespace Mega {
         static Owner<View> create(Canvas c);
 
         bool prepare(std::string *outError);
+        void bindState();
         void resize(double width, double height);
 
         void render();

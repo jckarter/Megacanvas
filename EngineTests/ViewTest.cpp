@@ -199,7 +199,6 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             
-            glUseProgram(priv.program);
             glEnable(GL_RASTERIZER_DISCARD);
             GLenum buf = GL_NONE;
             glDrawBuffers(1, &buf);
@@ -216,14 +215,6 @@ namespace Mega { namespace test {
             glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 1, feedbackBuffer, 
                               sizeof(float[4]) * 6*2*2*2, 
                               sizeof(float[3]) * 6*2*2*2);
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            
-            glBindVertexArray(priv.meshArray);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, priv.eltBuffer);
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            
-            glActiveTexture(GL_TEXTURE0 + TILES_TU);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, priv.tilesTexture);
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
             
             glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
@@ -250,7 +241,7 @@ namespace Mega { namespace test {
         {
             glBeginTransformFeedback(GL_TRIANGLES);
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            glDrawElements(GL_TRIANGLES, 6*this->view.priv().viewTileTotal, GL_UNSIGNED_INT, nullptr);
+            this->view->render();
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
             glEndTransformFeedback();
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
