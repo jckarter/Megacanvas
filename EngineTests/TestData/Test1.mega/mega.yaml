@@ -7,16 +7,15 @@ layers:
     priority: 0
     size: 1
     tiles:
-      - 0
       - 1
       - 2
       - 3
+      - 4
   - parallax: [0.5,0.5]
     origin: [16,32]
     priority: 0
     size: 2
     tiles:
-      - 4
       - 5
       - 6
       - 7
@@ -32,3 +31,4 @@ layers:
       - 17
       - 18
       - 19
+      - 20
