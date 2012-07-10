@@ -114,6 +114,7 @@ namespace Mega {
         glUniform1f($.uniforms.mappingTextureScale, 0.5/$.mappingTextureSegmentSize);
     }
     
+    // this shouldn't exist in final implementation
     void Priv<View>::loadAllTiles()
     {
         auto tiles = $.canvas.tiles();
@@ -123,11 +124,19 @@ namespace Mega {
         glActiveTexture(GL_TEXTURE0 + TILES_TU);
         glBindTexture(GL_TEXTURE_2D_ARRAY, $.tilesTexture);
         
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount,
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount+1,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         
-        for (size_t i = 0; i < tileCount; ++i) {
-            auto tile = tiles[i];
+        // Tile 0 is the empty tile; all transparent
+        std::unique_ptr<std::uint8_t[]> zeroes(new std::uint8_t[tileSize*tileSize*4]);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                        0, 0, 0, 
+                        tileSize, tileSize, 1, 
+                        GL_RGBA, GL_UNSIGNED_BYTE, zeroes.get());
+        
+        // Tiles 1 thru tileCount
+        for (size_t i = 1; i <= tileCount; ++i) {
+            auto tile = tiles[i-1];
             assert(tile.size() == tileSize*tileSize*4);
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                             0, 0, i,

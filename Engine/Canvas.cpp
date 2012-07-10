@@ -47,8 +47,8 @@ namespace Mega {
         llvm::MutableArrayRef<std::uint8_t> tile(size_t i)
         {
             size_t byteSize = $.tileLogByteSize;
-            assert(((i+1) << byteSize) <= $.tiles.size());
-            std::uint8_t *begin = $.tiles.data() + (i << byteSize);
+            assert((i << byteSize) <= $.tiles.size());
+            std::uint8_t *begin = $.tiles.data() + ((i-1) << byteSize);
             return llvm::MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
         }
     };
@@ -267,7 +267,7 @@ namespace Mega {
             //
             result.priv().resizeTiles(*tileCount);
             std::string tileFilename;
-            for (size_t tile = 0; tile < *tileCount; ++tile) {
+            for (size_t tile = 1; tile <= *tileCount; ++tile) {
                 tileFilename.clear();
                 raw_string_ostream paths(tileFilename);
                 paths << tile << ".rgba";
