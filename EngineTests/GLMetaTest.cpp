@@ -197,6 +197,24 @@ namespace Mega { namespace test {
     CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaContextTest);
     CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaNoContextTest);
 
+    void GLContextTestFixture::setUpTestFramebuffer()
+    {
+        GLuint fb, rb;
+        glGenFramebuffers(1, &fb);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
+        glGenRenderbuffers(1, &rb);
+        glBindRenderbuffer(GL_RENDERBUFFER, rb);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 128, 128);
+        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb);
+        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+        CPPUNIT_ASSERT_EQUAL(GLenum(GL_FRAMEBUFFER_COMPLETE),
+                             glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+    }
+    
+}}
+
+namespace Mega {
     std::ostream &operator<<(std::ostream &os, GLError err)
     {
         switch (GLenum(err)) {
@@ -227,20 +245,4 @@ namespace Mega { namespace test {
         }
         return os;
     }
-    
-    void GLContextTestFixture::setUpTestFramebuffer()
-    {
-        GLuint fb, rb;
-        glGenFramebuffers(1, &fb);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
-        glGenRenderbuffers(1, &rb);
-        glBindRenderbuffer(GL_RENDERBUFFER, rb);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 128, 128);
-        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb);
-        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-        CPPUNIT_ASSERT_EQUAL(GLenum(GL_FRAMEBUFFER_COMPLETE),
-                             glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
-    }
-    
-}}
+}

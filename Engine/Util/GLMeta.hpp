@@ -199,12 +199,22 @@ namespace Mega {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(target, name);
     }
+    
+    enum class GLError : GLenum {
+        NO_ERROR = GL_NO_ERROR,
+        INVALID_ENUM = GL_INVALID_ENUM,
+        INVALID_FRAMEBUFFER_OPERATION = GL_INVALID_FRAMEBUFFER_OPERATION,
+        INVALID_INDEX = GL_INVALID_INDEX,
+        INVALID_OPERATION = GL_INVALID_OPERATION,
+        INVALID_VALUE = GL_INVALID_VALUE,
+        OUT_OF_MEMORY = GL_OUT_OF_MEMORY
+    };
 }
 
 #ifdef NDEBUG
 #define MEGA_ASSERT_GL_NO_ERROR ((void)0)
 #else
-#define MEGA_ASSERT_GL_NO_ERROR do { auto glError = glGetError(); assert(glError == GL_NO_ERROR); } while(0)
+#define MEGA_ASSERT_GL_NO_ERROR do { GLError glError = GLError(glGetError()); assert(glError == GLError(GL_NO_ERROR)); } while(0)
 #endif
 
 #endif

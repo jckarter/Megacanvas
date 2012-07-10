@@ -41,14 +41,19 @@ namespace Mega {
         GLuint tilesTexture = 0, mappingTexture = 0, tilesTextureCount = 0, mappingTextureSegmentSize = 0;
         GLuint fragShader = 0, vertShader = 0, program = 0;
         
+        ViewUniforms uniforms;
+        
         Priv(Canvas c);
         ~Priv();
 
         bool createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg, std::string *outError);
         void deleteProgram();
 
+        void updateShaderParams();
         void updateMesh();
         void updateMappings();
+        void updateCenter();
+        void updateViewport();
         void loadAllTiles();
     };
     

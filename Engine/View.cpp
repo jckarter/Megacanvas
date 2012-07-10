@@ -107,6 +107,9 @@ namespace Mega {
             MEGA_ASSERT_GL_NO_ERROR;
             this->updateMappings();
         }
+        
+        glUniform2f(this->uniforms.tileCount, this->viewTileCount[0], this->viewTileCount[1]);
+        glUniform1f(this->uniforms.mappingTextureScale, 0.5/this->mappingTextureSegmentSize);
     }
     
     void Priv<View>::loadAllTiles()
@@ -135,6 +138,27 @@ namespace Mega {
     void Priv<View>::updateMappings()
     {
         //todo;
+    }
+    
+    void Priv<View>::updateShaderParams()
+    {
+        glUniform1f(this->uniforms.tileSize, this->canvas.tileSize());
+        glUniform1i(this->uniforms.mappingTexture, MAPPING_TU);
+        glUniform1i(this->uniforms.tilesTexture, TILES_TU);
+        MEGA_ASSERT_GL_NO_ERROR;
+    }
+    
+    void Priv<View>::updateCenter()
+    {
+        glUniform2f(this->uniforms.center, this->center.x, this->center.y);
+        MEGA_ASSERT_GL_NO_ERROR;
+    }
+    
+    void Priv<View>::updateViewport()
+    {
+        glViewport(0, 0, this->width, this->height);
+        glUniform2f(this->uniforms.viewport, this->width, this->height);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     bool Priv<View>::createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg, std::string *outError)
@@ -171,7 +195,8 @@ namespace Mega {
 
     void Priv<View>::deleteProgram()
     {
-        //todo;
+        destroyProgram(this->vertShader, this->fragShader, this->program);
+        this->vertShader = this->fragShader = this->program = 0;
     }
 
     Owner<View> View::create(Canvas c)
@@ -206,7 +231,7 @@ namespace Mega {
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        that->loadAllTiles();
+        that->loadAllTiles(); //FIXME load on demand
         
         auto error = glGetError();
         if (error != GL_NO_ERROR) {
@@ -217,6 +242,20 @@ namespace Mega {
 
         if (!that->createProgram(&that->fragShader, &that->vertShader, &that->program, outError))
             return false;
+        if (!getUniformLocations(that->program, &that->uniforms)) {
+            errors << "Unable to initialize shader parameters";
+            errors.flush();
+            that->deleteProgram();
+            return false;
+        }
+        
+        glUseProgram(that->program);
+        
+        that->updateShaderParams();
+        that->updateCenter();
+        that->updateViewport();
+        
+        MEGA_ASSERT_GL_NO_ERROR;
         
         that->good = true;
         return true;
@@ -224,13 +263,15 @@ namespace Mega {
 
     void View::resize(double width, double height)
     {
-        assert(that->good);
         that->width = width;
         that->height = height;
-        //viewport
-        that->updateMesh();
+        if (that->good) {
+            //viewport
+            that->updateViewport();
+            that->updateMesh();
 
-        MEGA_ASSERT_GL_NO_ERROR;
+            MEGA_ASSERT_GL_NO_ERROR;
+        }
     }
 
     void View::render()

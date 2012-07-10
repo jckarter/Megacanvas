@@ -193,6 +193,7 @@ namespace Mega { namespace test {
                                         GL_SEPARATE_ATTRIBS);
             if (!linkProgram(priv.program, &log))
                 throw std::runtime_error(log.c_str());
+            priv.updateShaderParams();
             
             view.resize(127.0, 64.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
@@ -286,39 +287,21 @@ namespace Mega { namespace test {
                 CPPUNIT_ASSERT_EQUAL(tileIndex, texCoords[j][2]);
         }
         
-        void setUpUniformsForTransformFeedback(ViewUniforms const &uniforms)
-        {
-            View view = this->view.get();
-            Priv<View> &priv = *view.that;
-
-            glUniform2f(uniforms.center, 0.0f, 0.0f);
-            glUniform2f(uniforms.viewport, 127.0f, 64.0f);
-            glUniform2f(uniforms.tileCount, float(priv.viewTileCount[0]), 
-                        float(priv.viewTileCount[1]));
-            glUniform1f(uniforms.tileSize, float(priv.canvas.tileSize()));
-            glUniform1f(uniforms.mappingTextureScale, 0.5/priv.mappingTextureSegmentSize);
-            glUniform1i(uniforms.mappingTexture, MAPPING_TU);
-            glUniform1i(uniforms.tilesTexture, TILES_TU);            
-        }
-        
         void testVertexShaderTileLayout()
         {
             View view = this->view.get();
             Priv<View> &priv = *view.that;
+            ViewUniforms &uniforms = priv.uniforms;
             
             setUpForTransformFeedback();
             
             std::uint8_t bufferData[bufferSize];
             
-            ViewUniforms uniforms;
-            getUniformLocations(priv.program, &uniforms);
-            setUpUniformsForTransformFeedback(uniforms);
-            runTransformFeedback(bufferData);
-            
             // test canvas has two layers
             // layer 0 (tiles 0 thru 3) has origin 0,0 parallax 1,1
             // layer 1 (tiles 4 thru 7) has origin 16,32 parallax 0.5,0.5
             
+            runTransformFeedback(bufferData);
             checkTileCorners(bufferData, 0,
                              0.0f, 0.0f,
                              0.0f);
@@ -385,19 +368,16 @@ namespace Mega { namespace test {
         {
             View view = this->view.get();
             Priv<View> &priv = *view.that;
+            ViewUniforms &uniforms = priv.uniforms;
             
             setUpForTransformFeedback();
             
             std::uint8_t bufferData[bufferSize];
             
-            ViewUniforms uniforms;
-            getUniformLocations(priv.program, &uniforms);
-            setUpUniformsForTransformFeedback(uniforms);
-            runTransformFeedback(bufferData);
-            
             // test canvas has two layers
             // layer 0 (tiles 0 thru 3) has origin 0,0 parallax 1,1
             // layer 1 (tiles 4 thru 7) has origin 16,32 parallax 0.5,0.5
+            runTransformFeedback(bufferData);
             checkTileCorners(bufferData, 4,
                              8.0f, 16.0f,
                              16.0f);

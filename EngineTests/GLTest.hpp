@@ -11,7 +11,7 @@
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
-#include "Engine/Util/GL.h"
+#include "Engine/Util/GLMeta.hpp"
 #include <algorithm>
 
 extern "C" {
@@ -45,10 +45,11 @@ namespace Mega { namespace test {
         return std::equal(std::begin(array), std::end(array), std::begin(expected));
     }
 
-    enum class GLError : GLenum {};
-    std::ostream &operator<<(std::ostream &os, GLError err);
 }}
 
+namespace Mega {
+    std::ostream &operator<<(std::ostream &os, GLError err);
+}
 #define MEGA_CPPUNIT_ASSERT_GL_NO_ERROR \
     CPPUNIT_ASSERT_EQUAL(GLError(GL_NO_ERROR), GLError(glGetError()))
 
