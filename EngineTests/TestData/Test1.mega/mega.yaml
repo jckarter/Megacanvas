@@ -2,7 +2,7 @@ mega: 1
 tile-size: 7
 tile-count: 20
 layers:
-  - parallax: [0.5,0.5]
+  - parallax: [1,1]
     origin: [0,0]
     priority: 0
     size: 1
@@ -11,8 +11,8 @@ layers:
       - 1
       - 2
       - 3
-  - parallax: [1,1]
-    origin: [0.0625,0.0625]
+  - parallax: [0.5,0.5]
+    origin: [16,32]
     priority: 0
     size: 2
     tiles:

@@ -14,23 +14,21 @@
 #include "Engine/Util/GL.h"
 #include <algorithm>
 
-#ifdef __cplusplus
 extern "C" {
-#endif
     int createTestGLContext(void);
     void destroyTestGLContext(void);
     void syncTestGLContext(void);
-#ifdef __cplusplus
 }
-#endif
 
 namespace Mega { namespace test {
     class GLContextTestFixture : public CppUnit::TestFixture {
     public:
+        void setUpTestFramebuffer();
         void setUp() override
         {
             if (!createTestGLContext())
                 throw std::runtime_error("unable to create opengl context");
+            this->setUpTestFramebuffer();
         }
 
         void tearDown() override
@@ -46,8 +44,12 @@ namespace Mega { namespace test {
         T expected[N] = {T(std::forward<TT>(values))...};
         return std::equal(std::begin(array), std::end(array), std::begin(expected));
     }
+
+    enum class GLError : GLenum {};
+    std::ostream &operator<<(std::ostream &os, GLError err);
 }}
 
-#define MEGA_GL_ASSERT_NO_ERROR CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError())
+#define MEGA_CPPUNIT_ASSERT_GL_NO_ERROR \
+    CPPUNIT_ASSERT_EQUAL(GLError(GL_NO_ERROR), GLError(glGetError()))
 
 #endif

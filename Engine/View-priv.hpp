@@ -10,12 +10,14 @@
 #define Megacanvas_View_priv_hpp
 
 #include "Engine/Canvas.hpp"
+#include "Engine/Layer.hpp"
 #include "Engine/View.hpp"
 #include "Engine/Util/NamedTuple.hpp"
 #include "Engine/Util/GLMeta.hpp"
 
-namespace Mega {
-    using ViewUniforms = NamedTuple<>;
+namespace Mega {    
+    using ViewUniforms = UniformTuple<center, viewport, tileCount, /*zoom,*/ tileSize, mappingTextureScale, mappingTexture, tilesTexture>;
+    
     using ViewVertex = NamedTuple<
         tileCoord<float[3]>,
         padding1<Pad<float>>,
@@ -34,6 +36,7 @@ namespace Mega {
 
         bool prepared:1, good:1;
         GLuint meshBuffer = 0, eltBuffer = 0, viewTileTotal = 0;
+        GLuint meshArray = 0;
         GLuint viewTileCount[2] = {0, 0};
         GLuint tilesTexture = 0, mappingTexture = 0, tilesTextureCount = 0, mappingTextureSegmentSize = 0;
         GLuint fragShader = 0, vertShader = 0, program = 0;

@@ -8,9 +8,6 @@
 
 #include <cmath>
 
-#include "Engine/Util/GL.h"
-#include "Engine/Canvas.hpp"
-#include "Engine/Layer.hpp"
 #include "Engine/View-priv.hpp"
 
 namespace Mega {
@@ -26,6 +23,7 @@ namespace Mega {
             this->deleteProgram();
             glDeleteTextures(1, &this->mappingTexture);
             glDeleteTextures(1, &this->tilesTexture);
+            glDeleteVertexArrays(1, &this->meshArray);
             glDeleteBuffers(1, &this->eltBuffer);
             glDeleteBuffers(1, &this->meshBuffer);
         }
@@ -89,7 +87,10 @@ namespace Mega {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*tileCount*sizeof(GLuint),
                      reinterpret_cast<const GLvoid*>(elements.get()), GL_STATIC_DRAW);
         
-        assert(glGetError() == GL_NO_ERROR);
+        glBindVertexArray(this->meshArray);
+        bindVertexAttributes<ViewVertex>(this->program);
+        
+        MEGA_ASSERT_GL_NO_ERROR;
         
         GLuint segmentSizeGoal = max(tilew, tileh), segmentSize = 2;
         while (segmentSize < segmentSizeGoal)
@@ -103,7 +104,7 @@ namespace Mega {
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
                          0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
-            assert(glGetError() == GL_NO_ERROR);
+            MEGA_ASSERT_GL_NO_ERROR;
             this->updateMappings();
         }
     }
@@ -128,7 +129,7 @@ namespace Mega {
                             tileSize, tileSize, 1,
                             GL_RGBA, GL_UNSIGNED_BYTE, tile.data());
         }
-        assert(glGetError() == GL_NO_ERROR);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateMappings()
@@ -138,7 +139,33 @@ namespace Mega {
     
     bool Priv<View>::createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg, std::string *outError)
     {
-        //todo;
+        using namespace llvm;
+        using namespace std;
+        OwningPtr<MemoryBuffer> fragSource, vertSource;
+        string basename = shaderPath;
+        basename += "/megacanvas";
+        if (!loadProgramSource(basename, &vertSource, &fragSource, outError))
+            return false;
+        llvm::SmallString<16> log;
+        if (!compileProgram(vertSource->getBuffer(), 
+                            fragSource->getBuffer(), 
+                            outVert, outFrag, outProg,
+                            &log)) {
+            *outError = "shader compile error:\n";
+            *outError += log;
+            return false;
+        }
+        
+        glBindFragDataLocation(*outProg, 0, "color");
+        
+        if (!linkProgram(*outProg, &log)) {
+            *outError = "shader link error:\n";
+            *outError += log;
+            destroyProgram(*outVert, *outFrag, *outProg);
+            *outVert = *outFrag = *outProg = 0;
+            return false;
+        }
+        
         return true;
     }
 
@@ -161,6 +188,7 @@ namespace Mega {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glGenBuffers(1, &that->meshBuffer);
         glGenBuffers(1, &that->eltBuffer);
+        glGenVertexArrays(1, &that->meshArray);
 
         glGenTextures(1, &that->tilesTexture);
         glActiveTexture(GL_TEXTURE0 + TILES_TU);
@@ -202,14 +230,14 @@ namespace Mega {
         //viewport
         that->updateMesh();
 
-        assert(glGetError() == GL_NO_ERROR);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
 
     void View::render()
     {
         assert(that->good);
         //todo;
-        assert(glGetError() == GL_NO_ERROR);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
 
     MEGA_PRIV_GETTER_SETTER(View, center, Vec)
@@ -220,7 +248,7 @@ namespace Mega {
         that->zoom = x;
         if (that->good) {
             that->updateMesh();
-            assert(glGetError() == GL_NO_ERROR);
+            MEGA_ASSERT_GL_NO_ERROR;
         }
     }
 

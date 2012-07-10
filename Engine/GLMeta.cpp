@@ -42,29 +42,36 @@ namespace Mega {
             }
             return true;
         }
-
-        bool linkProgram(GLuint vert, GLuint frag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
-        {
-            *outProg = glCreateProgram();
-            glAttachShader(*outProg, vert);
-            glAttachShader(*outProg, frag);
-            glLinkProgram(*outProg);
-            GLint status;
-            glGetProgramiv(*outProg, GL_LINK_STATUS, &status);
-            if (!status) {
-                getLog<glGetProgramiv, glGetProgramInfoLog>(*outProg, outLog);
-                glDetachShader(*outProg, vert);
-                glDetachShader(*outProg, frag);
-                glDeleteProgram(*outProg);
-                *outProg = 0;
-                return false;
-            }
-            return true;
-        }
     }
-
+    
+    bool loadProgramSource(llvm::StringRef baseName, 
+                           llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, 
+                           llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, 
+                           std::string *outError)
+    {
+        using namespace llvm;
+        using namespace std;
+        string vertName = baseName, fragName = baseName;
+        vertName += ".v.glsl"; fragName += ".f.glsl";
+        
+        error_code error;
+        error = MemoryBuffer::getFile(vertName, *outVertSource);
+        if (error) {
+            *outError = error.message();
+            return false;
+        }
+        error = MemoryBuffer::getFile(fragName, *outFragSource);
+        if (error) {
+            *outError = error.message();
+            outVertSource->reset();
+            return false;
+        }
+        return true;
+    }
+    
     bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
-                        GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
+                        GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                        llvm::SmallVectorImpl<char> *outLog)
     {
         *outFrag = *outVert = *outProg = 0;
         outLog->clear();
@@ -72,8 +79,10 @@ namespace Mega {
             goto error;
         if (!compileShader(frag, GL_FRAGMENT_SHADER, outFrag, outLog))
             goto error_after_compiling_vert;
-        if (!linkProgram(*outVert, *outFrag, outProg, outLog))
-            goto error_after_compiling_frag;
+        *outProg = glCreateProgram();
+        glAttachShader(*outProg, *outVert);
+        glAttachShader(*outProg, *outFrag);
+
         return true;
 
     error_after_compiling_frag:
@@ -84,5 +93,26 @@ namespace Mega {
         outVert = 0;
     error:
         return false;
+    }
+    
+    bool linkProgram(GLuint prog, llvm::SmallVectorImpl<char> *outLog)
+    {
+        glLinkProgram(prog);
+        GLint status;
+        glGetProgramiv(prog, GL_LINK_STATUS, &status);
+        if (!status) {
+            getLog<glGetProgramiv, glGetProgramInfoLog>(prog, outLog);
+            return false;
+        }
+        return true;
+    }
+    
+    void destroyProgram(GLuint vert, GLuint frag, GLuint prog)
+    {
+        glDetachShader(prog, vert);
+        glDetachShader(prog, frag);
+        glDeleteProgram(prog);
+        glDeleteShader(vert);
+        glDeleteShader(frag);
     }
 }

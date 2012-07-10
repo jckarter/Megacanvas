@@ -2,7 +2,7 @@
 
 uniform sampler2DArray tilesTexture;
 
-in noperspective vec3 frag_texCoord;
+noperspective in vec3 frag_texCoord;
 out vec4 color;
 
 void main() {

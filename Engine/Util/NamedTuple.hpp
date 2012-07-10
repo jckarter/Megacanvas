@@ -67,6 +67,12 @@ namespace Mega {
         {
             char __attribute__((unused)) discard[] = {(f(Fields::name(), offset_of<Fields>(), size_of<Fields>(), Trait<typename Fields::type>::value()), '\0')...};
         }
+        
+        template<typename Function>
+        void eachInstanceField(Function &&f)
+        {
+            char __attribute__((unused)) discard[] = {(f(Fields::name(), this->Fields::value()), '\0')...};
+        }
     };
 
 #ifndef NDEBUG
@@ -97,12 +103,20 @@ namespace Mega {
 #endif
     
     namespace fields {
-        MEGA_FIELD(tileCoord)
-        MEGA_FIELD(tileCorner)
+        MEGA_FIELD(center)
         MEGA_FIELD(layerParallax)
         MEGA_FIELD(layerOrigin)
+        MEGA_FIELD(mappingTexture)
+        MEGA_FIELD(mappingTextureScale)
         MEGA_FIELD(padding1)
         MEGA_FIELD(padding2)
+        MEGA_FIELD(tilesTexture)
+        MEGA_FIELD(tileCoord)
+        MEGA_FIELD(tileCorner)
+        MEGA_FIELD(tileCount)
+        MEGA_FIELD(tileSize)
+        MEGA_FIELD(viewport)
+        MEGA_FIELD(zoom)
     }
     using namespace fields;
 }

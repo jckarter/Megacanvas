@@ -11,10 +11,14 @@
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/MemoryBuffer.h>
 #include "Engine/Util/GL.h"
 #include "Engine/Util/NamedTuple.hpp"
 
 namespace Mega {
+    template<template<typename> class...Field>
+    using UniformTuple = NamedTuple<Field<GLint>...>;
+
     template<typename T> struct Pad { T pad; };
     
     struct GLVertexType { GLenum type; GLint size; GLboolean normalized; bool isPadding; };
@@ -70,6 +74,11 @@ namespace Mega {
     struct GLSLType<Pad<T>> {
         static GLSLTypeInfo value() { return {"<<PADDING>>", true}; }
     };
+    
+    template<typename T>
+    struct NoTrait {
+        static int value() { return 0; }
+    };
 
     namespace {
         // xcode 4.3 can't handle lambdas
@@ -103,6 +112,22 @@ namespace Mega {
                 codes << "in " << glslType.name << ' ' << name << ";\n";
             }
         };
+        
+        template<typename T>
+        struct _UniformLocationGetter {
+            GLuint program;
+            T &uniforms;
+            bool ok;
+            _UniformLocationGetter(GLuint program, T &uniforms) : program(program), uniforms(uniforms), ok(true) {}
+            
+            void operator()(char const *name, GLint &field) {
+                field = glGetUniformLocation(program, name);
+                if (field == -1) {
+                    ok = false;
+                    return;
+                }
+            }
+        };
     }
 
     template<typename T>
@@ -110,6 +135,14 @@ namespace Mega {
     {
         _VertexAttributeBinder iter(prog, sizeof(T));
         T::template eachField<GLVertexTraits>(iter);
+        return iter.ok;
+    }
+    
+    template<typename T>
+    bool getUniformLocations(GLuint prog, T *outFields)
+    {
+        _UniformLocationGetter<T> iter(prog, *outFields);
+        outFields->template eachInstanceField(iter);
         return iter.ok;
     }
 
@@ -120,24 +153,45 @@ namespace Mega {
         T::template eachField<GLSLType>(iter);
         return std::move(iter.codes.str());
     }
-
+    
+    bool loadProgramSource(llvm::StringRef baseName, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, std::string *outError);
+    
     bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
-                        GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog);
-    inline bool compileProgram(llvm::StringRef vert, llvm::StringRef frag,
-                               GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
+                        GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                        llvm::SmallVectorImpl<char> *outLog);
+    bool linkProgram(GLuint prog, llvm::SmallVectorImpl<char> *outLog);
+    void destroyProgram(GLuint vert, GLuint frag, GLuint prog);
+    
+    inline bool compileAndLinkProgram(llvm::ArrayRef<llvm::StringRef> vert,
+                                      llvm::ArrayRef<llvm::StringRef> frag,
+                                      GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                                      llvm::SmallVectorImpl<char> *outLog)
     {
-        return compileProgram(makeArrayRef(vert), makeArrayRef(frag), outVert, outFrag, outProg, outLog);
+        if (!compileProgram(vert, frag, outVert, outFrag, outProg, outLog))
+            return false;
+        if (!linkProgram(*outProg, outLog)) {
+            destroyProgram(*outVert, *outFrag, *outProg);
+            return false;
+        }
+        return true;
+    }
+    inline bool compileAndLinkProgram(llvm::StringRef vert, llvm::StringRef frag,
+                                      GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                                      llvm::SmallVectorImpl<char> *outLog)
+    {
+        return compileAndLinkProgram(makeArrayRef(vert), makeArrayRef(frag), outVert, outFrag, outProg, outLog);
     }
 
     template<typename T>
-    inline bool compileProgramAutoInputs(llvm::StringRef vertMain, llvm::StringRef fragMain,
-                                         GLuint *outVert, GLuint *outFrag, GLuint *outProg, llvm::SmallVectorImpl<char> *outLog)
+    inline bool compileAndLinkProgramAutoInputs(llvm::StringRef vertMain, llvm::StringRef fragMain,
+                                                GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                                                llvm::SmallVectorImpl<char> *outLog)
     {
         char const *versionString = "#version 150\n";
         std::string inputs = vertexShaderInputs<T>();
         llvm::StringRef vert[] = {versionString, inputs, vertMain};
         llvm::StringRef frag[] = {versionString, fragMain};
-        return compileProgram(vert, frag, outVert, outFrag, outProg, outLog);
+        return compileAndLinkProgram(vert, frag, outVert, outFrag, outProg, outLog);
     }
     
     inline void bindTextureUnitTarget(GLuint unit, GLenum target, GLuint name)
@@ -146,5 +200,11 @@ namespace Mega {
         glBindTexture(target, name);
     }
 }
+
+#ifdef NDEBUG
+#define MEGA_ASSERT_GL_NO_ERROR ((void)0)
+#else
+#define MEGA_ASSERT_GL_NO_ERROR do { auto glError = glGetError(); assert(glError == GL_NO_ERROR); } while(0)
+#endif
 
 #endif

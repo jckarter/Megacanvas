@@ -24,8 +24,8 @@ namespace Mega { namespace test {
     class GLMetaContextTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(GLMetaContextTest);
         CPPUNIT_TEST(testGLContext);
-        CPPUNIT_TEST(testCompileProgram);
-        CPPUNIT_TEST(testCompileProgramAutoInputs);
+        CPPUNIT_TEST(testcompileAndLinkProgram);
+        CPPUNIT_TEST(testcompileAndLinkProgramAutoInputs);
         CPPUNIT_TEST(testBindVertexAttributes);
         CPPUNIT_TEST_SUITE_END();
 
@@ -42,16 +42,12 @@ namespace Mega { namespace test {
 
         void loadTestProgramSource(llvm::StringRef basename, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource)
         {
-            using namespace llvm;
-            std::string vertname, fragname;
-            raw_string_ostream vertnames(vertname), fragnames(fragname);
-            vertnames << "EngineTests/TestData/shaders/" << basename << ".v.glsl";
-            fragnames << "EngineTests/TestData/shaders/" << basename << ".f.glsl";
-            error_code error;
-            error = MemoryBuffer::getFile(vertnames.str(), *outVertSource);
-            CPPUNIT_ASSERT(!error);
-            error = MemoryBuffer::getFile(fragnames.str(), *outFragSource);
-            CPPUNIT_ASSERT(!error);
+            std::string fullBasename = "EngineTests/TestData/shaders/";
+            fullBasename += basename;
+            std::string error;
+            
+            if (!loadProgramSource(fullBasename, outVertSource, outFragSource, &error))
+                throw std::runtime_error(error);
         }
 
         void loadTestProgram(llvm::StringRef basename, GLuint *vert, GLuint *frag, GLuint *prog)
@@ -60,7 +56,7 @@ namespace Mega { namespace test {
             OwningPtr<MemoryBuffer> vertSource, fragSource;
             loadTestProgramSource(basename, &vertSource, &fragSource);
             SmallString<16> log;
-            if (!compileProgram(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
+            if (!compileAndLinkProgram(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
                 throw std::runtime_error(log.c_str());
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
         }
@@ -72,12 +68,12 @@ namespace Mega { namespace test {
             OwningPtr<MemoryBuffer> vertSource, fragSource;
             loadTestProgramSource(basename, &vertSource, &fragSource);
             SmallString<16> log;
-            if (!compileProgramAutoInputs<T>(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
+            if (!compileAndLinkProgramAutoInputs<T>(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
                 throw std::runtime_error(log.c_str());
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
         }
 
-        void testCompileProgram()
+        void testcompileAndLinkProgram()
         {
             GLuint vert, frag, prog;
             loadTestProgram("test1", &vert, &frag, &prog);
@@ -101,7 +97,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
         }
 
-        void testCompileProgramAutoInputs()
+        void testcompileAndLinkProgramAutoInputs()
         {
             using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>>;
 
@@ -201,4 +197,50 @@ namespace Mega { namespace test {
     CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaContextTest);
     CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaNoContextTest);
 
+    std::ostream &operator<<(std::ostream &os, GLError err)
+    {
+        switch (GLenum(err)) {
+            case GL_NO_ERROR:
+                os << "GL_NO_ERROR";
+                break;
+            case GL_INVALID_ENUM:
+                os << "GL_INVALID_ENUM";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                os << "GL_INVALID_FRAMEBUFFER_OPERATION";
+                break;
+            case GL_INVALID_INDEX:
+                os << "GL_INVALID_INDEX";
+                break;
+            case GL_INVALID_OPERATION:
+                os << "GL_INVALID_OPERATION";
+                break;
+            case GL_INVALID_VALUE:
+                os << "GL_INVALID_VALUE";
+                break;
+            case GL_OUT_OF_MEMORY:
+                os << "GL_OUT_OF_MEMORY";
+                break;
+            default:
+                os << "0x" << std::hex << GLenum(err) << std::dec;
+                break;
+        }
+        return os;
+    }
+    
+    void GLContextTestFixture::setUpTestFramebuffer()
+    {
+        GLuint fb, rb;
+        glGenFramebuffers(1, &fb);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
+        glGenRenderbuffers(1, &rb);
+        glBindRenderbuffer(GL_RENDERBUFFER, rb);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 128, 128);
+        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb);
+        MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+        CPPUNIT_ASSERT_EQUAL(GLenum(GL_FRAMEBUFFER_COMPLETE),
+                             glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+    }
+    
 }}

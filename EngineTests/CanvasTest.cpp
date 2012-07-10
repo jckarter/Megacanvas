@@ -59,10 +59,10 @@ namespace Mega { namespace test {
             auto layers = canvas.layers();
             CPPUNIT_ASSERT(layers.size() == 2);
 
-            CPPUNIT_ASSERT(layers[0].parallax() == Vec(0.5, 0.5));
+            CPPUNIT_ASSERT(layers[0].parallax() == Vec(1., 1.));
             CPPUNIT_ASSERT(layers[0].priority() == 0);
 
-            CPPUNIT_ASSERT(layers[1].parallax() == Vec(1., 1.));
+            CPPUNIT_ASSERT(layers[1].parallax() == Vec(0.5, 0.5));
             CPPUNIT_ASSERT(layers[1].priority() == 0);
 
             auto tiles = canvas.tiles();
