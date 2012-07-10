@@ -16,7 +16,20 @@
 #include "Engine/Util/GLMeta.hpp"
 
 namespace Mega {    
-    using ViewUniforms = UniformTuple<center, viewport, tileCount, /*zoom,*/ tileSize, mappingTextureScale, mappingTexture, tilesTexture>;
+    using ViewUniforms = UniformTuple<
+        center,
+        tileCount,
+        invTileCount,
+        tilePhase,
+        viewportScale,
+        /*zoom,*/
+        tileTrimSize,
+        invTileTrimSize,
+        tileTexLo,
+        tileTexSize,
+        mappingTextureScale,
+        mappingTexture,
+        tilesTexture>;
     
     using ViewVertex = NamedTuple<
         tileCoord<float[3]>,

@@ -125,6 +125,13 @@ namespace Mega {
         static_assert(sizeof(_PrivTest) == sizeof(void*), "HasPriv should be pointer-sized");
     }
 #endif
+
+    template<typename T>
+    inline Priv<T> &_self(HasPriv<T> x) { return *x.that; }
+    template<typename T>
+    inline Priv<T> &_self(Priv<T> &x) { return x; }
+    
+#define $ (::Mega::_self(*this))
 }
 
 #endif

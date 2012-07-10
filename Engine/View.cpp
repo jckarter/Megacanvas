@@ -19,13 +19,13 @@ namespace Mega {
 
     Priv<View>::~Priv()
     {
-        if (this->prepared) {
-            this->deleteProgram();
-            glDeleteTextures(1, &this->mappingTexture);
-            glDeleteTextures(1, &this->tilesTexture);
-            glDeleteVertexArrays(1, &this->meshArray);
-            glDeleteBuffers(1, &this->eltBuffer);
-            glDeleteBuffers(1, &this->meshBuffer);
+        if ($.prepared) {
+            $.deleteProgram();
+            glDeleteTextures(1, &$.mappingTexture);
+            glDeleteTextures(1, &$.tilesTexture);
+            glDeleteVertexArrays(1, &$.meshArray);
+            glDeleteBuffers(1, &$.eltBuffer);
+            glDeleteBuffers(1, &$.meshBuffer);
         }
     }
     
@@ -48,15 +48,15 @@ namespace Mega {
     void Priv<View>::updateMesh()
     {
         using namespace std;
-        assert(this->good);
+        assert($.good);
         
-        double invTileSize = 1.0/double(this->canvas.tileSize() - 1);
-        double invZoom = 1.0/this->zoom;
-        auto layers = this->canvas.layers();
-        GLuint tilew = this->viewTileCount[0] = GLuint(ceil(this->width*invZoom*invTileSize)) + 1;
-        GLuint tileh = this->viewTileCount[1] = GLuint(ceil(this->height*invZoom*invTileSize)) + 1;
+        double invTileSize = 1.0/double($.canvas.tileSize() - 1);
+        double invZoom = 1.0/$.zoom;
+        auto layers = $.canvas.layers();
+        GLuint tilew = $.viewTileCount[0] = GLuint(ceil($.width*invZoom*invTileSize)) + 1;
+        GLuint tileh = $.viewTileCount[1] = GLuint(ceil($.height*invZoom*invTileSize)) + 1;
         
-        GLuint tileCount = this->viewTileTotal = layers.size() * tilew * tileh;        
+        GLuint tileCount = $.viewTileTotal = layers.size() * tilew * tileh;        
 
         unique_ptr<ViewVertex[]> vertices(new ViewVertex[4*tileCount]);
         unique_ptr<GLuint[]> elements(new GLuint[6*tileCount]);
@@ -80,15 +80,15 @@ namespace Mega {
                     *element++ = tile+2;
                 }
         
-        glBindBuffer(GL_ARRAY_BUFFER, this->meshBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, $.meshBuffer);
         glBufferData(GL_ARRAY_BUFFER, 4*tileCount*sizeof(ViewVertex),
                      reinterpret_cast<const GLvoid*>(vertices.get()), GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->eltBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, $.eltBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*tileCount*sizeof(GLuint),
                      reinterpret_cast<const GLvoid*>(elements.get()), GL_STATIC_DRAW);
         
-        glBindVertexArray(this->meshArray);
-        bindVertexAttributes<ViewVertex>(this->program);
+        glBindVertexArray($.meshArray);
+        bindVertexAttributes<ViewVertex>($.program);
         
         MEGA_ASSERT_GL_NO_ERROR;
         
@@ -96,30 +96,32 @@ namespace Mega {
         while (segmentSize < segmentSizeGoal)
             segmentSize <<= 1;
 
-        if (segmentSize != this->mappingTextureSegmentSize) {
-            this->mappingTextureSegmentSize = segmentSize;
+        if (segmentSize != $.mappingTextureSegmentSize) {
+            $.mappingTextureSegmentSize = segmentSize;
 
             glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, this->mappingTexture);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, $.mappingTexture);
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
                          0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
             MEGA_ASSERT_GL_NO_ERROR;
-            this->updateMappings();
+            $.updateMappings();
         }
         
-        glUniform2f(this->uniforms.tileCount, this->viewTileCount[0], this->viewTileCount[1]);
-        glUniform1f(this->uniforms.mappingTextureScale, 0.5/this->mappingTextureSegmentSize);
+        glUniform2f($.uniforms.tileCount, $.viewTileCount[0], $.viewTileCount[1]);
+        glUniform2f($.uniforms.invTileCount, 1.0/$.viewTileCount[0], 1.0/$.viewTileCount[1]);
+        glUniform2f($.uniforms.tilePhase, 0.5*($.viewTileCount[0] - 1.0), 0.5*($.viewTileCount[1] - 1.0));
+        glUniform1f($.uniforms.mappingTextureScale, 0.5/$.mappingTextureSegmentSize);
     }
     
     void Priv<View>::loadAllTiles()
     {
-        auto tiles = this->canvas.tiles();
-        size_t tileCount = this->tilesTextureCount = tiles.size();
-        size_t tileSize = this->canvas.tileSize();
+        auto tiles = $.canvas.tiles();
+        size_t tileCount = $.tilesTextureCount = tiles.size();
+        size_t tileSize = $.canvas.tileSize();
         
         glActiveTexture(GL_TEXTURE0 + TILES_TU);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, this->tilesTexture);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, $.tilesTexture);
         
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -142,22 +144,26 @@ namespace Mega {
     
     void Priv<View>::updateShaderParams()
     {
-        glUniform1f(this->uniforms.tileSize, this->canvas.tileSize());
-        glUniform1i(this->uniforms.mappingTexture, MAPPING_TU);
-        glUniform1i(this->uniforms.tilesTexture, TILES_TU);
+        float tileSize = $.canvas.tileSize();
+        glUniform1f($.uniforms.tileTrimSize, tileSize - 1.0f);
+        glUniform1f($.uniforms.invTileTrimSize, 1.0f/(tileSize - 1.0f));
+        glUniform1f($.uniforms.tileTexLo, 0.5f/tileSize);
+        glUniform1f($.uniforms.tileTexSize, (tileSize - 1.0f)/tileSize);
+        glUniform1i($.uniforms.mappingTexture, MAPPING_TU);
+        glUniform1i($.uniforms.tilesTexture, TILES_TU);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateCenter()
     {
-        glUniform2f(this->uniforms.center, this->center.x, this->center.y);
+        glUniform2f($.uniforms.center, $.center.x, $.center.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateViewport()
     {
-        glViewport(0, 0, this->width, this->height);
-        glUniform2f(this->uniforms.viewport, this->width, this->height);
+        glViewport(0, 0, $.width, $.height);
+        glUniform2f($.uniforms.viewportScale, 2.0/$.width, 2.0/$.height);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -195,8 +201,8 @@ namespace Mega {
 
     void Priv<View>::deleteProgram()
     {
-        destroyProgram(this->vertShader, this->fragShader, this->program);
-        this->vertShader = this->fragShader = this->program = 0;
+        destroyProgram($.vertShader, $.fragShader, $.program);
+        $.vertShader = $.fragShader = $.program = 0;
     }
 
     Owner<View> View::create(Canvas c)
@@ -206,32 +212,32 @@ namespace Mega {
 
     bool View::prepare(std::string *outError)
     {
-        assert(!that->prepared);
+        assert(!$.prepared);
         llvm::raw_string_ostream errors(*outError);
         
-        that->prepared = true;
+        $.prepared = true;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glGenBuffers(1, &that->meshBuffer);
-        glGenBuffers(1, &that->eltBuffer);
-        glGenVertexArrays(1, &that->meshArray);
+        glGenBuffers(1, &$.meshBuffer);
+        glGenBuffers(1, &$.eltBuffer);
+        glGenVertexArrays(1, &$.meshArray);
 
-        glGenTextures(1, &that->tilesTexture);
+        glGenTextures(1, &$.tilesTexture);
         glActiveTexture(GL_TEXTURE0 + TILES_TU);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, that->tilesTexture);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, $.tilesTexture);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         
-        glGenTextures(1, &that->mappingTexture);
+        glGenTextures(1, &$.mappingTexture);
         glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, that->mappingTexture);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, $.mappingTexture);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        that->loadAllTiles(); //FIXME load on demand
+        $.loadAllTiles(); //FIXME load on demand
         
         auto error = glGetError();
         if (error != GL_NO_ERROR) {
@@ -240,43 +246,43 @@ namespace Mega {
             return false;
         }
 
-        if (!that->createProgram(&that->fragShader, &that->vertShader, &that->program, outError))
+        if (!$.createProgram(&$.fragShader, &$.vertShader, &$.program, outError))
             return false;
-        if (!getUniformLocations(that->program, &that->uniforms)) {
+        if (!getUniformLocations($.program, &$.uniforms)) {
             errors << "Unable to initialize shader parameters";
             errors.flush();
-            that->deleteProgram();
+            $.deleteProgram();
             return false;
         }
         
-        glUseProgram(that->program);
+        glUseProgram($.program);
         
-        that->updateShaderParams();
-        that->updateCenter();
-        that->updateViewport();
+        $.updateShaderParams();
+        $.updateCenter();
+        $.updateViewport();
         
         MEGA_ASSERT_GL_NO_ERROR;
         
-        that->good = true;
+        $.good = true;
         return true;
     }
 
     void View::resize(double width, double height)
     {
-        that->width = width;
-        that->height = height;
-        if (that->good) {
+        $.width = width;
+        $.height = height;
+        if ($.good) {
             //viewport
-            that->updateViewport();
-            that->updateMesh();
+            $.updateViewport();
+            $.updateMesh();
 
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }
-
+    
     void View::render()
     {
-        assert(that->good);
+        assert($.good);
         //todo;
         MEGA_ASSERT_GL_NO_ERROR;
     }
@@ -286,9 +292,9 @@ namespace Mega {
 
     void View::zoom(double x)
     {
-        that->zoom = x;
-        if (that->good) {
-            that->updateMesh();
+        $.zoom = x;
+        if ($.good) {
+            $.updateMesh();
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }

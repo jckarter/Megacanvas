@@ -140,11 +140,11 @@ namespace Mega {
         }
 
         bool equals(OpaqueArrayRef other) const {
-            if (this->isize != other.isize || this->length != other.length)
+            if (isize != other.isize || length != other.length)
                 return false;
-            if (this->data == other.data)
+            if (data == other.data)
                 return true;
-            for (size_t i = 0; i < this->length; ++i)
+            for (size_t i = 0; i < length; ++i)
                 if ((*this)[i] != other[i])
                     return false;
             return true;

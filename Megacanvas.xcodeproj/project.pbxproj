@@ -103,13 +103,13 @@
 		D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpaqueIteratorTest.cpp; sourceTree = "<group>"; };
 		D8FEA323159E5D9F005A2EF3 /* View.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = View.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA329159EC7C0005A2EF3 /* GL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GL.h; sourceTree = "<group>"; };
-		D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NamedTuple.hpp; sourceTree = "<group>"; };
+		D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = NamedTuple.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NamedTupleTest.cpp; sourceTree = "<group>"; };
 		D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLMeta.hpp; sourceTree = "<group>"; };
 		D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMetaTest.cpp; sourceTree = "<group>"; };
 		D8FEA33015A171D3005A2EF3 /* TestGLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TestGLContext.c; sourceTree = "<group>"; };
 		D8FEA33215A24788005A2EF3 /* GLMeta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMeta.cpp; sourceTree = "<group>"; };
-		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLTest.hpp; sourceTree = "<group>"; };
+		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = GLTest.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "View-priv.hpp"; sourceTree = "<group>"; };
 		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewTest.cpp; sourceTree = "<group>"; };
 		D8FEA34015A929E8005A2EF3 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Shaders; sourceTree = "<group>"; };

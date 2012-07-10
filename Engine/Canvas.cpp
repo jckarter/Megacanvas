@@ -43,12 +43,12 @@ namespace Mega {
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers)
         { }
 
-        void resizeTiles(size_t count) { tiles.resize(count << this->tileLogByteSize); }
+        void resizeTiles(size_t count) { tiles.resize(count << $.tileLogByteSize); }
         llvm::MutableArrayRef<std::uint8_t> tile(size_t i)
         {
-            size_t byteSize = this->tileLogByteSize;
-            assert(((i+1) << byteSize) <= this->tiles.size());
-            std::uint8_t *begin = this->tiles.data() + (i << byteSize);
+            size_t byteSize = $.tileLogByteSize;
+            assert(((i+1) << byteSize) <= $.tiles.size());
+            std::uint8_t *begin = $.tiles.data() + (i << byteSize);
             return llvm::MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
         }
     };
@@ -303,22 +303,22 @@ error:
 
     size_t Canvas::tileSize()
     {
-        return 1 << that->tileLogSize;
+        return 1 << $.tileLogSize;
     }
 
     size_t Canvas::tileArea()
     {
-        return 1 << (that->tileLogSize << 1);
+        return 1 << ($.tileLogSize << 1);
     }
 
     size_t Canvas::tileByteSize()
     {
-        return 1 << that->tileLogByteSize;
+        return 1 << $.tileLogByteSize;
     }
 
     Array2DRef<std::uint8_t> Canvas::tiles()
     {
-        return Array2DRef<std::uint8_t>(that->tiles, 1 << that->tileLogByteSize);
+        return Array2DRef<std::uint8_t>($.tiles, 1 << $.tileLogByteSize);
     }
 
     //

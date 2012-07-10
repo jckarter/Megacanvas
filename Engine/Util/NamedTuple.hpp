@@ -104,6 +104,8 @@ namespace Mega {
     
     namespace fields {
         MEGA_FIELD(center)
+        MEGA_FIELD(invTileCount)
+        MEGA_FIELD(invTileTrimSize)
         MEGA_FIELD(layerParallax)
         MEGA_FIELD(layerOrigin)
         MEGA_FIELD(mappingTexture)
@@ -114,8 +116,11 @@ namespace Mega {
         MEGA_FIELD(tileCoord)
         MEGA_FIELD(tileCorner)
         MEGA_FIELD(tileCount)
-        MEGA_FIELD(tileSize)
-        MEGA_FIELD(viewport)
+        MEGA_FIELD(tileTexLo)
+        MEGA_FIELD(tileTexSize)
+        MEGA_FIELD(tileTrimSize)
+        MEGA_FIELD(tilePhase)
+        MEGA_FIELD(viewportScale)
         MEGA_FIELD(zoom)
     }
     using namespace fields;
