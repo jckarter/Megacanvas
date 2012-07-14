@@ -16,6 +16,8 @@
 
 namespace Mega {
     struct Layer : HasPriv<Layer> {
+        using tile_t = std::uint16_t;
+        
         MEGA_PRIV_CTORS(Layer)
 
         Vec parallax();
@@ -25,6 +27,9 @@ namespace Mega {
         void priority(int x);
         
         Vec origin();
+        
+        void getSegment(std::ptrdiff_t x, std::ptrdiff_t y,
+                        tile_t *outBuffer, std::size_t segmentSize);
     };
 }
 

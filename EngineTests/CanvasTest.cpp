@@ -12,6 +12,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "Engine/Canvas.hpp"
 #include "Engine/Layer.hpp"
+#include "GLTest.hpp"
 
 namespace Mega { namespace test {
     class CanvasTest : public CppUnit::TestFixture {
@@ -19,6 +20,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testNewCanvas);
         CPPUNIT_TEST(testLoadCanvasTest1);
         CPPUNIT_TEST(testLoadCanvasFailsWhenNonexistent);
+        CPPUNIT_TEST(testLayerGetSegment);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -82,6 +84,193 @@ namespace Mega { namespace test {
             Owner<Canvas> canvasOwner = Canvas::load("nonexistent.mega", &error); // must not exist
             CPPUNIT_ASSERT(!canvasOwner);
             CPPUNIT_ASSERT(error.find("unable to read file") != std::string::npos);
+        }
+        
+        void testLayerGetSegment()
+        {
+            using namespace std;
+            std::string error;
+            Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test2.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(canvasOwner);
+            Canvas canvas = canvasOwner.get();
+            
+            // layer 0: depth 1, tiles 1 thru 4
+            Layer layer0 = canvas.layers()[0], layer1 = canvas.layers()[1], layer2 = canvas.layers()[2];
+            Layer::tile_t oneTile;
+            Layer::tile_t fourTiles[4];
+            Layer::tile_t sixteenTiles[16];
+            Layer::tile_t sixtyfourTiles[64];
+            
+            layer0.getSegment(-1, -1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(1), oneTile);
+            layer0.getSegment(0, -1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(2), oneTile);
+            layer0.getSegment(-1, 0, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(3), oneTile);
+            layer0.getSegment(0, 0, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(4), oneTile);
+            
+            layer0.getSegment(-2, -1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer0.getSegment(1, -1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer0.getSegment(-1, -2, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer0.getSegment(-1, 1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            
+            layer0.getSegment(-1, -1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 1));
+            layer0.getSegment(0, -1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 2, 0));
+            layer0.getSegment(-1, 0, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 3, 0, 0));
+            layer0.getSegment(0, 0, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 4, 0, 0, 0));
+            
+            layer0.getSegment(-1, -1, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 1));
+            layer0.getSegment(0, -1, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       2, 0, 0, 0));
+            layer0.getSegment(-1, 0, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
+                                       0, 0, 0, 3,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0));
+            layer0.getSegment(0, 0, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
+                                       4, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0));
+
+            layer0.getSegment(-2, -2, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            
+            // layer 1: depth 2, tiles 5 thru 20
+            //  5  6  9 10
+            //  7  8 11 12
+            //      *
+            // 13 14 17 18
+            // 15 16 19 20
+            layer1.getSegment(-2, 1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(15), oneTile);
+            layer1.getSegment(-1, -1, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(8), oneTile);
+            layer1.getSegment(0, -2, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(9), oneTile);
+            layer1.getSegment(1, 0, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(18), oneTile);
+
+            layer1.getSegment(-3, 0, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer1.getSegment(2, 0, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer1.getSegment(0, -3, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            layer1.getSegment(0, 2, &oneTile, 1);
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+
+            layer1.getSegment(-1, -1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 5, 6, 7, 8));
+            layer1.getSegment(0, -1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 9, 10, 11, 12));
+            layer1.getSegment(-1, 0, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 13, 14, 15, 16));
+            layer1.getSegment(0, 0, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 17, 18, 19, 20));
+            
+            layer1.getSegment(-2, -2, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            layer1.getSegment(1, 1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            
+            layer1.getSegment(-1, -1, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 5, 6,
+                                       0, 0, 7, 8));
+            layer1.getSegment(0, -1, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                        0,  0, 0, 0,
+                                        0,  0, 0, 0,
+                                        9, 10, 0, 0,
+                                       11, 12, 0, 0));
+            layer1.getSegment(-1, 0, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                        0,  0, 13, 14,
+                                        0,  0, 15, 16,
+                                        0,  0,  0,  0,
+                                        0,  0,  0,  0));
+            layer1.getSegment(0, 0, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                       17, 18, 0, 0,
+                                       19, 20, 0, 0,
+                                        0,  0, 0, 0,
+                                        0,  0, 0, 0));
+            
+            // layer 2: depth 3, tiles 21 thru 84
+            // 21-24 25-28   37-40 41-44
+            // 29-32 33-36   45-48 49-52
+            //             *
+            // 53-56 57-60   69-72 73-76
+            // 61-64 65-68   77-80 81-84
+            layer2.getSegment(-1, -1, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 33, 34, 35, 36));
+            layer2.getSegment(1, 0, fourTiles, 2);
+            CPPUNIT_ASSERT(arrayEquals(fourTiles, 73, 74, 75, 76));
+            
+            layer2.getSegment(-1, -1, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                       21, 22, 25, 26,
+                                       23, 24, 27, 28,
+                                       29, 30, 33, 34,
+                                       31, 32, 35, 36));
+            layer2.getSegment(0, 0, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                       69, 70, 73, 74,
+                                       71, 72, 75, 76,
+                                       77, 78, 81, 82,
+                                       79, 80, 83, 84));
+            
+            layer2.getSegment(2, 2, sixteenTiles, 4);
+            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0));
+            
+            layer2.getSegment(-1, -1, sixtyfourTiles, 8);
+            CPPUNIT_ASSERT(arrayEquals(sixtyfourTiles, 
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 21, 22, 25, 26,
+                                       0, 0, 0, 0, 23, 24, 27, 28,
+                                       0, 0, 0, 0, 29, 30, 33, 34,
+                                       0, 0, 0, 0, 31, 32, 35, 36));
+            layer2.getSegment(0, 0, sixtyfourTiles, 8);
+            CPPUNIT_ASSERT(arrayEquals(sixtyfourTiles, 
+                                       69, 70, 73, 74, 0, 0, 0, 0,
+                                       71, 72, 75, 76, 0, 0, 0, 0,
+                                       77, 78, 81, 82, 0, 0, 0, 0,
+                                       79, 80, 83, 84, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0,
+                                       0, 0, 0, 0, 0, 0, 0, 0));
         }
     };
 

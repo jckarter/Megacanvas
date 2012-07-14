@@ -34,8 +34,8 @@ namespace Mega { namespace test {
             std::vector<int> a(begin(aa), end(aa));
 
             Array2DRef<int> a3(a, 3);
-            CPPUNIT_ASSERT_EQUAL(size_t(3), a3.size());
-            CPPUNIT_ASSERT_EQUAL(size_t(3), a3[0].size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(3), a3.size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(3), a3[0].size());
             CPPUNIT_ASSERT_EQUAL(1, a3[0][0]);
             CPPUNIT_ASSERT_EQUAL(3, a3[0][2]);
             CPPUNIT_ASSERT_EQUAL(7, a3[2][0]);

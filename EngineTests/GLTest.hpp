@@ -37,7 +37,7 @@ namespace Mega { namespace test {
         }
     };
     
-    template<typename T, size_t N, typename...TT>
+    template<typename T, std::size_t N, typename...TT>
     inline bool arrayEquals(T const (&array)[N], TT &&...values)
     {
         static_assert(sizeof...(TT) == N, "must pass an expected value for every element of the array");

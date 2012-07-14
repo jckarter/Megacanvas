@@ -64,7 +64,7 @@ namespace Mega {
 
     namespace {
         template<typename T>
-        inline T fromOpaque(std::uint8_t *data, size_t size = 0) {
+        inline T fromOpaque(std::uint8_t *data, std::size_t size = 0) {
             return reinterpret_cast<Priv<T>*>(data);
         }
     }
@@ -83,7 +83,7 @@ namespace Mega {
         // PrivArrayRef(Priv<T> (&)[N])
         // PrivArrayRef(SmallVectorImpl)
         // PrivArrayRef(Priv<T> *, Priv<T> *)
-        // PrivArrayRef(Priv<T> *, size_t)
+        // PrivArrayRef(Priv<T> *, std::size_t)
     };
 
 #define MEGA_PRIV_DTOR(T) \

@@ -49,9 +49,9 @@ namespace Mega { namespace test {
 
         void testNamedTupleOffsetOf()
         {
-            size_t foo_offset = SomeTuple::offset_of<foo>();
-            size_t bar_offset = SomeTuple::offset_of<bar>();
-            size_t bas_offset = SomeTuple::offset_of<bas>();
+            std::size_t foo_offset = SomeTuple::offset_of<foo>();
+            std::size_t bar_offset = SomeTuple::offset_of<bar>();
+            std::size_t bas_offset = SomeTuple::offset_of<bas>();
 
             SomeTuple t(1, '2', 3.0f);
 
@@ -63,7 +63,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(3.0f, *basPtr);
         }
 
-        static void assert_field(llvm::StringRef name, size_t offset, size_t size, int type) {
+        static void assert_field(llvm::StringRef name, std::size_t offset, std::size_t size, int type) {
             if (name == "foo") {
                 CPPUNIT_ASSERT_EQUAL(sizeof(int), size);
                 CPPUNIT_ASSERT_EQUAL(SomeTuple::offset_of<foo>(), offset);

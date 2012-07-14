@@ -17,6 +17,7 @@
 
 namespace Mega {
     struct Layer;
+    struct LayerCursor;
 
     struct Canvas : HasPriv<Canvas> {
         MEGA_PRIV_CTORS(Canvas)
@@ -26,11 +27,11 @@ namespace Mega {
 
         PrivArrayRef<Layer> layers();
 
-        size_t tileLogSize();
-        size_t tileSize();
-        size_t tileArea();
-        size_t tileByteSize();
-        size_t tileCount();
+        std::size_t tileLogSize();
+        std::size_t tileSize();
+        std::size_t tileArea();
+        std::size_t tileByteSize();
+        std::size_t tileCount();
 
         Array2DRef<std::uint8_t> tiles();
     };

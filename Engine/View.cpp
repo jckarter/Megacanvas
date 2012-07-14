@@ -114,8 +114,8 @@ namespace Mega {
     void Priv<View>::loadAllTiles()
     {
         auto tiles = $.canvas.tiles();
-        size_t tileCount = $.tilesTextureCount = tiles.size();
-        size_t tileSize = $.canvas.tileSize();
+        std::size_t tileCount = $.tilesTextureCount = tiles.size();
+        std::size_t tileSize = $.canvas.tileSize();
         
         glActiveTexture(GL_TEXTURE0 + TILES_TU);        
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount+1,
@@ -129,7 +129,7 @@ namespace Mega {
                         GL_RGBA, GL_UNSIGNED_BYTE, zeroes.get());
         
         // Tiles 1 thru tileCount
-        for (size_t i = 1; i <= tileCount; ++i) {
+        for (std::size_t i = 1; i <= tileCount; ++i) {
             auto tile = tiles[i-1];
             assert(tile.size() == tileSize*tileSize*4);
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
@@ -219,7 +219,7 @@ namespace Mega {
         llvm::raw_string_ostream errors(*outError);
         
         $.prepared = true;
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -177,7 +177,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
         }
         
-        static constexpr size_t bufferSize = (sizeof(float[4]) + sizeof(float[3])) * 6*2*2*2;
+        static constexpr std::size_t bufferSize = (sizeof(float[4]) + sizeof(float[3])) * 6*2*2*2;
         
         void setUpForTransformFeedback()
         {
@@ -250,7 +250,7 @@ namespace Mega { namespace test {
                                reinterpret_cast<GLvoid*>(outBufferData));
         }
         
-        void checkTileCorners(std::uint8_t const *bufferData, size_t i,
+        void checkTileCorners(std::uint8_t const *bufferData, std::size_t i,
                               float lowx, float lowy,
                               float tileIndex)
         {

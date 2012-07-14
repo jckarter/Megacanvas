@@ -162,7 +162,7 @@ namespace Mega { namespace test {
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &param); \
             CPPUNIT_ASSERT_EQUAL(GLint(buffer), param); \
             glGetVertexAttribPointerv(name##Index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &pointerParam); \
-            CPPUNIT_ASSERT_EQUAL(TestVertex::offset_of<name>(), reinterpret_cast<size_t>(pointerParam)); \
+            CPPUNIT_ASSERT_EQUAL(TestVertex::offset_of<name>(), reinterpret_cast<std::size_t>(pointerParam)); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_TYPE, &param); \
             CPPUNIT_ASSERT_EQUAL(type, param); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &param); \

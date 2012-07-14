@@ -24,10 +24,10 @@ namespace Mega {
         DerefWrapper(T &&that) : that(that) {}
     };
 
-    template<typename OpaqueT, typename T, T Deref(OpaqueT *, size_t)>
+    template<typename OpaqueT, typename T, T Deref(OpaqueT *, std::size_t)>
     struct OpaqueIterator {
         OpaqueT *ptr;
-        size_t isize;
+        std::size_t isize;
 
         typedef std::ptrdiff_t difference_type;
         typedef T value_type;
@@ -36,7 +36,7 @@ namespace Mega {
         typedef std::random_access_iterator_tag iterator_category;
 
         OpaqueIterator() = default;
-        OpaqueIterator(OpaqueT *ptr, size_t size)
+        OpaqueIterator(OpaqueT *ptr, std::size_t size)
         : ptr(ptr), isize(size)
         {}
 
@@ -91,10 +91,10 @@ namespace Mega {
         }
     };
 
-    template<typename OpaqueT, typename T, T Deref(OpaqueT *, size_t)>
+    template<typename OpaqueT, typename T, T Deref(OpaqueT *, std::size_t)>
     struct OpaqueArrayRef {
         OpaqueT *data;
-        size_t isize, length;
+        std::size_t isize, length;
 
         OpaqueArrayRef() : data(nullptr), isize(0), length(0) {}
         OpaqueArrayRef(const OpaqueArrayRef &) = default;
@@ -111,18 +111,18 @@ namespace Mega {
         // OpaqueArrayRef(U (&)[N])
         // OpaqueArrayRef(SmallVectorImpl)
         // OpaqueArrayRef(U *, U *)
-        // OpaqueArrayRef(U *, size_t)
-        OpaqueArrayRef(OpaqueT *data, size_t isize, size_t length)
+        // OpaqueArrayRef(U *, std::size_t)
+        OpaqueArrayRef(OpaqueT *data, std::size_t isize, std::size_t length)
         : data(data), isize(isize), length(length)
         {}
 
         typedef OpaqueIterator<OpaqueT, T, Deref> iterator;
-        typedef size_t size_type;
+        typedef std::size_t size_type;
 
         iterator begin() const { return iterator(data, isize); }
         iterator end() const { return iterator(data + isize*length, isize); }
         bool empty() const { return length == 0; }
-        size_t size() const { return length; }
+        std::size_t size() const { return length; }
 
         T front() const {
             assert(!empty());
@@ -134,7 +134,7 @@ namespace Mega {
             return Deref(data + isize*(length-1), isize);
         }
 
-        T operator[](size_t i) const {
+        T operator[](std::size_t i) const {
             assert(i < length);
             return Deref(data + isize*i, isize);
         }
@@ -144,7 +144,7 @@ namespace Mega {
                 return false;
             if (data == other.data)
                 return true;
-            for (size_t i = 0; i < length; ++i)
+            for (std::size_t i = 0; i < length; ++i)
                 if ((*this)[i] != other[i])
                     return false;
             return true;
@@ -157,11 +157,11 @@ namespace Mega {
         typedef OpaqueArrayRef<T const, llvm::ArrayRef<T>, llvm::makeArrayRef<T>> super;
 
         Array2DRef() : super(nullptr, 1, 0) {}
-        Array2DRef(llvm::ArrayRef<T> array, size_t span)
+        Array2DRef(llvm::ArrayRef<T> array, std::size_t span)
         : super(array.data(), span, array.size() / span)
         {}
 
-        Array2DRef(std::vector<T> const &vec, size_t span)
+        Array2DRef(std::vector<T> const &vec, std::size_t span)
         : super(vec.data(), span, vec.size() / span)
         {}
     };

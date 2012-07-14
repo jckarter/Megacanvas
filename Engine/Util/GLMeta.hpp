@@ -84,10 +84,10 @@ namespace Mega {
         // xcode 4.3 can't handle lambdas
         struct _VertexAttributeBinder {
             GLuint program;
-            size_t stride;
+            std::size_t stride;
             bool ok;
-            _VertexAttributeBinder(GLuint program, size_t stride) : program(program), stride(stride), ok(true) {}
-            void operator()(char const *name, size_t offset, size_t size, GLVertexType info) {
+            _VertexAttributeBinder(GLuint program, std::size_t stride) : program(program), stride(stride), ok(true) {}
+            void operator()(char const *name, std::size_t offset, std::size_t size, GLVertexType info) {
                 if (info.isPadding)
                     return;
                 
@@ -106,7 +106,7 @@ namespace Mega {
             std::string code;
             llvm::raw_string_ostream codes;
             _VertexShaderInputCollector() : codes(code) {}
-            void operator()(char const *name, size_t offset, size_t size, GLSLTypeInfo glslType) {
+            void operator()(char const *name, std::size_t offset, std::size_t size, GLSLTypeInfo glslType) {
                 if (glslType.isPadding)
                     return;
                 codes << "in " << glslType.name << ' ' << name << ";\n";
