@@ -1,6 +1,6 @@
 #version 150
 
-uniform vec2 center, tileCount;
+uniform vec2 center, pixelAlign, tileCount;
 uniform vec2 invTileCount; // 1/tileCount
 uniform vec2 tilePhase; // 0.5*(tileCount - 1)
 uniform vec2 viewportScale; // 2/viewport
@@ -29,7 +29,7 @@ float getMapping(vec2 tile, float layer) {
 }
 
 void main() {
-    vec2 layerCenter = (center - layerOrigin) * layerParallax;
+    vec2 layerCenter = (center - layerOrigin) * layerParallax + pixelAlign;
     vec2 tile = getTile(layerCenter);
     vec2 texCoord = tileTexLo + (tileCorner * tileTexSize);
     float texIndex = getMapping(tile, tileCoord.z);

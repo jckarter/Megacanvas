@@ -21,6 +21,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testVertexShaderTileLayout);
         CPPUNIT_TEST(testVertexShaderLayerOriginAndParallax);
         CPPUNIT_TEST(testMappingTexture);
+        CPPUNIT_TEST(testCenterPixelAlignment);
         CPPUNIT_TEST_SUITE_END();
 
         Owner<Canvas> canvas;
@@ -196,7 +197,7 @@ namespace Mega { namespace test {
                 throw std::runtime_error(log.c_str());
             priv.updateShaderParams();
             
-            view.resize(127.0, 64.0);
+            view.resize(127.0, 65.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
             
@@ -258,13 +259,13 @@ namespace Mega { namespace test {
             float const (*positions)[4] = 6*i + reinterpret_cast<float const (*)[4]>(bufferData);
             float const (*texCoords)[3] = 6*i + reinterpret_cast<float const (*)[3]>(bufferData + sizeof(float[4]) * 6*2*2*2);
             CPPUNIT_ASSERT_EQUAL(lowx       , positions[0][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy       , positions[0][1]*32.0f);
+            CPPUNIT_ASSERT_EQUAL(lowy       , positions[0][1]*32.5f);
             CPPUNIT_ASSERT_EQUAL(lowx+127.0f, positions[1][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy       , positions[1][1]*32.0f);
+            CPPUNIT_ASSERT_EQUAL(lowy       , positions[1][1]*32.5f);
             CPPUNIT_ASSERT_EQUAL(lowx       , positions[2][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[2][1]*32.0f);
+            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[2][1]*32.5f);
             CPPUNIT_ASSERT_EQUAL(lowx+127.0f, positions[4][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[4][1]*32.0f);
+            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[4][1]*32.5f);
             
             CPPUNIT_ASSERT_EQUAL(  0.5f/128.0f, texCoords[0][0]);
             CPPUNIT_ASSERT_EQUAL(  0.5f/128.0f, texCoords[0][1]);
@@ -467,6 +468,29 @@ namespace Mega { namespace test {
                                              0, 0, 0, 0,
                                              0, 0, 0, 0,
                                              0, 0, 0, 0);
+        }
+        
+        void testCenterPixelAlignment()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = this->view.priv();
+            float center[2];
+
+            view.resize(127.0, 127.0);
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), priv.pixelAlign);
+            
+            view.resize(128.0, 128.0);
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
+            CPPUNIT_ASSERT_EQUAL(Vec(0.5, 0.5), priv.pixelAlign);
+            
+            view.resize(127.0, 128.0);
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.5), priv.pixelAlign);
+            
+            view.resize(128.0, 127.0);
+            CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
+            CPPUNIT_ASSERT_EQUAL(Vec(0.5, 0.0), priv.pixelAlign);
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);

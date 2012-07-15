@@ -203,7 +203,6 @@ namespace Mega {
     void Priv<View>::updateCenter()
     {
         glUniform2f($.uniforms.center, $.center.x, $.center.y);
-        $.updateMappings();
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -211,6 +210,7 @@ namespace Mega {
     {
         glViewport(0, 0, $.width, $.height);
         glUniform2f($.uniforms.viewportScale, 2.0/$.width, 2.0/$.height);
+        glUniform2f($.uniforms.pixelAlign, $.pixelAlign.x, $.pixelAlign.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -308,9 +308,7 @@ namespace Mega {
         
         this->bindState();        
         $.updateShaderParams();
-        $.updateCenter();
-        $.updateViewport();
-        
+        $.updateCenter();        
         
         MEGA_ASSERT_GL_NO_ERROR;
         
@@ -334,6 +332,8 @@ namespace Mega {
     {
         $.width = width;
         $.height = height;
+        Vec align = 0.5*(1.0+Vec(width, height));
+        $.pixelAlign = align - align.floor();
         if ($.good) {
             $.updateViewport();
             $.updateMesh();
@@ -358,6 +358,7 @@ namespace Mega {
         $.center = c;
         if ($.good) {
             $.updateCenter(); //fixme progressive update
+            $.updateMappings();
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }

@@ -18,6 +18,7 @@
 namespace Mega {    
     using ViewUniforms = UniformTuple<
         center,
+        pixelAlign,
         tileCount,
         invTileCount,
         tilePhase,
@@ -43,7 +44,8 @@ namespace Mega {
     template<>
     struct Priv<View> {
         Canvas canvas;
-        Vec center = Vec();
+        Vec center = Vec(0.0, 0.0);
+        Vec pixelAlign = Vec(0.0, 0.0);
         double zoom = 1.0;
         double width = 0.0, height = 0.0;
 

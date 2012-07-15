@@ -112,6 +112,7 @@ namespace Mega {
         MEGA_FIELD(mappingTextureScale)
         MEGA_FIELD(padding1)
         MEGA_FIELD(padding2)
+        MEGA_FIELD(pixelAlign)
         MEGA_FIELD(tilesTexture)
         MEGA_FIELD(tileCoord)
         MEGA_FIELD(tileCorner)

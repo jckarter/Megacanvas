@@ -12,6 +12,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include "Engine/Util/GLMeta.hpp"
+#include "Engine/Vec.hpp"
 #include <algorithm>
 #include <utility>
 
@@ -78,6 +79,7 @@ namespace Mega { namespace test {
 
 namespace Mega {
     std::ostream &operator<<(std::ostream &os, GLError err);
+    std::ostream &operator<<(std::ostream &os, Vec vec);
 }
 #define MEGA_CPPUNIT_ASSERT_GL_NO_ERROR \
     CPPUNIT_ASSERT_EQUAL(GLError(GL_NO_ERROR), GLError(glGetError()))

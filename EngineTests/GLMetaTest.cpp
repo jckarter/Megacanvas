@@ -245,4 +245,9 @@ namespace Mega {
         }
         return os;
     }
+    
+    std::ostream &operator<<(std::ostream &os, Vec vec)
+    {
+        return os << "Vec(" << vec.x << ", " << vec.y << ")";
+    }
 }
