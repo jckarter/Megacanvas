@@ -111,7 +111,7 @@
 		D8FEA33215A24788005A2EF3 /* GLMeta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMeta.cpp; sourceTree = "<group>"; };
 		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = GLTest.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "View-priv.hpp"; sourceTree = "<group>"; };
-		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewTest.cpp; sourceTree = "<group>"; };
+		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ViewTest.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA34015A929E8005A2EF3 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Shaders; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 

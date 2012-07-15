@@ -121,41 +121,41 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
             
             layer0.getSegment(-1, -1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 1));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 1);
             layer0.getSegment(0, -1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 2, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 2, 0);
             layer0.getSegment(-1, 0, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 3, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 3, 0, 0);
             layer0.getSegment(0, 0, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 4, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 4, 0, 0, 0);
             
             layer0.getSegment(-1, -1, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 1));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 1);
             layer0.getSegment(0, -1, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       2, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             2, 0, 0, 0);
             layer0.getSegment(-1, 0, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
-                                       0, 0, 0, 3,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
+                                             0, 0, 0, 3,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0);
             layer0.getSegment(0, 0, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles,
-                                       4, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
+                                             4, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0);
 
             layer0.getSegment(-2, -2, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
             
             // layer 1: depth 2, tiles 5 thru 20
             //  5  6  9 10
@@ -182,43 +182,43 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
 
             layer1.getSegment(-1, -1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 5, 6, 7, 8));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 5, 6, 7, 8);
             layer1.getSegment(0, -1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 9, 10, 11, 12));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 9, 10, 11, 12);
             layer1.getSegment(-1, 0, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 13, 14, 15, 16));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 13, 14, 15, 16);
             layer1.getSegment(0, 0, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 17, 18, 19, 20));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 17, 18, 19, 20);
             
             layer1.getSegment(-2, -2, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
             layer1.getSegment(1, 1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
             
             layer1.getSegment(-1, -1, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 5, 6,
-                                       0, 0, 7, 8));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 5, 6,
+                                             0, 0, 7, 8);
             layer1.getSegment(0, -1, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                        0,  0, 0, 0,
-                                        0,  0, 0, 0,
-                                        9, 10, 0, 0,
-                                       11, 12, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             0,  0, 0, 0,
+                                             0,  0, 0, 0,
+                                             9, 10, 0, 0,
+                                             11, 12, 0, 0);
             layer1.getSegment(-1, 0, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                        0,  0, 13, 14,
-                                        0,  0, 15, 16,
-                                        0,  0,  0,  0,
-                                        0,  0,  0,  0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             0,  0, 13, 14,
+                                             0,  0, 15, 16,
+                                             0,  0,  0,  0,
+                                             0,  0,  0,  0);
             layer1.getSegment(0, 0, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                       17, 18, 0, 0,
-                                       19, 20, 0, 0,
-                                        0,  0, 0, 0,
-                                        0,  0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             17, 18, 0, 0,
+                                             19, 20, 0, 0,
+                                             0,  0, 0, 0,
+                                             0,  0, 0, 0);
             
             // layer 2: depth 3, tiles 21 thru 84
             // 21-24 25-28   37-40 41-44
@@ -227,50 +227,50 @@ namespace Mega { namespace test {
             // 53-56 57-60   69-72 73-76
             // 61-64 65-68   77-80 81-84
             layer2.getSegment(-1, -1, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 33, 34, 35, 36));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 33, 34, 35, 36);
             layer2.getSegment(1, 0, fourTiles, 2);
-            CPPUNIT_ASSERT(arrayEquals(fourTiles, 73, 74, 75, 76));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 73, 74, 75, 76);
             
             layer2.getSegment(-1, -1, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                       21, 22, 25, 26,
-                                       23, 24, 27, 28,
-                                       29, 30, 33, 34,
-                                       31, 32, 35, 36));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             21, 22, 25, 26,
+                                             23, 24, 27, 28,
+                                             29, 30, 33, 34,
+                                             31, 32, 35, 36);
             layer2.getSegment(0, 0, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                       69, 70, 73, 74,
-                                       71, 72, 75, 76,
-                                       77, 78, 81, 82,
-                                       79, 80, 83, 84));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             69, 70, 73, 74,
+                                             71, 72, 75, 76,
+                                             77, 78, 81, 82,
+                                             79, 80, 83, 84);
             
             layer2.getSegment(2, 2, sixteenTiles, 4);
-            CPPUNIT_ASSERT(arrayEquals(sixteenTiles, 
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0);
             
             layer2.getSegment(-1, -1, sixtyfourTiles, 8);
-            CPPUNIT_ASSERT(arrayEquals(sixtyfourTiles, 
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 21, 22, 25, 26,
-                                       0, 0, 0, 0, 23, 24, 27, 28,
-                                       0, 0, 0, 0, 29, 30, 33, 34,
-                                       0, 0, 0, 0, 31, 32, 35, 36));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixtyfourTiles, 
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 21, 22, 25, 26,
+                                             0, 0, 0, 0, 23, 24, 27, 28,
+                                             0, 0, 0, 0, 29, 30, 33, 34,
+                                             0, 0, 0, 0, 31, 32, 35, 36);
             layer2.getSegment(0, 0, sixtyfourTiles, 8);
-            CPPUNIT_ASSERT(arrayEquals(sixtyfourTiles, 
-                                       69, 70, 73, 74, 0, 0, 0, 0,
-                                       71, 72, 75, 76, 0, 0, 0, 0,
-                                       77, 78, 81, 82, 0, 0, 0, 0,
-                                       79, 80, 83, 84, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0,
-                                       0, 0, 0, 0, 0, 0, 0, 0));
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixtyfourTiles, 
+                                             69, 70, 73, 74, 0, 0, 0, 0,
+                                             71, 72, 75, 76, 0, 0, 0, 0,
+                                             77, 78, 81, 82, 0, 0, 0, 0,
+                                             79, 80, 83, 84, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0);
         }
     };
 

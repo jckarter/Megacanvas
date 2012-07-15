@@ -140,9 +140,52 @@ namespace Mega {
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
+    namespace {
+        void uploadSegment(ptrdiff_t x, ptrdiff_t y, size_t layeri, size_t segmentSize, uint16_t *segments)
+        {
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                            segmentSize*(x & 1), segmentSize*(y & 1), layeri,
+                            segmentSize, segmentSize, 1,
+                            GL_RED, GL_UNSIGNED_SHORT, 
+                            reinterpret_cast<const GLvoid*>(segments));
+        }
+    }
+        
     void Priv<View>::updateMappings()
     {
-        //todo;
+        using namespace std;
+        static_assert(is_same<Layer::tile_t, uint16_t>::value, "you changed Layer::tile_t, gotta fix updateMappings");
+        GLuint segmentSize = $.mappingTextureSegmentSize;
+
+        if (segmentSize == 0)
+            return;
+        
+        auto canvas = $.canvas;
+        auto layers = canvas.layers();
+        GLuint segmentArea = segmentSize*segmentSize;
+        //fixme use pixel unpack buffer
+        unique_ptr<uint16_t[]> segments(new uint16_t[4*segmentArea]);
+
+        size_t layeri = 0;
+        for (Layer layer : layers) {
+            Vec layerCenter = ($.center - layer.origin()) * layer.parallax();
+            Vec centerSegmentWithFrac = layerCenter/double(segmentSize * (canvas.tileSize() - 1));
+            Vec centerSegment = centerSegmentWithFrac.round();
+            ptrdiff_t segmentx = ptrdiff_t(centerSegment.x);
+            ptrdiff_t segmenty = ptrdiff_t(centerSegment.y);
+            layer.getSegment(segmentx - 1, segmenty - 1, &segments[0*segmentArea], segmentSize);
+            layer.getSegment(segmentx,     segmenty - 1, &segments[1*segmentArea], segmentSize);
+            layer.getSegment(segmentx - 1, segmenty,     &segments[2*segmentArea], segmentSize);
+            layer.getSegment(segmentx,     segmenty,     &segments[3*segmentArea], segmentSize);
+            
+            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+            uploadSegment(segmentx - 1, segmenty - 1, layeri, segmentSize, &segments[0*segmentArea]);
+            uploadSegment(segmentx,     segmenty - 1, layeri, segmentSize, &segments[1*segmentArea]);
+            uploadSegment(segmentx - 1, segmenty,     layeri, segmentSize, &segments[2*segmentArea]);
+            uploadSegment(segmentx,     segmenty,     layeri, segmentSize, &segments[3*segmentArea]);
+            ++layeri;
+        }
+        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateShaderParams()
@@ -160,6 +203,7 @@ namespace Mega {
     void Priv<View>::updateCenter()
     {
         glUniform2f($.uniforms.center, $.center.x, $.center.y);
+        $.updateMappings();
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -307,7 +351,17 @@ namespace Mega {
         MEGA_ASSERT_GL_NO_ERROR;
     }
 
-    MEGA_PRIV_GETTER_SETTER(View, center, Vec)
+    MEGA_PRIV_GETTER(View, center, Vec)
+    
+    void View::center(Vec c)
+    {
+        $.center = c;
+        if ($.good) {
+            $.updateCenter(); //fixme progressive update
+            MEGA_ASSERT_GL_NO_ERROR;
+        }
+    }
+    
     MEGA_PRIV_GETTER(View, zoom, double)
 
     void View::zoom(double x)
@@ -327,5 +381,10 @@ namespace Mega {
     Vec View::viewToLayer(Vec viewPoint, Layer l)
     {
         //todo;
+    }
+    
+    void View::syncTextureStreaming()
+    {
+        
     }
 }
