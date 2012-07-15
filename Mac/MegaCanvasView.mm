@@ -72,4 +72,10 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
     [[self openGLContext] flushBuffer];
 }
 
+- (void)scrollWheel:(NSEvent *)theEvent
+{
+    view->moveCenter(round(theEvent.deltaX), round(theEvent.deltaY));
+    self.needsDisplay = YES;
+}
+
 @end

@@ -29,6 +29,10 @@ namespace Mega {
 
         Vec center();
         void center(Vec c);
+        void center(double x, double y) { center(Vec(x,y)); }
+        
+        void moveCenter(Vec c);
+        void moveCenter(double x, double y) { moveCenter(Vec(x,y)); }
 
         double zoom();
         void zoom(double z);

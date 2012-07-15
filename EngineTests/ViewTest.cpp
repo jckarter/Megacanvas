@@ -430,7 +430,7 @@ namespace Mega { namespace test {
                                              0, 0,  5,  6,
                                              0, 0,  7,  8);
             
-            view.center(Vec(508.0, 0.0));
+            view.moveCenter(Vec(508.0, 0.0));
             view.syncTextureStreaming();
             glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
                           reinterpret_cast<GLvoid*>(mappingTextureData));
@@ -446,9 +446,24 @@ namespace Mega { namespace test {
                                               9, 10,  5,  6,
                                              11, 12,  7,  8);
             
-            view.center(Vec(0.0, 0.0));
+            view.moveCenter(Vec(-508.0, 0.0));
             view.syncTextureStreaming();
-            view.center(Vec(-254.0, 0.0)); // testing progressive update
+            
+            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
+                          reinterpret_cast<GLvoid*>(mappingTextureData));
+            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
+                                             4, 0, 0, 3,
+                                             0, 0, 0, 0,
+                                             0, 0, 0, 0,
+                                             2, 0, 0, 1);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[1],
+                                             0, 0, 13, 14,
+                                             0, 0, 15, 16,
+                                             0, 0,  5,  6,
+                                             0, 0,  7,  8);
+            
+            view.moveCenter(Vec(-254.0, 0.0));
             view.syncTextureStreaming();
             glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
                           reinterpret_cast<GLvoid*>(mappingTextureData));
@@ -459,7 +474,7 @@ namespace Mega { namespace test {
                                              0, 0, 0, 0,
                                              0, 0, 0, 1);
             
-            view.center(Vec(0.0, 254.0));
+            view.moveCenter(Vec(254.0, 254.0));
             glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
                           reinterpret_cast<GLvoid*>(mappingTextureData));
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;

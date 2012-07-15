@@ -363,8 +363,18 @@ namespace Mega {
         }
     }
     
+    void View::moveCenter(Vec c)
+    {
+        $.center += c;
+        if ($.good) {
+            $.updateCenter(); //fixme progressive update
+            $.updateMappings();
+            MEGA_ASSERT_GL_NO_ERROR;            
+        }
+    }
+    
     MEGA_PRIV_GETTER(View, zoom, double)
-
+    
     void View::zoom(double x)
     {
         $.zoom = x;

@@ -23,6 +23,7 @@ namespace Mega {
 #define _MEGA_VEC_MATH_OP(op) \
     Vec operator op(Vec o) const { return Vec(x op o.x, y op o.y); } \
     Vec operator op(double o) const { return Vec(x op o, y op o); } \
+    Vec &operator op##=(Vec o) { x op##= o.x; y op##= o.y; return *this; } \
     friend Vec operator op(double o, Vec v) { return Vec(o op v.x, o op v.y); }
         _MEGA_VEC_MATH_OP(+)
         _MEGA_VEC_MATH_OP(-)
