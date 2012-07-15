@@ -74,8 +74,13 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    view->moveCenter(round(theEvent.deltaX), round(theEvent.deltaY));
+    view->moveCenter(theEvent.deltaX, theEvent.deltaY);
     self.needsDisplay = YES;
+}
+
+- (void)magnifyWithEvent:(NSEvent *)event
+{
+    /*NSLog(@"magnify %f", event.magnification);*/
 }
 
 @end

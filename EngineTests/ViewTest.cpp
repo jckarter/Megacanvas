@@ -22,6 +22,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testVertexShaderLayerOriginAndParallax);
         CPPUNIT_TEST(testMappingTexture);
         CPPUNIT_TEST(testCenterPixelAlignment);
+        CPPUNIT_TEST(testCenterRounds);
         CPPUNIT_TEST_SUITE_END();
 
         Owner<Canvas> canvas;
@@ -489,7 +490,6 @@ namespace Mega { namespace test {
         {
             View view = this->view.get();
             Priv<View> &priv = this->view.priv();
-            float center[2];
 
             view.resize(127.0, 127.0);
             CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
@@ -506,6 +506,22 @@ namespace Mega { namespace test {
             view.resize(128.0, 127.0);
             CPPUNIT_ASSERT_EQUAL(Vec(0.0, 0.0), view.center());
             CPPUNIT_ASSERT_EQUAL(Vec(0.5, 0.0), priv.pixelAlign);
+        }
+        
+        void testCenterRounds()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = this->view.priv();
+            float center[2];
+
+            view.center(1.45, 2.55);
+            CPPUNIT_ASSERT_EQUAL(Vec(1.45,2.55), view.center());
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 1.0f, 3.0f);
+            
+            view.moveCenter(0.56, -0.56);
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 2.0f, 2.0f);
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);

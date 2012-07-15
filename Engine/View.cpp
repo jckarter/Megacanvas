@@ -202,7 +202,8 @@ namespace Mega {
     
     void Priv<View>::updateCenter()
     {
-        glUniform2f($.uniforms.center, $.center.x, $.center.y);
+        Vec center = $.center.round();
+        glUniform2f($.uniforms.center, center.x, center.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
