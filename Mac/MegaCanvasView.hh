@@ -9,8 +9,12 @@
 #import <Cocoa/Cocoa.h>
 #include "Engine/View.hpp"
 
+@class MegaDocument;
+
 @interface MegaCanvasView : NSOpenGLView
 {
+    @public
+    IBOutlet MegaDocument *document;
     Mega::Owner<Mega::View> view;
 }
 

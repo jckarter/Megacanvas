@@ -14,6 +14,7 @@
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
 		D8C986EF159408F6000D554E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EC159408F6000D554E /* main.cpp */; };
+		D8D15A2D15B289C600312EDA /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D8EB12A3158BADCD00ED0404 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8EB12A2158BADCD00ED0404 /* Cocoa.framework */; };
 		D8EB12AD158BADCD00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12AB158BADCD00ED0404 /* InfoPlist.strings */; };
 		D8EB12AF158BADCD00ED0404 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12AE158BADCD00ED0404 /* main.m */; };
@@ -244,9 +245,9 @@
 			isa = PBXGroup;
 			children = (
 				D8EB12B4158BADCD00ED0404 /* MegaDocument.hh */,
+				D8EB12B5158BADCD00ED0404 /* MegaDocument.mm */,
 				D8EB12DD158BB1C500ED0404 /* MegaCanvasView.hh */,
 				D8EB12DE158BB1C500ED0404 /* MegaCanvasView.mm */,
-				D8EB12B5158BADCD00ED0404 /* MegaDocument.mm */,
 				D8EB12B7158BADCD00ED0404 /* MegaDocument.xib */,
 				D8EB12BA158BADCD00ED0404 /* MainMenu.xib */,
 				D8EB12A9158BADCD00ED0404 /* Supporting Files */,
@@ -435,6 +436,7 @@
 				D8EB12B6158BADCD00ED0404 /* MegaDocument.mm in Sources */,
 				D8EB12DF158BB1C500ED0404 /* MegaCanvasView.mm in Sources */,
 				D8C986E6159408E7000D554E /* Canvas.cpp in Sources */,
+				D8D15A2D15B289C600312EDA /* GLMeta.cpp in Sources */,
 				D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

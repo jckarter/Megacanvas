@@ -7,6 +7,7 @@
 //
 
 #import "MegaDocument.hh"
+#import "MegaCanvasView.hh"
 
 @implementation MegaDocument
 
@@ -14,56 +15,80 @@
 {
     self = [super init];
     if (self) {
-        // Add your subclass-specific initialization here.
+        canvas = Mega::Canvas::create();
     }
     return self;
 }
 
 - (NSString *)windowNibName
 {
-    // Override returning the nib file name of the document
-    // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"MegaDocument";
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
+    // ...
 }
 
 + (BOOL)autosavesInPlace
 {
     return YES;
 }
-/*
+
 + (BOOL)canConcurrentlyReadDocumentsOfType:(NSString *)typeName
 {
     return YES;
 }
 
+/*
 - (BOOL)canAsynchronouslyWriteToURL:(NSURL *)url ofType:(NSString *)typeName forSaveOperation:(NSSaveOperationType)saveOperation
 {
     return YES;
 }
 */
--(BOOL)readFromFileWrapper:(NSFileWrapper *)fileWrapper ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
+
+- (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError * __autoreleasing*)outError
 {
-    NSLog(@"read from %@ type %@", fileWrapper, typeName);
+    using namespace Mega;
+    
+    if (![absoluteURL isFileURL]) {
+        *outError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                        code:NSFileWriteUnsupportedSchemeError
+                                    userInfo:nil];
+        return NO;
+    }
+    char const *path = [[absoluteURL path] UTF8String];
+    
+    std::string error;
+    Owner<Canvas> newCanvas = Canvas::load(path, &error);
+    if (!newCanvas) {
+        auto errorInfo = [NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:error.c_str()]
+                                                     forKey:NSLocalizedDescriptionKey];
+        *outError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                        code:NSFileWriteUnknownError 
+                                    userInfo:errorInfo];
+        return NO;
+    }
+    
+    canvas = std::move(newCanvas);
     return YES;
 }
 
-
--(NSFileWrapper *)fileWrapperOfType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
+- (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError * __autoreleasing*)outError
 {
-    NSLog(@"writing type %@", typeName);
-    *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:nil];
-    return nil;
+    *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnsupportedSchemeError userInfo:nil];
+    return NO;
 }
 
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
     return proposedOptions | NSApplicationPresentationAutoHideToolbar;
+}
+
+- (Mega::Canvas)canvas
+{
+    return canvas.get();
 }
 
 @end

@@ -7,8 +7,28 @@
 //
 
 #import "MegaCanvasView.hh"
+#import "MegaDocument.hh"
+#include <cstring>
+
+namespace Mega {
+    char const *shaderPath = nullptr;
+}
+
+static void MegaCanvasView_resize(MegaCanvasView *self)
+{
+    NSRect bounds = [self convertRectToBacking:[self bounds]];
+    self->view->resize(bounds.size.width, bounds.size.height);
+}
 
 @implementation MegaCanvasView
+
++ (void)load
+{
+    @autoreleasepool {
+        NSString *shaderPathStr = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Shaders"];
+        Mega::shaderPath = strdup([shaderPathStr UTF8String]);
+    }
+}
 
 - (void)awakeFromNib
 {
@@ -25,24 +45,30 @@
         return;
     }
     [self setPixelFormat:pf];
+    assert(document);
+    view = Mega::View::create(document.canvas);
 }
 
 - (void)reshape
 {
     [super reshape];
-    view->resize(x, y);
+    if (view)
+        MegaCanvasView_resize(self);
 }
 
 - (void)prepareOpenGL
 {
-    [super prepareOpenGL];
-    view->prepare();
-    view->resize(x, y);
+    [super prepareOpenGL];    
+    std::string error;
+    if (!view->prepare(&error))
+        throw std::runtime_error(error);
+    MegaCanvasView_resize(self);
 }
 
 - (void)drawRect:(NSRect)dirtyRect
-{
+{    
     view->render();
+    [[self openGLContext] flushBuffer];
 }
 
 @end

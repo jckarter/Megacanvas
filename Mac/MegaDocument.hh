@@ -9,12 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #include "Engine/Canvas.hpp"
 
-@class MegaCanvasView;
-
 @interface MegaDocument : NSDocument <NSWindowDelegate>
 {
-    IBOutlet MegaCanvasView *view;
     Mega::Owner<Mega::Canvas> canvas;
 }
+
+@property (readonly) Mega::Canvas canvas;
 
 @end
