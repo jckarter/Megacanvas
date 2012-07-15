@@ -41,10 +41,11 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
     NSOpenGLPixelFormat *pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:pfa];
     if (!pf) {
         NSLog(@"failed to create pixel buffer");
-        [self setPixelFormat:nil];
+        self.pixelFormat = nil;
         return;
     }
-    [self setPixelFormat:pf];
+    self.pixelFormat = pf;
+    self.wantsBestResolutionOpenGLSurface = YES;
     assert(document);
     view = Mega::View::create(document.canvas);
 }
