@@ -168,7 +168,7 @@ namespace Mega {
 
         size_t layeri = 0;
         for (Layer layer : layers) {
-            Vec layerCenter = ($.center - layer.origin()) * layer.parallax() + $.pixelAlign;
+            Vec layerCenter = ($.center - layer.origin()) * layer.parallax() + $.pixelAlign/$.zoom;
             Vec centerSegmentWithFrac = layerCenter/double(segmentSize * (canvas.tileSize() - 1));
             Vec centerSegment = centerSegmentWithFrac.round();
             ptrdiff_t segmentx = ptrdiff_t(centerSegment.x);
@@ -202,7 +202,7 @@ namespace Mega {
     
     void Priv<View>::updateCenter()
     {
-        Vec center = $.center.round();
+        Vec center = ($.center * $.zoom).round() / $.zoom;
         glUniform2f($.uniforms.center, center.x, center.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
@@ -216,8 +216,8 @@ namespace Mega {
     void Priv<View>::updateZoom()
     {
         glUniform2f($.uniforms.viewportScale, 2.0*$.zoom/$.width, 2.0*$.zoom/$.height);
-        //fixme pixelAlign and center rounding should be zoom-dependent
-        glUniform2f($.uniforms.pixelAlign, $.pixelAlign.x, $.pixelAlign.y);
+        Vec pixelAlign = $.pixelAlign/$.zoom;
+        glUniform2f($.uniforms.pixelAlign, pixelAlign.x, pixelAlign.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -387,6 +387,7 @@ namespace Mega {
         $.zoom = std::max(x, 1.0);
         if ($.good) {
             $.updateMesh();
+            $.updateCenter();
             $.updateZoom();
             MEGA_ASSERT_GL_NO_ERROR;
         }

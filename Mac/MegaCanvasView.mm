@@ -74,15 +74,21 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 
 - (void)scrollWheel:(NSEvent *)event
 {
-    view->moveCenter(event.deltaX, event.deltaY);
+    //fixme scroll should be inv.proportional to zoom
+    double zoom = view->zoom();
+    view->moveCenter(event.deltaX/zoom, event.deltaY/zoom);
     self.needsDisplay = YES;
 }
 
 - (void)magnifyWithEvent:(NSEvent *)event
 {
-    /*NSLog(@"magnify %f", event.magnification);*/
     view->moveZoom(event.magnification);
     self.needsDisplay = YES;
+}
+
+- (void)endGestureWithEvent:(NSEvent *)event
+{
+//    NSLog(@"gesture stop %lu", event.type);
 }
 
 @end

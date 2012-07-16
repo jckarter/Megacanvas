@@ -22,7 +22,9 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testVertexShaderLayerOriginAndParallax);
         CPPUNIT_TEST(testMappingTexture);
         CPPUNIT_TEST(testCenterPixelAlignment);
+        CPPUNIT_TEST(testCenterPixelAlignmentWithZoom);
         CPPUNIT_TEST(testCenterRounds);
+        CPPUNIT_TEST(testCenterRoundsWithZoom);
         CPPUNIT_TEST_SUITE_END();
 
         Owner<Canvas> canvas;
@@ -505,6 +507,21 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(Vec(0.5, 0.0), priv.pixelAlign);
         }
         
+        void testCenterPixelAlignmentWithZoom()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = this->view.priv();
+            float align[2];
+
+            view.resize(128.0, 127.0);
+            glGetUniformfv(priv.program, priv.uniforms.pixelAlign, align);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(align, 0.5f, 0.0f);
+            
+            view.zoom(2.0);
+            glGetUniformfv(priv.program, priv.uniforms.pixelAlign, align);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(align, 0.25f, 0.0f);
+        }
+        
         void testCenterRounds()
         {
             View view = this->view.get();
@@ -521,6 +538,29 @@ namespace Mega { namespace test {
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 2.0f, 2.0f);
         }
         
+        void testCenterRoundsWithZoom()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = this->view.priv();
+            float center[2];
+
+            view.center(1.33, 1.66);
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 1.0f, 2.0f);
+            
+            view.zoom(2.0);
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 1.5f, 1.5f);
+            
+            view.zoom(3.0);
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 4.0f/3.0f, 5.0f/3.0f);
+            
+            view.zoom(4.0);
+            glGetUniformfv(priv.program, priv.uniforms.center, center);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 1.25f, 1.75f);
+        }
+        
         void testZoomLowerLimit()
         {
             View view = this->view.get();
@@ -534,7 +574,7 @@ namespace Mega { namespace test {
             view.moveZoom(1.0);
             CPPUNIT_ASSERT_EQUAL(2.0, view.zoom());
             view.moveZoom(-1.5);
-            CPPUNIT_ASSERT_EQUAL(1.0, view.zoom());
+            CPPUNIT_ASSERT_EQUAL(1.0, view.zoom());            
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);
