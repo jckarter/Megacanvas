@@ -420,7 +420,7 @@ error:
                 return;
             for (size_t yi = 0; yi < radius; ++yi)
                 for (size_t xi = 0; xi < radius; ++xi)
-                    //fixme unswizzle z-order
+                    //fixme should swizzle out indexes instead for better locality?
                     out[yi*ssegmentSize + xi] = segment[swizzle(xi, yi)];
         } else {
             ptrdiff_t segmentRadius = radius/ssegmentSize;
@@ -432,7 +432,7 @@ error:
             Layer::tile_t *segment = $.segmentCorner(x, y, ssegmentSize);
             for (size_t yi = 0; yi < ssegmentSize; ++yi)
                 for (size_t xi = 0; xi < ssegmentSize; ++xi)
-                    //fixme unswizzle z-order
+                    //fixme should swizzle out indexes instead for better locality?
                     *outBuffer++ = segment[swizzle(xi, yi)];
         }
     }

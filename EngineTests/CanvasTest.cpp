@@ -21,6 +21,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLoadCanvasTest1);
         CPPUNIT_TEST(testLoadCanvasFailsWhenNonexistent);
         CPPUNIT_TEST(testLayerGetSegment);
+        CPPUNIT_TEST(testLayerGetSegmentEmptyLayer);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -271,6 +272,18 @@ namespace Mega { namespace test {
                                              0, 0, 0, 0, 0, 0, 0, 0,
                                              0, 0, 0, 0, 0, 0, 0, 0,
                                              0, 0, 0, 0, 0, 0, 0, 0);
+        }
+        
+        void testLayerGetSegmentEmptyLayer()
+        {
+            Owner<Canvas> newCanvas = Canvas::create();
+            CPPUNIT_ASSERT(newCanvas->layers().size() == 1);
+            Layer layer0 = newCanvas->layers()[0];
+            Layer::tile_t fourTiles[4];
+            layer0.getSegment(0, 0, fourTiles, 2);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
+            layer0.getSegment(0, 0, fourTiles, 2);
+            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
         }
     };
 

@@ -203,6 +203,7 @@ namespace Mega {
     
     void Priv<View>::updateCenter()
     {
+        // fixme layer-specific rounding
         Vec center = ($.center * $.zoom).round() / $.zoom;
         glUniform2f($.uniforms.center, center.x, center.y);
         MEGA_ASSERT_GL_NO_ERROR;

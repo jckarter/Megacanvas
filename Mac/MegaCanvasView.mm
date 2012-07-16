@@ -74,7 +74,6 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 
 - (void)scrollWheel:(NSEvent *)event
 {
-    //fixme scroll should be inv.proportional to zoom
     double zoom = view->zoom();
     view->moveCenter(event.deltaX/zoom, event.deltaY/zoom);
     self.needsDisplay = YES;
