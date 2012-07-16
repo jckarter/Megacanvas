@@ -204,7 +204,7 @@ namespace Mega { namespace test {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
         glGenRenderbuffers(1, &rb);
         glBindRenderbuffer(GL_RENDERBUFFER, rb);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 128, 128);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_SRGB8_ALPHA8, 128, 128);
         MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb);
         MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;

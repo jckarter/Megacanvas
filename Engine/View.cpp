@@ -118,7 +118,8 @@ namespace Mega {
         std::size_t tileSize = $.canvas.tileSize();
         
         glActiveTexture(GL_TEXTURE0 + TILES_TU);        
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, tileSize, tileSize, tileCount+1,
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_SRGB8_ALPHA8,
+                     tileSize, tileSize, tileCount+1,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         
         // Tile 0 is the empty tile; all transparent
@@ -263,6 +264,18 @@ namespace Mega {
     {
         return createOwner<View>(c);
     }
+    
+    namespace {
+        bool defaultFramebufferIsSRGB()
+        {
+            GLint param;
+            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &param);
+            GLenum attachment = param == 0 ? GL_BACK_LEFT : GL_COLOR_ATTACHMENT0;
+            glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &param);
+            MEGA_ASSERT_GL_NO_ERROR;
+            return param == GL_SRGB;
+        }
+    }
 
     bool View::prepare(std::string *outError)
     {
@@ -272,8 +285,12 @@ namespace Mega {
         $.prepared = true;
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         
+        glEnable(GL_CULL_FACE);
         glEnable(GL_BLEND);
+        glEnable(GL_FRAMEBUFFER_SRGB);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        assert(defaultFramebufferIsSRGB());
         
         glGenBuffers(1, &$.meshBuffer);
         glGenBuffers(1, &$.eltBuffer);
