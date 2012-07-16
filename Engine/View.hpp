@@ -37,6 +37,8 @@ namespace Mega {
         double zoom();
         void zoom(double z);
 
+        void moveZoom(double z);
+        
         Vec viewToCanvas(Vec viewPoint);
         Vec viewToLayer(Vec viewPoint, Layer l);
         

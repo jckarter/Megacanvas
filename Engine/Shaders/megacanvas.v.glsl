@@ -3,8 +3,7 @@
 uniform vec2 center, pixelAlign, tileCount;
 uniform vec2 invTileCount; // 1/tileCount
 uniform vec2 tilePhase; // 0.5*(tileCount - 1)
-uniform vec2 viewportScale; // 2/viewport
-//FIXME uniform float zoom;
+uniform vec2 viewportScale; // 2*zoom/viewport
 uniform float tileTrimSize; // tileSize - 1
 uniform float invTileTrimSize; // 1/(tileSize - 1)
 uniform float tileTexLo; // 0.5/tileSize

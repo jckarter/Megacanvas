@@ -23,7 +23,6 @@ namespace Mega {
         invTileCount,
         tilePhase,
         viewportScale,
-        /*zoom,*/
         tileTrimSize,
         invTileTrimSize,
         tileTexLo,
@@ -69,6 +68,7 @@ namespace Mega {
         void updateMappings();
         void updateCenter();
         void updateViewport();
+        void updateZoom();
         void loadAllTiles();
     };
     

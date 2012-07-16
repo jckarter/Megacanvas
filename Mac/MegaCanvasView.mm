@@ -72,15 +72,17 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
     [[self openGLContext] flushBuffer];
 }
 
-- (void)scrollWheel:(NSEvent *)theEvent
+- (void)scrollWheel:(NSEvent *)event
 {
-    view->moveCenter(theEvent.deltaX, theEvent.deltaY);
+    view->moveCenter(event.deltaX, event.deltaY);
     self.needsDisplay = YES;
 }
 
 - (void)magnifyWithEvent:(NSEvent *)event
 {
     /*NSLog(@"magnify %f", event.magnification);*/
+    view->moveZoom(event.magnification);
+    self.needsDisplay = YES;
 }
 
 @end

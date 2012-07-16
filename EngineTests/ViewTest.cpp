@@ -174,10 +174,6 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 2);
             CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
-            view.zoom(0.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileTotal);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 5, 5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
         }
         
         static constexpr std::size_t bufferSize = (sizeof(float[4]) + sizeof(float[3])) * 6*2*2*2;
@@ -257,16 +253,17 @@ namespace Mega { namespace test {
                               float lowx, float lowy,
                               float tileIndex)
         {
+            static const float size = 127.0f;
             float const (*positions)[4] = 6*i + reinterpret_cast<float const (*)[4]>(bufferData);
             float const (*texCoords)[3] = 6*i + reinterpret_cast<float const (*)[3]>(bufferData + sizeof(float[4]) * 6*2*2*2);
             CPPUNIT_ASSERT_EQUAL(lowx       , positions[0][0]*63.5f);
             CPPUNIT_ASSERT_EQUAL(lowy       , positions[0][1]*32.5f);
-            CPPUNIT_ASSERT_EQUAL(lowx+127.0f, positions[1][0]*63.5f);
+            CPPUNIT_ASSERT_EQUAL(lowx+size  , positions[1][0]*63.5f);
             CPPUNIT_ASSERT_EQUAL(lowy       , positions[1][1]*32.5f);
             CPPUNIT_ASSERT_EQUAL(lowx       , positions[2][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[2][1]*32.5f);
-            CPPUNIT_ASSERT_EQUAL(lowx+127.0f, positions[4][0]*63.5f);
-            CPPUNIT_ASSERT_EQUAL(lowy+127.0f, positions[4][1]*32.5f);
+            CPPUNIT_ASSERT_EQUAL(lowy+size  , positions[2][1]*32.5f);
+            CPPUNIT_ASSERT_EQUAL(lowx+size  , positions[4][0]*63.5f);
+            CPPUNIT_ASSERT_EQUAL(lowy+size  , positions[4][1]*32.5f);
             
             CPPUNIT_ASSERT_EQUAL(  0.5f/128.0f, texCoords[0][0]);
             CPPUNIT_ASSERT_EQUAL(  0.5f/128.0f, texCoords[0][1]);
@@ -522,6 +519,22 @@ namespace Mega { namespace test {
             view.moveCenter(0.56, -0.56);
             glGetUniformfv(priv.program, priv.uniforms.center, center);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(center, 2.0f, 2.0f);
+        }
+        
+        void testZoomLowerLimit()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = this->view.priv();
+
+            view.zoom(2.0);
+            CPPUNIT_ASSERT_EQUAL(2.0, view.zoom());
+            view.zoom(0.5);
+            CPPUNIT_ASSERT_EQUAL(1.0, view.zoom());
+            
+            view.moveZoom(1.0);
+            CPPUNIT_ASSERT_EQUAL(2.0, view.zoom());
+            view.moveZoom(-1.5);
+            CPPUNIT_ASSERT_EQUAL(1.0, view.zoom());
         }
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);

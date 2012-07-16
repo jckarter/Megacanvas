@@ -168,7 +168,7 @@ namespace Mega {
 
         size_t layeri = 0;
         for (Layer layer : layers) {
-            Vec layerCenter = ($.center - layer.origin()) * layer.parallax();
+            Vec layerCenter = ($.center - layer.origin()) * layer.parallax() + $.pixelAlign;
             Vec centerSegmentWithFrac = layerCenter/double(segmentSize * (canvas.tileSize() - 1));
             Vec centerSegment = centerSegmentWithFrac.round();
             ptrdiff_t segmentx = ptrdiff_t(centerSegment.x);
@@ -210,7 +210,13 @@ namespace Mega {
     void Priv<View>::updateViewport()
     {
         glViewport(0, 0, $.width, $.height);
-        glUniform2f($.uniforms.viewportScale, 2.0/$.width, 2.0/$.height);
+        $.updateZoom();
+    }
+    
+    void Priv<View>::updateZoom()
+    {
+        glUniform2f($.uniforms.viewportScale, 2.0*$.zoom/$.width, 2.0*$.zoom/$.height);
+        //fixme pixelAlign and center rounding should be zoom-dependent
         glUniform2f($.uniforms.pixelAlign, $.pixelAlign.x, $.pixelAlign.y);
         MEGA_ASSERT_GL_NO_ERROR;
     }
@@ -378,11 +384,17 @@ namespace Mega {
     
     void View::zoom(double x)
     {
-        $.zoom = x;
+        $.zoom = std::max(x, 1.0);
         if ($.good) {
             $.updateMesh();
+            $.updateZoom();
             MEGA_ASSERT_GL_NO_ERROR;
         }
+    }
+    
+    void View::moveZoom(double x)
+    {
+        this->zoom($.zoom + x);
     }
 
     Vec View::viewToCanvas(Vec viewPoint)
