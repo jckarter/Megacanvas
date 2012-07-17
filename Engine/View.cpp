@@ -149,6 +149,7 @@ namespace Mega {
                             segmentSize, segmentSize, 1,
                             GL_RED, GL_UNSIGNED_SHORT, 
                             reinterpret_cast<const GLvoid*>(segments));
+            MEGA_ASSERT_GL_NO_ERROR;
         }
     }
         
@@ -184,9 +185,9 @@ namespace Mega {
             uploadSegment(segmentx,     segmenty - 1, layeri, segmentSize, &segments[1*segmentArea]);
             uploadSegment(segmentx - 1, segmenty,     layeri, segmentSize, &segments[2*segmentArea]);
             uploadSegment(segmentx,     segmenty,     layeri, segmentSize, &segments[3*segmentArea]);
+
             ++layeri;
         }
-        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateShaderParams()

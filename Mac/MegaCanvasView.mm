@@ -52,14 +52,12 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 
 - (void)reshape
 {
-    [super reshape];
-    if (view)
-        MegaCanvasView_resize(self);
+    [self.openGLContext makeCurrentContext];
+    MegaCanvasView_resize(self);
 }
 
 - (void)prepareOpenGL
 {
-    [super prepareOpenGL];    
     std::string error;
     if (!view->prepare(&error))
         throw std::runtime_error(error);
@@ -67,13 +65,16 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 }
 
 - (void)drawRect:(NSRect)dirtyRect
-{    
+{
+    auto context = self.openGLContext;
+    [context makeCurrentContext];
     view->render();
-    [[self openGLContext] flushBuffer];
+    [context flushBuffer];
 }
 
 - (void)scrollWheel:(NSEvent *)event
 {
+    [self.openGLContext makeCurrentContext];
     double zoom = view->zoom();
     view->moveCenter(event.deltaX/zoom, event.deltaY/zoom);
     self.needsDisplay = YES;
@@ -81,6 +82,7 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 
 - (void)magnifyWithEvent:(NSEvent *)event
 {
+    [self.openGLContext makeCurrentContext];
     view->moveZoom(event.magnification);
     self.needsDisplay = YES;
 }
@@ -88,6 +90,12 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 - (void)endGestureWithEvent:(NSEvent *)event
 {
 //    NSLog(@"gesture stop %lu", event.type);
+}
+
+- (void)dealloc
+{
+    [self.openGLContext makeCurrentContext];
+    view.reset();
 }
 
 @end
