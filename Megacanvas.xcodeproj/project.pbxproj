@@ -10,6 +10,7 @@
 		D813708B1592EEE000A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */; };
+		D8144DF815B5ED0B00E24675 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8144DF715B5ED0B00E24675 /* main.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -61,12 +62,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		D8144DF215B5ED0B00E24675 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D813708A1592EEE000A58ADD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D81370911592EF5400A58ADD /* EngineTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EngineTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
+		D8144DF415B5ED0B00E24675 /* mandelbrot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mandelbrot; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8144DF715B5ED0B00E24675 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -127,6 +139,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8144DF115B5ED0B00E24675 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D8EB129B158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -150,6 +169,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D8144DF615B5ED0B00E24675 /* mandelbrot */ = {
+			isa = PBXGroup;
+			children = (
+				D8144DF715B5ED0B00E24675 /* main.cpp */,
+			);
+			path = mandelbrot;
+			sourceTree = "<group>";
+		};
 		D8C986DA159408E7000D554E /* Engine */ = {
 			isa = PBXGroup;
 			children = (
@@ -203,6 +230,7 @@
 				D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */,
 				D8EB12A8158BADCD00ED0404 /* Mac */,
 				D8EB12C8158BADCE00ED0404 /* MacTests */,
+				D8144DF615B5ED0B00E24675 /* mandelbrot */,
 				D8EB12A1158BADCD00ED0404 /* Frameworks */,
 				D8EB129F158BADCD00ED0404 /* Products */,
 			);
@@ -214,6 +242,7 @@
 				D8EB129E158BADCD00ED0404 /* Megacanvas.app */,
 				D8EB12C2158BADCE00ED0404 /* MegacanvasTests.octest */,
 				D81370911592EF5400A58ADD /* EngineTests */,
+				D8144DF415B5ED0B00E24675 /* mandelbrot */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -306,6 +335,23 @@
 			productReference = D81370911592EF5400A58ADD /* EngineTests */;
 			productType = "com.apple.product-type.tool";
 		};
+		D8144DF315B5ED0B00E24675 /* mandelbrot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8144DFB15B5ED0B00E24675 /* Build configuration list for PBXNativeTarget "mandelbrot" */;
+			buildPhases = (
+				D8144DF015B5ED0B00E24675 /* Sources */,
+				D8144DF115B5ED0B00E24675 /* Frameworks */,
+				D8144DF215B5ED0B00E24675 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mandelbrot;
+			productName = mandelbrot;
+			productReference = D8144DF415B5ED0B00E24675 /* mandelbrot */;
+			productType = "com.apple.product-type.tool";
+		};
 		D8EB129D158BADCD00ED0404 /* Megacanvas */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8EB12D3158BADCE00ED0404 /* Build configuration list for PBXNativeTarget "Megacanvas" */;
@@ -367,6 +413,7 @@
 				D8EB129D158BADCD00ED0404 /* Megacanvas */,
 				D8EB12C1158BADCE00ED0404 /* MegacanvasTests */,
 				D81370901592EF5400A58ADD /* EngineTests */,
+				D8144DF315B5ED0B00E24675 /* mandelbrot */,
 			);
 		};
 /* End PBXProject section */
@@ -425,6 +472,14 @@
 				D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */,
 				D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */,
 				D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8144DF015B5ED0B00E24675 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8144DF815B5ED0B00E24675 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,6 +586,24 @@
 					"\"/usr/local/llvm-svn/lib\"",
 					/usr/local/Cellar/glew/1.7.0/lib,
 				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		D8144DFC15B5ED0B00E24675 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.pch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D8144DFD15B5ED0B00E24675 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.pch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -687,6 +760,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		D8144DFB15B5ED0B00E24675 /* Build configuration list for PBXNativeTarget "mandelbrot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8144DFC15B5ED0B00E24675 /* Debug */,
+				D8144DFD15B5ED0B00E24675 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		D8EB1298158BADCD00ED0404 /* Build configuration list for PBXProject "Megacanvas" */ = {
 			isa = XCConfigurationList;
