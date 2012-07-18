@@ -11,7 +11,6 @@
 #include <cstdio>
 #include <cstdint>
 #include <memory>
-#include <thread>
 
 static std::uint32_t colorPixel(std::size_t index, std::size_t iterations)
 {
@@ -65,14 +64,14 @@ int main(int argc, const char * argv[])
 {
     using namespace std;
     
-    if (argc < 10) {
-        fprintf(stderr, "usage: %s filename lowx lowy highx highy iterations width height threads\n", argv[0]);
+    if (argc < 9) {
+        fprintf(stderr, "usage: %s filename lowx lowy highx highy iterations width height\n", argv[0]);
         return 2;
     }
     
     char const * outfile = argv[1];
     double lowx, lowy, highx, highy;
-    size_t iterations, wi, hi, threads;
+    size_t iterations, wi, hi;
     
     lowx = strtod(argv[2], nullptr);
     lowy = strtod(argv[3], nullptr);
@@ -81,7 +80,6 @@ int main(int argc, const char * argv[])
     iterations = size_t(strtoull(argv[6], nullptr, 10));
     wi = size_t(strtoull(argv[7], nullptr, 10));
     hi = size_t(strtoull(argv[8], nullptr, 10));
-    threads = size_t(strtoull(argv[9], nullptr, 10));
     
     if (iterations == 0) {
         fprintf(stderr, "invalid iteration count %s\n", argv[7]);
@@ -93,10 +91,6 @@ int main(int argc, const char * argv[])
     }
     if (hi == 0) {
         fprintf(stderr, "invalid height %s\n", argv[8]);
-        return 1;        
-    }
-    if (threads == 0) {
-        fprintf(stderr, "invalid thread count %s\n", argv[9]);
         return 1;        
     }
     

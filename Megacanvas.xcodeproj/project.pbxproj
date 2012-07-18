@@ -10,7 +10,7 @@
 		D813708B1592EEE000A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */; };
-		D8144DF815B5ED0B00E24675 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8144DF715B5ED0B00E24675 /* main.cpp */; };
+		D8144DF815B5ED0B00E24675 /* mandelbrot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -78,7 +78,7 @@
 		D81370911592EF5400A58ADD /* EngineTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EngineTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
 		D8144DF415B5ED0B00E24675 /* mandelbrot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mandelbrot; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8144DF715B5ED0B00E24675 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mandelbrot.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -172,7 +172,7 @@
 		D8144DF615B5ED0B00E24675 /* mandelbrot */ = {
 			isa = PBXGroup;
 			children = (
-				D8144DF715B5ED0B00E24675 /* main.cpp */,
+				D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */,
 			);
 			path = mandelbrot;
 			sourceTree = "<group>";
@@ -479,7 +479,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8144DF815B5ED0B00E24675 /* main.cpp in Sources */,
+				D8144DF815B5ED0B00E24675 /* mandelbrot.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

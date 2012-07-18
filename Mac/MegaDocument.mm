@@ -63,6 +63,7 @@
     std::string error;
     Owner<Canvas> newCanvas = Canvas::load(path, &error);
     if (!newCanvas) {
+        NSLog(@"%s", error.c_str());
         auto errorInfo = [NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:error.c_str()]
                                                      forKey:NSLocalizedDescriptionKey];
         *outError = [NSError errorWithDomain:NSCocoaErrorDomain
