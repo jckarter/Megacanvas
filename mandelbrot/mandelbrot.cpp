@@ -12,19 +12,20 @@
 #include <cstdint>
 #include <memory>
 
+union pixel_t {
+    uint8_t bytes[4];
+    uint32_t word;
+};
+static const pixel_t blackPixel = {0,0,0,255};
+
 static std::uint32_t colorPixel(std::size_t index, std::size_t iterations)
 {
     using namespace std;
-    union bytes {
-        uint8_t bytes[4];
-        uint32_t word;
-    };
     
     if (index == iterations) {
-        static const bytes black = {0,0,0,255};
-        return black.word;
+        return blackPixel.word;
     } else {
-        static const bytes colors[8] = {
+        static const pixel_t colors[8] = {
             {0, 0, 1, 1},
             {0, 1, 1, 1},
             {1, 1, 1, 1},
@@ -94,14 +95,17 @@ int main(int argc, const char * argv[])
         return 1;        
     }
     
-    unique_ptr<uint32_t[]> data(new uint32_t[wi*hi]());
+    unique_ptr<uint32_t[]> data(new uint32_t[wi*hi]);
     FILE *out = fopen(outfile, "wb");
     if (!out) {
         fprintf(stderr, "unable to write to %s: %s\n", outfile, strerror(errno));
         return 1;
     }
     
-    if (!inBulb(lowx, lowy, highx, highy)) {
+    if (inBulb(lowx, lowy, highx, highy)) {
+        for (uint32_t *pixel = data.get(), *end = pixel + wi*hi; pixel < end; ++pixel)
+            *pixel = blackPixel.word;
+    } else {
         double dx = (highx - lowx)/double(wi);
         double dy = (highy - lowy)/double(hi);
         
