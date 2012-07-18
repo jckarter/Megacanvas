@@ -76,7 +76,7 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 {
     [self.openGLContext makeCurrentContext];
     double zoom = view->zoom();
-    view->moveCenter(event.deltaX/zoom, event.deltaY/zoom);
+    view->moveCenter(-event.deltaX/zoom, event.deltaY/zoom);
     self.needsDisplay = YES;
 }
 
