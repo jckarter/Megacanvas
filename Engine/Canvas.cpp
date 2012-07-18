@@ -13,6 +13,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
@@ -33,23 +34,28 @@ namespace Mega {
     struct Priv<Canvas> {
         const std::size_t tileLogSize, tileLogByteSize;
         std::vector<Priv<Layer>> layers;
-        std::vector<std::uint8_t> tiles;
-
-        Priv(std::size_t logSize = DEFAULT_LOG_SIZE)
-        : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2)
+        std::string tilesPath;
+        std::size_t tileCount;
+        
+        Priv(std::size_t logSize = DEFAULT_LOG_SIZE, llvm::StringRef tilesPath = "")
+        : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2),
+        tilesPath(tilesPath), tileCount(0)
         { }
 
-        Priv(std::size_t logSize, std::vector<Priv<Layer>> &&layers)
-        : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers)
+        Priv(std::size_t logSize, std::vector<Priv<Layer>> &&layers,
+             llvm::StringRef tilesPath, std::size_t tileCount)
+        :
+        tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers),
+        tilesPath(tilesPath), tileCount(tileCount)
         { }
-
-        void resizeTiles(std::size_t count) { tiles.resize(count << $.tileLogByteSize); }
-        llvm::MutableArrayRef<std::uint8_t> tile(std::size_t i)
+        
+        void makeTilePath(std::size_t i, llvm::SmallVectorImpl<char> *outPath)
         {
-            std::size_t byteSize = $.tileLogByteSize;
-            assert((i << byteSize) <= $.tiles.size());
-            std::uint8_t *begin = $.tiles.data() + ((i-1) << byteSize);
-            return llvm::MutableArrayRef<std::uint8_t>(begin, 1 << byteSize);
+            outPath->clear();
+            llvm::raw_svector_ostream os(*outPath);
+            using namespace llvm::sys;
+            os << $.tilesPath << '/' << i << ".rgba";
+            os.flush();
         }
     };
     MEGA_PRIV_DTOR(Canvas)
@@ -59,15 +65,14 @@ namespace Mega {
         Vec parallax;
         Vec origin;
         std::vector<Layer::tile_t> tiles;
-        int priority;
         std::size_t quadtreeDepth;
 
         Priv()
-        : parallax(Vec(1.0, 1.0)), origin(Vec(0.0, 0.0)), priority(0), quadtreeDepth(0)
+        : parallax(Vec(1.0, 1.0)), origin(Vec(0.0, 0.0)), quadtreeDepth(0)
         {}
 
-        Priv(Vec parallax, Vec origin, int priority, std::size_t quadtreeDepth, std::vector<Layer::tile_t> &&tiles)
-        : parallax(parallax), origin(origin), priority(priority), quadtreeDepth(quadtreeDepth), tiles(tiles)
+        Priv(Vec parallax, Vec origin, std::size_t quadtreeDepth, std::vector<Layer::tile_t> &&tiles)
+        : parallax(parallax), origin(origin), quadtreeDepth(quadtreeDepth), tiles(tiles)
         {}
         
         Layer::tile_t *segmentCorner(std::ptrdiff_t x, std::ptrdiff_t y,
@@ -191,8 +196,6 @@ namespace Mega {
 
             vector<Priv<Layer>> layers;
 
-            Layer::tile_t largestTileIndex = 0;
-
             SmallString<16> scratch;
             for (auto &kv : *metaRoot) {
                 auto keyNode = dyn_cast<yaml::ScalarNode>(kv.getKey());
@@ -222,7 +225,6 @@ namespace Mega {
 
                         Optional<Vec> parallax;
                         Optional<Vec> origin;
-                        Optional<int> priority;
                         Optional<std::size_t> quadtreeDepth;
                         vector<Layer::tile_t> tiles;
 
@@ -239,9 +241,6 @@ namespace Mega {
                             } else if (layerKey == "origin") {
                                 _MEGA_LOAD_ERROR_IF(!(origin = vecFromNode(layerValueNode, scratch)),
                                                     metaPath << ": layer " << layerI << ": 'origin' value is not a vec");
-                            } else if (layerKey == "priority") {
-                                _MEGA_LOAD_ERROR_IF(!(priority = intFromNode<int>(layerValueNode, scratch)),
-                                                    metaPath << ": layer " << layerI << ": 'priority' value is not an integer");
                             } else if (layerKey == "size") {
                                 _MEGA_LOAD_ERROR_IF(!(quadtreeDepth = intFromNode<std::size_t>(layerValueNode, scratch)),
                                                     metaPath << ": layer " << layerI << ": 'size' value is not a vec");
@@ -253,7 +252,6 @@ namespace Mega {
                                     Optional<Layer::tile_t> tile = intFromNode<Layer::tile_t>(&tileNode, scratch);
                                     _MEGA_LOAD_ERROR_IF(!tile,
                                                         metaPath << ": layer " << layerI << ": 'tiles' sequence contains non-integer values");
-                                    largestTileIndex = max(largestTileIndex, *tile);
                                     tiles.push_back(*tile);
                                 }
                             } else {
@@ -266,14 +264,12 @@ namespace Mega {
                                             metaPath << ": layer " << layerI << ": missing 'parallax' key");
                         _MEGA_LOAD_ERROR_IF(!origin,
                                             metaPath << ": layer " << layerI << ": layer missing 'origin' key");
-                        _MEGA_LOAD_ERROR_IF(!priority,
-                                            metaPath << ": layer " << layerI << ": layer missing 'priority' key");
                         _MEGA_LOAD_ERROR_IF(!quadtreeDepth,
                                             metaPath << ": layer " << layerI << ": layer missing 'size' key");
                         _MEGA_LOAD_ERROR_IF(tiles.size() != (1 << (*quadtreeDepth << 1)),
                                             metaPath << ": layer " << layerI << ": layer has 'size' value " << *quadtreeDepth << " (tile count " << (1 << (*quadtreeDepth << 1)) << ") but 'tiles' value only lists " << tiles.size() << "tiles");
 
-                        layers.emplace_back(*parallax, *origin, *priority, *quadtreeDepth, move(tiles));
+                        layers.emplace_back(*parallax, *origin, *quadtreeDepth, move(tiles));
 
                         ++layerI;
                     }
@@ -287,9 +283,9 @@ namespace Mega {
             _MEGA_LOAD_ERROR_IF(!tileCount, metaPath << ": missing 'tile-count' key");
             _MEGA_LOAD_ERROR_IF(layers.empty(), metaPath << ": must be at least one layer");
 
-            result = createOwner<Canvas>(*logSize, move(layers));
+            result = createOwner<Canvas>(*logSize, move(layers), path, *tileCount);
         }
-
+        /*
         {
             //
             // load tiles
@@ -318,6 +314,7 @@ namespace Mega {
                        destTileData.size());
             }
         }
+         */
 
         return result;
 
@@ -329,6 +326,7 @@ error:
 
     MEGA_PRIV_GETTER(Canvas, tileLogSize, std::size_t)
     MEGA_PRIV_GETTER(Canvas, layers, PrivArrayRef<Layer>)
+    MEGA_PRIV_GETTER(Canvas, tileCount, std::size_t)
 
     std::size_t Canvas::tileSize()
     {
@@ -344,17 +342,52 @@ error:
     {
         return 1 << $.tileLogByteSize;
     }
-
-    Array2DRef<std::uint8_t> Canvas::tiles()
+    
+    bool Canvas::verifyTiles(std::string *outError)
     {
-        return Array2DRef<std::uint8_t>($.tiles, 1 << $.tileLogByteSize);
+        using namespace llvm;
+        using namespace llvm::sys;
+        raw_string_ostream errors(*outError);
+        SmallString<260> path;
+        bool ok = true;
+        for (std::size_t i = 1; i <= $.tileCount; ++i) {
+            $.makeTilePath(i, &path);
+            bool isRegular;
+            error_code code = fs::is_regular_file(path.str(), isRegular);
+            if (code) {
+                errors << path << ": " << code.message() << "\n";
+                ok = false;
+            } else if (!isRegular) {
+                errors << path << ": not a regular file";
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    
+    std::unique_ptr<llvm::MemoryBuffer>
+    Canvas::loadTile(std::size_t index, std::string *outError)
+    {
+        assert(index >= 1 && index <= $.tileCount);
+        using namespace std;
+        using namespace llvm;
+        
+        SmallString<260> path;
+        $.makeTilePath(index, &path);
+        
+        OwningPtr<MemoryBuffer> buf;
+        error_code err = MemoryBuffer::getFile(path, buf);
+        if (err) {
+            *outError = err.message();
+            return unique_ptr<MemoryBuffer>();
+        }
+        return unique_ptr<MemoryBuffer>(buf.take());
     }
 
     //
     // Layer implementation
     //
     MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
-    MEGA_PRIV_GETTER_SETTER(Layer, priority, int)
     MEGA_PRIV_GETTER(Layer, origin, Vec)
     
     namespace {

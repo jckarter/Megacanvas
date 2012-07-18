@@ -22,6 +22,8 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLoadCanvasFailsWhenNonexistent);
         CPPUNIT_TEST(testLayerGetSegment);
         CPPUNIT_TEST(testLayerGetSegmentEmptyLayer);
+        CPPUNIT_TEST(testVerifyTiles);
+        CPPUNIT_TEST(testLoadTile);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -40,17 +42,16 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(canvas.tileLogSize() == 7);
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
             CPPUNIT_ASSERT(canvas.tileArea() == 16384);
-            CPPUNIT_ASSERT(canvas.tiles().size() == 0);
+            CPPUNIT_ASSERT(canvas.tileCount() == 0);
             CPPUNIT_ASSERT(canvas.layers().size() == 1);
             Layer layer = canvas.layers()[0];
             CPPUNIT_ASSERT(layer.parallax() == Vec(1., 1.));
-            CPPUNIT_ASSERT(layer.priority() == 0);
         }
 
         void testLoadCanvasTest1()
         {
             std::string error;
-            Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test1.mega", &error);
+            Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/Test1.mega", &error);
             CPPUNIT_ASSERT_EQUAL(std::string(""), error);
             CPPUNIT_ASSERT(canvasOwner);
             Canvas canvas = canvasOwner.get();
@@ -63,20 +64,10 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(layers.size() == 2);
 
             CPPUNIT_ASSERT(layers[0].parallax() == Vec(1., 1.));
-            CPPUNIT_ASSERT(layers[0].priority() == 0);
 
             CPPUNIT_ASSERT(layers[1].parallax() == Vec(0.5, 0.5));
-            CPPUNIT_ASSERT(layers[1].priority() == 0);
 
-            auto tiles = canvas.tiles();
-            CPPUNIT_ASSERT(tiles.size() == 20);
-            auto tile0 = tiles[0];
-            auto tile1 = tiles[1];
-            auto tile19 = tiles[19];
-            CPPUNIT_ASSERT(tile0.size() == 128*128*4);
-            CPPUNIT_ASSERT(tile1.size() == 128*128*4);
-            CPPUNIT_ASSERT(tile0.end() <= tile1.begin() || tile1.end() <= tile0.begin());
-            CPPUNIT_ASSERT(tile19.size() == 128*128*4);
+            CPPUNIT_ASSERT(canvas.tileCount() == 20);
         }
 
         void testLoadCanvasFailsWhenNonexistent()
@@ -284,6 +275,33 @@ namespace Mega { namespace test {
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
             layer0.getSegment(0, 0, fourTiles, 2);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
+        }
+        
+        void testVerifyTiles()
+        {
+            std::string error;
+            Owner<Canvas> canvas = Canvas::load("EngineTests/TestData/Test1.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            
+            bool ok = canvas->verifyTiles(&error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(ok);
+        }
+        
+        void testLoadTile()
+        {
+            std::string error;
+            Owner<Canvas> canvas = Canvas::load("EngineTests/TestData/Test1.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(std::size_t(20), canvas->tileCount());
+            
+            for (size_t i = 1; i <= 20; ++i) {
+                auto tile = canvas->loadTile(1, &error);
+                CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+                CPPUNIT_ASSERT(tile);
+            }
         }
     };
 

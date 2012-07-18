@@ -63,9 +63,16 @@
     std::string error;
     Owner<Canvas> newCanvas = Canvas::load(path, &error);
     if (!newCanvas) {
-        NSLog(@"%s", error.c_str());
         auto errorInfo = [NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:error.c_str()]
-                                                     forKey:NSLocalizedDescriptionKey];
+                                                     forKey:NSLocalizedFailureReasonErrorKey];
+        *outError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                        code:NSFileWriteUnknownError 
+                                    userInfo:errorInfo];
+        return NO;
+    }
+    if (!newCanvas->verifyTiles(&error)) {
+        auto errorInfo = [NSDictionary dictionaryWithObject:[NSString stringWithUTF8String:error.c_str()]
+                                                     forKey:NSLocalizedFailureReasonErrorKey];
         *outError = [NSError errorWithDomain:NSCocoaErrorDomain
                                         code:NSFileWriteUnknownError 
                                     userInfo:errorInfo];

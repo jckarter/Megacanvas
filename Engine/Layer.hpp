@@ -23,9 +23,6 @@ namespace Mega {
         Vec parallax();
         void parallax(Vec x);
 
-        int priority();
-        void priority(int x);
-        
         Vec origin();
         
         void getSegment(std::ptrdiff_t x, std::ptrdiff_t y,

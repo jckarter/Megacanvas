@@ -4,7 +4,6 @@ tile-count: 20
 layers:
   - parallax: [1,1]
     origin: [0,0]
-    priority: 0
     size: 1
     tiles:
       - 1
@@ -13,7 +12,6 @@ layers:
       - 4
   - parallax: [0.5,0.5]
     origin: [16,32]
-    priority: 0
     size: 2
     tiles:
       - 5
@@ -34,7 +32,6 @@ layers:
       - 20
   - parallax: [0.25,0.25]
     origin: [160,320]
-    priority: 0
     size: 3
     tiles:
       - 21

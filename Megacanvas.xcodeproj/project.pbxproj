@@ -79,6 +79,7 @@
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
 		D8144DF415B5ED0B00E24675 /* mandelbrot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mandelbrot; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mandelbrot.cpp; sourceTree = "<group>"; };
+		D8144DFE15B6770800E24675 /* mandelmega.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = mandelmega.py; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -172,6 +173,7 @@
 		D8144DF615B5ED0B00E24675 /* mandelbrot */ = {
 			isa = PBXGroup;
 			children = (
+				D8144DFE15B6770800E24675 /* mandelmega.py */,
 				D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */,
 			);
 			path = mandelbrot;
