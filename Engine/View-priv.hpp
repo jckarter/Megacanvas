@@ -54,6 +54,8 @@ namespace Mega {
         GLuint viewTileCount[2] = {0, 0};
         GLuint tilesTexture = 0, mappingTexture = 0, tilesTextureCount = 0, mappingTextureSegmentSize = 0;
         GLuint fragShader = 0, vertShader = 0, program = 0;
+        std::unique_ptr<uint16_t[]> mappingSegments;
+        size_t mappingSegmentsSize = 0;
         
         ViewUniforms uniforms;
         

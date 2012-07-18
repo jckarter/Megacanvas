@@ -99,6 +99,12 @@ namespace Mega {
             glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
                          0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+            
+            std::size_t bufferSize = segmentSize*segmentSize*4;
+            if (bufferSize > mappingSegmentsSize) {
+                mappingSegments.reset(new std::uint16_t[bufferSize]);
+                mappingSegmentsSize = bufferSize;
+            }
 
             MEGA_ASSERT_GL_NO_ERROR;
             $.updateMappings();
@@ -165,8 +171,7 @@ namespace Mega {
         auto canvas = $.canvas;
         auto layers = canvas.layers();
         GLuint segmentArea = segmentSize*segmentSize;
-        //fixme use pixel unpack buffer
-        unique_ptr<uint16_t[]> segments(new uint16_t[4*segmentArea]);
+        uint16_t *segments = $.mappingSegments.get();
 
         size_t layeri = 0;
         for (Layer layer : layers) {
