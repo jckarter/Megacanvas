@@ -148,6 +148,11 @@ namespace Mega {
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
+    bool Priv<View>::isTileLoaded(std::size_t tile)
+    {
+        return true;
+    }
+    
     namespace {
         void uploadSegment(ptrdiff_t x, ptrdiff_t y, size_t layeri, size_t segmentSize, uint16_t *segments)
         {

@@ -21,6 +21,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testVertexShaderTileLayout);
         CPPUNIT_TEST(testVertexShaderLayerOriginAndParallax);
         CPPUNIT_TEST(testMappingTexture);
+        CPPUNIT_TEST(testTilesLoaded);
         CPPUNIT_TEST(testCenterPixelAlignment);
         CPPUNIT_TEST(testCenterPixelAlignmentWithZoom);
         CPPUNIT_TEST(testCenterRounds);
@@ -416,6 +417,7 @@ namespace Mega { namespace test {
             glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &param);
             CPPUNIT_ASSERT_EQUAL(GLint(2), param);
 
+            view.syncTextureStreaming();
             glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
                           reinterpret_cast<GLvoid*>(mappingTextureData));
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
@@ -483,6 +485,48 @@ namespace Mega { namespace test {
                                              0, 0, 0, 0,
                                              0, 0, 0, 0,
                                              0, 0, 0, 0);
+        }
+        
+        void testTilesLoaded()
+        {
+            View view = this->view.get();
+            Priv<View> &priv = *view.that;
+            view.resize(127.0, 127.0);
+            CPPUNIT_ASSERT_EQUAL(GLuint(2), view.that->mappingTextureSegmentSize);
+            
+            view.syncTextureStreaming();
+            CPPUNIT_ASSERT(priv.isTileLoaded(1));
+            CPPUNIT_ASSERT(priv.isTileLoaded(2));
+            CPPUNIT_ASSERT(priv.isTileLoaded(3));
+            CPPUNIT_ASSERT(priv.isTileLoaded(4));
+            CPPUNIT_ASSERT(priv.isTileLoaded(7));
+            CPPUNIT_ASSERT(priv.isTileLoaded(13));
+            
+            view.moveCenter(Vec(508.0, 0.0));
+            view.syncTextureStreaming();
+            CPPUNIT_ASSERT(priv.isTileLoaded(8));
+            CPPUNIT_ASSERT(priv.isTileLoaded(11));
+            CPPUNIT_ASSERT(priv.isTileLoaded(14));
+            CPPUNIT_ASSERT(priv.isTileLoaded(17));
+
+            view.moveCenter(Vec(-254.0, 0.0));
+            view.syncTextureStreaming();
+            CPPUNIT_ASSERT(priv.isTileLoaded(2));
+            CPPUNIT_ASSERT(priv.isTileLoaded(4));
+            CPPUNIT_ASSERT(priv.isTileLoaded(7));
+            CPPUNIT_ASSERT(priv.isTileLoaded(8));
+            CPPUNIT_ASSERT(priv.isTileLoaded(13));
+            CPPUNIT_ASSERT(priv.isTileLoaded(14));
+            
+
+            view.moveCenter(Vec(-254.0, 0.0));
+            view.syncTextureStreaming();
+            CPPUNIT_ASSERT(priv.isTileLoaded(1));
+            CPPUNIT_ASSERT(priv.isTileLoaded(2));
+            CPPUNIT_ASSERT(priv.isTileLoaded(3));
+            CPPUNIT_ASSERT(priv.isTileLoaded(4));
+            CPPUNIT_ASSERT(priv.isTileLoaded(7));
+            CPPUNIT_ASSERT(priv.isTileLoaded(13));
         }
         
         void testCenterPixelAlignment()
