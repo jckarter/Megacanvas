@@ -78,6 +78,19 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(error.find("unable to read file") != std::string::npos);
         }
         
+#define _MEGA_CPPUNIT_ASSERT_SEGMENT(actual, expectedOffset, ...) \
+    do { \
+        auto Q_seg = (actual); \
+        CPPUNIT_ASSERT_EQUAL(std::size_t(expectedOffset), Q_seg.offset); \
+        MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(Q_seg.tiles, __VA_ARGS__); \
+    } while (false)
+#define _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(actual) \
+    do { \
+        auto Q_seg = (actual); \
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0), Q_seg.offset); \
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0), Q_seg.tiles.size()); \
+    } while (false)
+
         void testLayerGetSegment()
         {
             using namespace std;
@@ -89,65 +102,36 @@ namespace Mega { namespace test {
             
             // layer 0: depth 1, tiles 1 thru 4
             Layer layer0 = canvas.layers()[0], layer1 = canvas.layers()[1], layer2 = canvas.layers()[2];
-            Layer::tile_t oneTile;
-            Layer::tile_t fourTiles[4];
-            Layer::tile_t sixteenTiles[16];
-            Layer::tile_t sixtyfourTiles[64];
-            
-            layer0.getSegment(-1, -1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(1), oneTile);
-            layer0.getSegment(0, -1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(2), oneTile);
-            layer0.getSegment(-1, 0, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(3), oneTile);
-            layer0.getSegment(0, 0, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(4), oneTile);
-            
-            layer0.getSegment(-2, -1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer0.getSegment(1, -1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer0.getSegment(-1, -2, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer0.getSegment(-1, 1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            
-            layer0.getSegment(-1, -1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 1);
-            layer0.getSegment(0, -1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 2, 0);
-            layer0.getSegment(-1, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 3, 0, 0);
-            layer0.getSegment(0, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 4, 0, 0, 0);
-            
-            layer0.getSegment(-1, -1, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 1);
-            layer0.getSegment(0, -1, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             2, 0, 0, 0);
-            layer0.getSegment(-1, 0, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
-                                             0, 0, 0, 3,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0);
-            layer0.getSegment(0, 0, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles,
-                                             4, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0);
 
-            layer0.getSegment(-2, -2, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(1, -1, -1), 0, 1);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(1,  0, -1), 0, 2);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(1, -1,  0), 0, 3);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(1,  0,  0), 0, 4);
+            
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1, -1,  1));
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(2, -1, -1), 3, 1);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(2,  0, -1), 2, 2);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(2, -1,  0), 1, 3);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(2,  0,  0), 0, 4);
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(2, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(2,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(2, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(2, -1,  1));
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(4, -1, -1), 15, 1);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(4,  0, -1), 10, 2);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(4, -1,  0), 5, 3);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer0.segment(4,  0,  0), 0, 4);
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(4, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(4,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(4, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(4, -1,  1));
             
             // layer 1: depth 2, tiles 5 thru 20
             //  5  6  9 10
@@ -155,114 +139,110 @@ namespace Mega { namespace test {
             //      *
             // 13 14 17 18
             // 15 16 19 20
-            layer1.getSegment(-2, 1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(15), oneTile);
-            layer1.getSegment(-1, -1, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(8), oneTile);
-            layer1.getSegment(0, -2, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(9), oneTile);
-            layer1.getSegment(1, 0, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(18), oneTile);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(1, -2,  1), 0, 15);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(1, -1, -1), 0,  8);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(1,  0, -2), 0,  9);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(1,  1,  0), 0, 18);
 
-            layer1.getSegment(-3, 0, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer1.getSegment(2, 0, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer1.getSegment(0, -3, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
-            layer1.getSegment(0, 2, &oneTile, 1);
-            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), oneTile);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(1, -3,  0));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(1,  2,  0));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(1,  0, -3));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(1,  0,  2));
 
-            layer1.getSegment(-1, -1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 5, 6, 7, 8);
-            layer1.getSegment(0, -1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 9, 10, 11, 12);
-            layer1.getSegment(-1, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 13, 14, 15, 16);
-            layer1.getSegment(0, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 17, 18, 19, 20);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(2, -1, -1), 0,
+                                         5, 6,
+                                         7, 8);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(2,  0, -1), 0,
+                                          9, 10,
+                                         11, 12);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(2, -1,  0), 0,
+                                         13, 14,
+                                         15, 16);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(2,  0,  0), 0,
+                                         17, 18,
+                                         19, 20);
             
-            layer1.getSegment(-2, -2, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
-            layer1.getSegment(1, 1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(2, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(2,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(2, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(2, -1,  1));
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(4, -1, -1), 12,
+                                         5, 6,
+                                         7, 8);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(4,  0, -1),  8,
+                                          9, 10,
+                                         11, 12);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(4, -1,  0),  4,
+                                         13, 14,
+                                         15, 16);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(4,  0,  0),  0,
+                                         17, 18,
+                                         19, 20);
             
-            layer1.getSegment(-1, -1, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 5, 6,
-                                             0, 0, 7, 8);
-            layer1.getSegment(0, -1, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             0,  0, 0, 0,
-                                             0,  0, 0, 0,
-                                             9, 10, 0, 0,
-                                             11, 12, 0, 0);
-            layer1.getSegment(-1, 0, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             0,  0, 13, 14,
-                                             0,  0, 15, 16,
-                                             0,  0,  0,  0,
-                                             0,  0,  0,  0);
-            layer1.getSegment(0, 0, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             17, 18, 0, 0,
-                                             19, 20, 0, 0,
-                                             0,  0, 0, 0,
-                                             0,  0, 0, 0);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(4, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(4,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(4, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(4, -1,  1));
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(8, -1, -1), 60,
+                                         5, 6,
+                                         7, 8);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(8,  0, -1), 40,
+                                          9, 10,
+                                         11, 12);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(8, -1,  0), 20,
+                                         13, 14,
+                                         15, 16);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer1.segment(8,  0,  0),  0,
+                                         17, 18,
+                                         19, 20);
             
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(8, -2, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(8,  1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(8, -1, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer1.segment(8, -1,  1));
+
             // layer 2: depth 3, tiles 21 thru 84
             // 21-24 25-28   37-40 41-44
             // 29-32 33-36   45-48 49-52
             //             *
             // 53-56 57-60   69-72 73-76
             // 61-64 65-68   77-80 81-84
-            layer2.getSegment(-1, -1, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 33, 34, 35, 36);
-            layer2.getSegment(1, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 73, 74, 75, 76);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(2, -1, -1), 0,
+                                         33, 34,
+                                         35, 36);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(2,  1,  0), 0,
+                                         73, 74,
+                                         75, 76);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(2, -5, -5));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(2,  4,  4));
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(4, -1, -1), 0,
+                                         21, 22, 23, 24,
+                                         25, 26, 27, 28,
+                                         29, 30, 31, 32,
+                                         33, 34, 35, 36);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(4,  0,  0), 0,
+                                         69, 70, 71, 72,
+                                         73, 74, 75, 76,
+                                         77, 78, 79, 80,
+                                         81, 82, 83, 84);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(4, -2, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(4,  1,  1));
             
-            layer2.getSegment(-1, -1, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             21, 22, 25, 26,
-                                             23, 24, 27, 28,
-                                             29, 30, 33, 34,
-                                             31, 32, 35, 36);
-            layer2.getSegment(0, 0, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             69, 70, 73, 74,
-                                             71, 72, 75, 76,
-                                             77, 78, 81, 82,
-                                             79, 80, 83, 84);
-            
-            layer2.getSegment(2, 2, sixteenTiles, 4);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixteenTiles, 
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0);
-            
-            layer2.getSegment(-1, -1, sixtyfourTiles, 8);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixtyfourTiles, 
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 21, 22, 25, 26,
-                                             0, 0, 0, 0, 23, 24, 27, 28,
-                                             0, 0, 0, 0, 29, 30, 33, 34,
-                                             0, 0, 0, 0, 31, 32, 35, 36);
-            layer2.getSegment(0, 0, sixtyfourTiles, 8);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(sixtyfourTiles, 
-                                             69, 70, 73, 74, 0, 0, 0, 0,
-                                             71, 72, 75, 76, 0, 0, 0, 0,
-                                             77, 78, 81, 82, 0, 0, 0, 0,
-                                             79, 80, 83, 84, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(8, -1, -1), 48,
+                                         21, 22, 23, 24,
+                                         25, 26, 27, 28,
+                                         29, 30, 31, 32,
+                                         33, 34, 35, 36);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT(layer2.segment(8,  0,  0), 0,
+                                         69, 70, 71, 72,
+                                         73, 74, 75, 76,
+                                         77, 78, 79, 80,
+                                         81, 82, 83, 84);
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(8, -2, -2));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(8,  1,  1));
         }
         
         void testLayerGetSegmentEmptyLayer()
@@ -270,12 +250,15 @@ namespace Mega { namespace test {
             Owner<Canvas> newCanvas = Canvas::create();
             CPPUNIT_ASSERT(newCanvas->layers().size() == 1);
             Layer layer0 = newCanvas->layers()[0];
-            Layer::tile_t fourTiles[4];
-            layer0.getSegment(0, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
-            layer0.getSegment(0, 0, fourTiles, 2);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(fourTiles, 0, 0, 0, 0);
+
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1, -1, -1));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(1,  0,  0));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(2,  0,  0));
+            _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer0.segment(4,  0,  0));
         }
+        
+#undef _MEGA_CPPUNIT_ASSERT_SEGMENT
+#undef _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY
         
         void testVerifyTiles()
         {

@@ -52,10 +52,8 @@ namespace Mega {
         GLuint meshBuffer = 0, eltBuffer = 0, viewTileTotal = 0;
         GLuint meshArray = 0;
         GLuint viewTileCount[2] = {0, 0};
-        GLuint tilesTexture = 0, mappingTexture = 0, tilesTextureCount = 0, mappingTextureSegmentSize = 0;
+        GLuint tilesTexture = 0, mappingTexture = 0, tilesTextureCount = 0, mappingTextureSize = 0;
         GLuint fragShader = 0, vertShader = 0, program = 0;
-        std::unique_ptr<uint16_t[]> mappingSegments;
-        std::size_t mappingSegmentsSize = 0;
         
         ViewUniforms uniforms;
         
@@ -67,12 +65,12 @@ namespace Mega {
 
         void updateShaderParams();
         void updateMesh();
-        void updateMappings();
         void updateCenter();
         void updateViewport();
         void updateZoom();
-        void loadAllTiles();
         
+        void loadVisibleTiles();
+
         bool isTileLoaded(std::size_t tile);
     };
     

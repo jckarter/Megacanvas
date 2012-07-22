@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 #include "Engine/Util/Priv.hpp"
 #include "Engine/Vec.hpp"
 
@@ -25,8 +26,11 @@ namespace Mega {
 
         Vec origin();
         
-        void getSegment(std::ptrdiff_t x, std::ptrdiff_t y,
-                        tile_t *outBuffer, std::size_t segmentSize);
+        struct SegmentRef {        
+            llvm::ArrayRef<tile_t> tiles;
+            std::size_t offset;
+        };
+        SegmentRef segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y);
     };
 }
 

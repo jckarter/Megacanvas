@@ -75,14 +75,14 @@ namespace Mega {
         : parallax(parallax), origin(origin), quadtreeDepth(quadtreeDepth), tiles(tiles)
         {}
         
-        Layer::tile_t *segmentCorner(std::ptrdiff_t x, std::ptrdiff_t y,
-                                     std::ptrdiff_t segmentSize)
+        Layer::tile_t *segmentCorner(std::ptrdiff_t quadrantSize,
+                                     std::ptrdiff_t x, std::ptrdiff_t y)
         {
             using namespace std;
             size_t logRadius = $.quadtreeDepth - 1;
             size_t radius = 1 << logRadius;
             size_t nodeSize = 1 << (logRadius << 1);
-            size_t xa = x*segmentSize + radius, ya = y*segmentSize + radius;
+            size_t xa = x*quadrantSize + radius, ya = y*quadrantSize + radius;
             assert(xa >= 0 && xa < radius*2 && ya >= 0 && ya < radius*2);
             Layer::tile_t *corner = tiles.data();
             
@@ -391,82 +391,48 @@ error:
     MEGA_PRIV_GETTER(Layer, origin, Vec)
     
     namespace {
-        void zeroSegment(Layer::tile_t *outBuffer, std::size_t segmentSize)
-        {
-            memset(reinterpret_cast<void*>(outBuffer), 
-                   0, sizeof(Layer::tile_t)*segmentSize*segmentSize);            
-        }
-        
         bool isPowerOfTwo(std::size_t x) 
         {
             return (x & (x - 1)) == 0 && x != 0;
         }
-        
-        size_t swizzle(std::size_t x, std::size_t y)
-        {
-            assert(x <= 0xFFFF && y <= 0xFFFF);
-            static const unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
-            static const unsigned int S[] = {1, 2, 4, 8};
-            
-            x = (x | (x << S[3])) & B[3];
-            x = (x | (x << S[2])) & B[2];
-            x = (x | (x << S[1])) & B[1];
-            x = (x | (x << S[0])) & B[0];
-            
-            y = (y | (y << S[3])) & B[3];
-            y = (y | (y << S[2])) & B[2];
-            y = (y | (y << S[1])) & B[1];
-            y = (y | (y << S[0])) & B[0];
-            
-            return x | (y << 1);
-        }
     }
     
-    void Layer::getSegment(std::ptrdiff_t x, std::ptrdiff_t y,
-                           Layer::tile_t *outBuffer, std::size_t segmentSize)
+    Layer::SegmentRef
+    Layer::segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y)
     {
-        assert(isPowerOfTwo(segmentSize) && segmentSize <= PTRDIFF_MAX);
+        assert(isPowerOfTwo(segmentSize) && segmentSize*segmentSize <= PTRDIFF_MAX);
         using namespace std;
-        ptrdiff_t ssegmentSize = ptrdiff_t(segmentSize);
+        using namespace llvm;
         size_t quadtreeDepth = $.quadtreeDepth;
         if (quadtreeDepth == 0) {
-            zeroSegment(outBuffer, ssegmentSize);
-            return;
+            return {ArrayRef<tile_t>(), 0};
         }
         size_t radius = 1 << (quadtreeDepth - 1);
         size_t nodeSize = 1 << ((quadtreeDepth - 1) << 1);
-        if (radius < ssegmentSize) {
-            zeroSegment(outBuffer, ssegmentSize);
-            Layer::tile_t *segment = $.tiles.data();
-            Layer::tile_t *out = outBuffer;
-            if (x == -1 && y == -1) {
-                out += (segmentSize - radius)*(segmentSize + 1);
-            } else if (x == 0 && y == -1) {
-                segment += nodeSize;
-                out += (segmentSize - radius)*segmentSize;
-            } else if (x == -1 && y == 0) {
-                segment += 2*nodeSize;
-                out += segmentSize - radius;
-            } else if (x == 0 && y == 0) {
-                segment += 3*nodeSize;
-            } else
-                return;
-            for (size_t yi = 0; yi < radius; ++yi)
-                for (size_t xi = 0; xi < radius; ++xi)
-                    //fixme should swizzle out indexes instead for better locality?
-                    out[yi*ssegmentSize + xi] = segment[swizzle(xi, yi)];
+        tile_t *tiles = $.tiles.data();
+        if (radius < segmentSize) {
+            if ((x != -1 && x != 0) || (y != -1 && y != 0))
+                return {ArrayRef<tile_t>(), 0};
+
+            size_t node = (x+1) | ((y+1)<<1);
+            size_t offset = 0;
+            while (segmentSize > radius) {
+                offset = (offset << 2) | 1;
+                segmentSize >>= 1;
+            }
+            while (segmentSize > 1) {
+                offset <<= 2;
+                segmentSize >>= 1;
+            }
+            return {makeArrayRef(&tiles[node*nodeSize], nodeSize), (3-node)*offset};
         } else {
-            ptrdiff_t segmentRadius = radius/ssegmentSize;
+            ptrdiff_t segmentRadius = radius/segmentSize;
             if (x < -segmentRadius || x >= segmentRadius
                 || y < -segmentRadius || y >= segmentRadius) {
-                zeroSegment(outBuffer, ssegmentSize);
-                return;
+                return {ArrayRef<tile_t>(), 0};
             }
-            Layer::tile_t *segment = $.segmentCorner(x, y, ssegmentSize);
-            for (size_t yi = 0; yi < ssegmentSize; ++yi)
-                for (size_t xi = 0; xi < ssegmentSize; ++xi)
-                    //fixme should swizzle out indexes instead for better locality?
-                    *outBuffer++ = segment[swizzle(xi, yi)];
+            Layer::tile_t *segment = $.segmentCorner(segmentSize, x, y);
+            return {makeArrayRef(segment, segmentSize*segmentSize), 0};
         }
     }
 }

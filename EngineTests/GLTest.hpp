@@ -48,6 +48,15 @@ namespace Mega { namespace test {
     }
 
     template<typename T, typename...TT>
+    inline bool arrayEquals(llvm::ArrayRef<T> array, TT &&...values)
+    {
+        if (sizeof...(TT) != array.size())
+            return false;
+        T expected[sizeof...(TT)] = {T(std::forward<TT>(values))...};
+        return std::equal(std::begin(array), std::end(array), std::begin(expected));
+    }
+    
+    template<typename T, typename...TT>
     inline void pValues(std::ostream &os, T &&x, TT &&...xx)
     {
         os << std::forward<T>(x);
@@ -64,15 +73,25 @@ namespace Mega { namespace test {
         }
     }
     
-    template<typename T, std::size_t N, typename...UU>
-    inline std::string assertArrayEqualsMessage(T (&actual)[N], UU &&...expected)
+    template<typename T>
+    inline void pArray(std::ostream &os, llvm::ArrayRef<T> arr)
+    {
+        if (arr.size() > 0) {
+            os << arr[0];
+            for (T const *i = arr.begin()+1; i < arr.end(); ++i)
+                os << ", " << *i;
+        }
+    }
+    
+    template<typename T, typename...UU>
+    inline std::string assertArrayEqualsMessage(T &&actual, UU &&...expected)
     {
         std::ostringstream os;
         os << "array did not match expected value"
               "\n  expected: ";
         pValues(os, std::forward<UU>(expected)...);
         os << "\n  actual:   ";
-        pArray(os, actual);
+        pArray(os, std::forward<T>(actual));
         return os.str();
     }
 }}

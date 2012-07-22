@@ -38,6 +38,9 @@ namespace Mega {
         std::unique_ptr<llvm::MemoryBuffer> loadTile(std::size_t index, 
                                                      std::string *outError);
         std::size_t addTile(void const *buffer, std::string *outError);
+        
+        bool save(std::string *outError);
+        bool saveAs(llvm::StringRef path, std::string *outError);
     };
 }
 

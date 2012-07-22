@@ -44,6 +44,27 @@ namespace Mega {
             vertex->tileCorner[1] = cornerY;            
         }
     }
+    
+    namespace {
+        size_t swizzle(std::size_t x, std::size_t y)
+        {
+            assert(x <= 0xFFFF && y <= 0xFFFF);
+            static const unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
+            static const unsigned int S[] = {1, 2, 4, 8};
+            
+            x = (x | (x << S[3])) & B[3];
+            x = (x | (x << S[2])) & B[2];
+            x = (x | (x << S[1])) & B[1];
+            x = (x | (x << S[0])) & B[0];
+            
+            y = (y | (y << S[3])) & B[3];
+            y = (y | (y << S[2])) & B[2];
+            y = (y | (y << S[1])) & B[1];
+            y = (y | (y << S[0])) & B[0];
+            
+            return x | (y << 1);
+        }
+    }
 
     void Priv<View>::updateMesh()
     {
@@ -89,116 +110,58 @@ namespace Mega {
         
         MEGA_ASSERT_GL_NO_ERROR;
         
-        GLuint segmentSizeGoal = max(tilew, tileh), segmentSize = 2;
-        while (segmentSize < segmentSizeGoal)
-            segmentSize <<= 1;
+        GLuint quadrantSizeGoal = max(tilew, tileh), quadrantSize = 1;
+        while (quadrantSize < quadrantSizeGoal)
+            quadrantSize <<= 1;
+        GLuint mappingSize = quadrantSize << 1;
 
-        if (segmentSize != $.mappingTextureSegmentSize) {
-            $.mappingTextureSegmentSize = segmentSize;
+        if (mappingSize != $.mappingTextureSize) {
+            $.mappingTextureSize = mappingSize;
 
-            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, segmentSize*2, segmentSize*2, layers.size(), 
-                         0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+            size_t layerCount = layers.size();
+            size_t layerSize = mappingSize * mappingSize;
+            size_t bufferSize = layerCount * layerSize;
             
-            std::size_t bufferSize = segmentSize*segmentSize*4;
-            if (bufferSize > mappingSegmentsSize) {
-                mappingSegments.reset(new std::uint16_t[bufferSize]);
-                mappingSegmentsSize = bufferSize;
-            }
+            assert(bufferSize < 65536); // FIXME
+            unique_ptr<uint16_t[]> mappingBuffer(new uint16_t[bufferSize]);
+            uint16_t *mapping = mappingBuffer.get();
+            for (size_t l = 0; l < bufferSize; l += layerSize)
+                for (size_t y = 0; y < mappingSize; ++y)
+                    for (size_t x = 0; x < mappingSize; ++x)
+                        *mapping++ = l + swizzle(x, y);
+            
+            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R16, mappingSize, mappingSize, layerCount, 
+                         0, GL_RED, GL_UNSIGNED_SHORT, mappingBuffer.get());
 
             MEGA_ASSERT_GL_NO_ERROR;
-            $.updateMappings();
+            
+            std::size_t tileSize = $.canvas.tileSize();
+            
+            glActiveTexture(GL_TEXTURE0 + TILES_TU);        
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_SRGB8_ALPHA8,
+                         tileSize, tileSize, bufferSize,
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            
+            MEGA_ASSERT_GL_NO_ERROR;
+
+            $.loadVisibleTiles();
         }
         
         glUniform2f($.uniforms.tileCount, $.viewTileCount[0], $.viewTileCount[1]);
         glUniform2f($.uniforms.invTileCount, 1.0/$.viewTileCount[0], 1.0/$.viewTileCount[1]);
         glUniform2f($.uniforms.tilePhase, 0.5*($.viewTileCount[0] - 1.0), 0.5*($.viewTileCount[1] - 1.0));
-        glUniform1f($.uniforms.mappingTextureScale, 0.5/$.mappingTextureSegmentSize);
+        glUniform1f($.uniforms.mappingTextureScale, 1.0/$.mappingTextureSize);
     }
     
-    // this shouldn't exist in final implementation
-    void Priv<View>::loadAllTiles()
+    void Priv<View>::loadVisibleTiles()
     {
-        std::size_t tileCount = $.tilesTextureCount = $.canvas.tileCount();
-        std::size_t tileSize = $.canvas.tileSize();
-        
-        glActiveTexture(GL_TEXTURE0 + TILES_TU);        
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_SRGB8_ALPHA8,
-                     tileSize, tileSize, tileCount+1,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        
-        // Tile 0 is the empty tile; all transparent
-        std::unique_ptr<std::uint8_t[]> zeroes(new std::uint8_t[tileSize*tileSize*4]());
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                        0, 0, 0, 
-                        tileSize, tileSize, 1, 
-                        GL_RGBA, GL_UNSIGNED_BYTE, zeroes.get());
-        
-        // Tiles 1 thru tileCount
-        std::string error;
-        for (std::size_t i = 1; i <= tileCount; ++i) {
-            auto tile = $.canvas.loadTile(i, &error);
-            assert(tile);
-            assert(tile->getBufferSize() == tileSize*tileSize*4);
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                            0, 0, i,
-                            tileSize, tileSize, 1,
-                            GL_RGBA, GL_UNSIGNED_BYTE, tile->getBufferStart());
-        }
-        MEGA_ASSERT_GL_NO_ERROR;
+        //fixme
     }
     
     bool Priv<View>::isTileLoaded(std::size_t tile)
     {
-        return true;
-    }
-    
-    namespace {
-        void uploadSegment(ptrdiff_t x, ptrdiff_t y, size_t layeri, size_t segmentSize, uint16_t *segments)
-        {
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                            segmentSize*(x & 1), segmentSize*(y & 1), layeri,
-                            segmentSize, segmentSize, 1,
-                            GL_RED, GL_UNSIGNED_SHORT, 
-                            reinterpret_cast<const GLvoid*>(segments));
-            MEGA_ASSERT_GL_NO_ERROR;
-        }
-    }
-        
-    void Priv<View>::updateMappings()
-    {
-        using namespace std;
-        static_assert(is_same<Layer::tile_t, uint16_t>::value, "you changed Layer::tile_t, gotta fix updateMappings");
-        GLuint segmentSize = $.mappingTextureSegmentSize;
-
-        if (segmentSize == 0)
-            return;
-        
-        auto canvas = $.canvas;
-        auto layers = canvas.layers();
-        GLuint segmentArea = segmentSize*segmentSize;
-        uint16_t *segments = $.mappingSegments.get();
-
-        size_t layeri = 0;
-        for (Layer layer : layers) {
-            Vec layerCenter = ($.center - layer.origin()) * layer.parallax() + $.pixelAlign/$.zoom;
-            Vec centerSegmentWithFrac = layerCenter/double(segmentSize * (canvas.tileSize() - 1));
-            Vec centerSegment = centerSegmentWithFrac.round();
-            ptrdiff_t segmentx = ptrdiff_t(centerSegment.x);
-            ptrdiff_t segmenty = ptrdiff_t(centerSegment.y);
-            layer.getSegment(segmentx - 1, segmenty - 1, &segments[0*segmentArea], segmentSize);
-            layer.getSegment(segmentx,     segmenty - 1, &segments[1*segmentArea], segmentSize);
-            layer.getSegment(segmentx - 1, segmenty,     &segments[2*segmentArea], segmentSize);
-            layer.getSegment(segmentx,     segmenty,     &segments[3*segmentArea], segmentSize);
-            
-            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-            uploadSegment(segmentx - 1, segmenty - 1, layeri, segmentSize, &segments[0*segmentArea]);
-            uploadSegment(segmentx,     segmenty - 1, layeri, segmentSize, &segments[1*segmentArea]);
-            uploadSegment(segmentx - 1, segmenty,     layeri, segmentSize, &segments[2*segmentArea]);
-            uploadSegment(segmentx,     segmenty,     layeri, segmentSize, &segments[3*segmentArea]);
-
-            ++layeri;
-        }
+        return false;
     }
     
     void Priv<View>::updateShaderParams()
@@ -325,8 +288,6 @@ namespace Mega {
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        $.loadAllTiles(); //FIXME load on demand
-        
         auto error = glGetError();
         if (error != GL_NO_ERROR) {
             errors << "OpenGL error " << error;
@@ -395,7 +356,7 @@ namespace Mega {
         $.center = c;
         if ($.good) {
             $.updateCenter(); //fixme progressive update
-            $.updateMappings();
+            $.loadVisibleTiles();
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }
@@ -405,7 +366,7 @@ namespace Mega {
         $.center += c;
         if ($.good) {
             $.updateCenter(); //fixme progressive update
-            $.updateMappings();
+            $.loadVisibleTiles();
             MEGA_ASSERT_GL_NO_ERROR;            
         }
     }

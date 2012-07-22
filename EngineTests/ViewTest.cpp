@@ -123,60 +123,60 @@ namespace Mega { namespace test {
             view.resize(127.0, 127.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 2);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSize);
             view.resize(126.5, 126.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);            
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 2);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSize);
             view.resize(0.5, 0.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 2);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSize);
             
             view.resize(127.5, 127.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 3, 3);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             view.resize(253.5, 253.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);            
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 3, 3);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             view.resize(254.0, 254.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);            
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 3, 3);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             view.resize(254.5, 254.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*4*4), priv.viewTileTotal);            
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 4, 4);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             view.resize(381.5, 381.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*5*5), priv.viewTileTotal);            
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 5, 5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(16), priv.mappingTextureSize);
             
             view.resize(127.5, 127.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*3*2), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 3, 2);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             
             view.resize(127.0, 127.5);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*3), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 3);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             
             view.resize(381.5, 127.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(16), priv.mappingTextureSize);
             view.resize(127.0, 381.5);
-            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(16), priv.mappingTextureSize);
             
             view.resize(254.0, 254.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*3*3), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 3, 3);
-            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(8), priv.mappingTextureSize);
             view.zoom(2.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
             MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(priv.viewTileCount, 2, 2);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSize);
         }
         
         static constexpr std::size_t bufferSize = (sizeof(float[4]) + sizeof(float[3])) * 6*2*2*2;
@@ -199,7 +199,7 @@ namespace Mega { namespace test {
             
             view.resize(127.0, 65.0);
             CPPUNIT_ASSERT_EQUAL(GLuint(2*2*2), priv.viewTileTotal);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), priv.mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), priv.mappingTextureSize);
             
             glEnable(GL_RASTERIZER_DISCARD);
             GLenum buf = GL_NONE;
@@ -403,88 +403,77 @@ namespace Mega { namespace test {
         
         void testMappingTexture()
         {
+            
             View view = this->view.get();
-            view.resize(127.0, 127.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), view.that->mappingTextureSegmentSize);
+            
+            {
+                view.resize(127.0, 127.0);
 
-            glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
-            std::uint16_t mappingTextureData[2][16];
-            GLint param;
-            glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &param);
-            CPPUNIT_ASSERT_EQUAL(GLint(4), param);
-            glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_HEIGHT, &param);
-            CPPUNIT_ASSERT_EQUAL(GLint(4), param);
-            glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &param);
-            CPPUNIT_ASSERT_EQUAL(GLint(2), param);
+                std::uint16_t mappingTextureData[2*4*4];
 
-            view.syncTextureStreaming();
-            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
-                          reinterpret_cast<GLvoid*>(mappingTextureData));
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
-                                             4, 0, 0, 3,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             2, 0, 0, 1);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[1],
-                                             0, 0, 13, 14,
-                                             0, 0, 15, 16,
-                                             0, 0,  5,  6,
-                                             0, 0,  7,  8);
+                CPPUNIT_ASSERT_EQUAL(GLuint(4), view.that->mappingTextureSize);
+
+                glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+                GLint param;
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(4), param);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_HEIGHT, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(4), param);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(2), param);
+
+                glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
+                              reinterpret_cast<GLvoid*>(mappingTextureData));
+                MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+                MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData,
+                                                  0,  1,  4,  5,
+                                                  2,  3,  6,  7,
+                                                  8,  9, 12, 13,
+                                                 10, 11, 14, 15,
+                                                 
+                                                 16, 17, 20, 21,
+                                                 18, 19, 22, 23,
+                                                 24, 25, 28, 29,
+                                                 26, 27, 30, 31);
+            }
             
-            view.moveCenter(Vec(508.0, 0.0));
-            view.syncTextureStreaming();
-            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
-                          reinterpret_cast<GLvoid*>(mappingTextureData));
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[1],
-                                             17, 18, 13, 14,
-                                             19, 20, 15, 16,
-                                              9, 10,  5,  6,
-                                             11, 12,  7,  8);
-            
-            view.moveCenter(Vec(-508.0, 0.0));
-            view.syncTextureStreaming();
-            
-            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
-                          reinterpret_cast<GLvoid*>(mappingTextureData));
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
-                                             4, 0, 0, 3,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             2, 0, 0, 1);
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[1],
-                                             0, 0, 13, 14,
-                                             0, 0, 15, 16,
-                                             0, 0,  5,  6,
-                                             0, 0,  7,  8);
-            
-            view.moveCenter(Vec(-254.0, 0.0));
-            view.syncTextureStreaming();
-            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
-                          reinterpret_cast<GLvoid*>(mappingTextureData));
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
-                                             0, 0, 0, 3,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 1);
-            
-            view.moveCenter(Vec(254.0, 254.0));
-            glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT, 
-                          reinterpret_cast<GLvoid*>(mappingTextureData));
-            MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
-            MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData[0],
-                                             4, 0, 0, 3,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0,
-                                             0, 0, 0, 0);
+            {
+                view.resize(127.5, 127.5);
+                
+                std::uint16_t mappingTextureData[2*8*8];
+                CPPUNIT_ASSERT_EQUAL(GLuint(8), view.that->mappingTextureSize);
+
+                glActiveTexture(GL_TEXTURE0 + MAPPING_TU);
+                GLint param;
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_WIDTH, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(8), param);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_HEIGHT, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(8), param);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D_ARRAY, 0, GL_TEXTURE_DEPTH, &param);
+                CPPUNIT_ASSERT_EQUAL(GLint(2), param);
+
+                glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RED, GL_UNSIGNED_SHORT,
+                              reinterpret_cast<GLvoid*>(mappingTextureData));
+                MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
+                MEGA_CPPUNIT_ASSERT_ARRAY_EQUALS(mappingTextureData,
+                                                  0,  1,  4,  5, 16, 17, 20, 21,
+                                                  2,  3,  6,  7, 18, 19, 22, 23,
+                                                  8,  9, 12, 13, 24, 25, 28, 29,
+                                                 10, 11, 14, 15, 26, 27, 30, 31,
+                                                 32, 33, 36, 37, 48, 49, 52, 53,
+                                                 34, 35, 38, 39, 50, 51, 54, 55,
+                                                 40, 41, 44, 45, 56, 57, 60, 61,
+                                                 42, 43, 46, 47, 58, 59, 62, 63,
+
+                                                  64,  65,  68,  69,  80,  81,  84,  85,
+                                                  66,  67,  70,  71,  82,  83,  86,  87,
+                                                  72,  73,  76,  77,  88,  89,  92,  93,
+                                                  74,  75,  78,  79,  90,  91,  94,  95,
+                                                  96,  97, 100, 101, 112, 113, 116, 117,
+                                                  98,  99, 102, 103, 114, 115, 118, 119,
+                                                 104, 105, 108, 109, 120, 121, 124, 125,
+                                                 106, 107, 110, 111, 122, 123, 126, 127);
+            }
         }
         
         void testTilesLoaded()
@@ -492,7 +481,7 @@ namespace Mega { namespace test {
             View view = this->view.get();
             Priv<View> &priv = *view.that;
             view.resize(127.0, 127.0);
-            CPPUNIT_ASSERT_EQUAL(GLuint(2), view.that->mappingTextureSegmentSize);
+            CPPUNIT_ASSERT_EQUAL(GLuint(4), view.that->mappingTextureSize);
             
             view.syncTextureStreaming();
             CPPUNIT_ASSERT(priv.isTileLoaded(1));
