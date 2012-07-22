@@ -12,6 +12,22 @@
 #include <cmath>
 
 namespace Mega {
+    struct BoolVec {
+        bool x, y;
+        
+        constexpr BoolVec() = default;
+        constexpr BoolVec(bool x, bool y) : x(x), y(y) {}
+        
+        constexpr bool both() const { return x && y; }
+        constexpr bool either() const { return x || y; }
+        
+        constexpr BoolVec operator&(BoolVec o) const { return BoolVec(x && o.x, y && o.y); }
+        constexpr BoolVec operator|(BoolVec o) const { return BoolVec(x || o.x, y || o.y); }
+    };
+    
+    inline constexpr bool both(BoolVec b) { return b.x && b.y; }
+    inline constexpr bool either(BoolVec b) { return b.x || b.y; }
+    
     struct Vec {
         double x, y;
         constexpr Vec() = default;
@@ -38,6 +54,22 @@ namespace Mega {
         _MEGA_VEC_MATH_METHOD(round)
         _MEGA_VEC_MATH_METHOD(trunc)
 #undef _MEGA_VEC_MATH_METHOD
+
+#define _MEGA_VEC_COMPARE_OP(op) \
+    BoolVec operator op(Vec o) const { return BoolVec(x op o.x, y op o.y); } \
+    BoolVec operator op(double o) const { return BoolVec(x op o, y op o); } \
+    friend BoolVec operator op(double o, Vec v) { return BoolVec(o op v.x, o op v.y); }
+        _MEGA_VEC_COMPARE_OP(<=)
+        _MEGA_VEC_COMPARE_OP(<)
+        _MEGA_VEC_COMPARE_OP(>)
+        _MEGA_VEC_COMPARE_OP(>=)
+#undef _MEGA_VEC_COMPARE_OP
+    };
+    
+    struct Rect {
+        Vec lo, hi;
+        
+        bool contains(Vec v) const { return both(lo <= v & v < hi); }
     };
 }
 

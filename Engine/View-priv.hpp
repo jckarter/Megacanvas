@@ -40,9 +40,19 @@ namespace Mega {
         padding2<Pad<float[2]>>>;
     static_assert(sizeof(ViewVertex) % 16 == 0, "ViewVertex should be 16-byte aligned");
 
+    struct CleanRect {
+        Rect innerRect;
+        Rect outerRect;
+        
+        CleanRect() = default;
+        CleanRect(Rect i, Rect o) : innerRect(i), outerRect(o) {}
+    };
+    
     template<>
     struct Priv<View> {
         Canvas canvas;
+        std::vector<CleanRect> cleanRects;
+        std::vector<std::vector<bool>> loadedTiles;
         Vec center = Vec(0.0, 0.0);
         Vec pixelAlign = Vec(0.0, 0.0);
         double zoom = 1.0;
@@ -60,6 +70,9 @@ namespace Mega {
         Priv(Canvas c);
         ~Priv();
 
+        double segmentSpan();
+        Vec layerSegment(Layer layer);
+
         bool createProgram(GLuint *outFrag, GLuint *outVert, GLuint *outProg, std::string *outError);
         void deleteProgram();
 
@@ -69,7 +82,10 @@ namespace Mega {
         void updateViewport();
         void updateZoom();
         
-        void loadVisibleTiles();
+        void updateCleanRects();
+        void resetCleanRects();
+        
+        void updateAllSegments(std::size_t layer, Vec segment);
 
         bool isTileLoaded(std::size_t tile);
     };

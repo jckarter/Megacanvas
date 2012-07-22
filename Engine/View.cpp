@@ -15,7 +15,9 @@ namespace Mega {
 
     Priv<View>::Priv(Canvas c)
     : canvas(c), prepared(false), good(false)
-    {}
+    {
+        $.loadedTiles.resize(c.tileCount());
+    }
 
     Priv<View>::~Priv()
     {
@@ -27,6 +29,19 @@ namespace Mega {
             glDeleteBuffers(1, &$.eltBuffer);
             glDeleteBuffers(1, &$.meshBuffer);
         }
+    }
+    
+    double Priv<View>::segmentSpan()
+    {
+        auto segmentSize = $.mappingTextureSize >> 1;
+        auto tileSpan = $.canvas.tileSize() - 1;
+        return double(segmentSize*tileSpan);
+    }
+    
+    Vec Priv<View>::layerSegment(Layer layer)
+    {
+        Vec layerCenter = ($.center - layer.origin()) * layer.parallax() + $.pixelAlign/$.zoom;
+        return (layerCenter/$.segmentSpan()).round();
     }
     
     namespace {
@@ -145,7 +160,7 @@ namespace Mega {
             
             MEGA_ASSERT_GL_NO_ERROR;
 
-            $.loadVisibleTiles();
+            $.resetCleanRects();
         }
         
         glUniform2f($.uniforms.tileCount, $.viewTileCount[0], $.viewTileCount[1]);
@@ -154,13 +169,162 @@ namespace Mega {
         glUniform1f($.uniforms.mappingTextureScale, 1.0/$.mappingTextureSize);
     }
     
-    void Priv<View>::loadVisibleTiles()
+    void Priv<View>::updateCleanRects()
     {
-        //fixme
+        Vec center = $.center;
+        auto &cleanRects = $.cleanRects;
+        auto layers = $.canvas.layers();
+        assert(layers.size() == cleanRects.size());
+        for (size_t i = 0; i < layers.size(); ++i) {
+            CleanRect &r = cleanRects[i];
+            Layer layer = layers[i];
+            Vec segment = $.layerSegment(layer);
+            
+            BoolVec above = r.innerRect.lo <= center, below = center < r.innerRect.hi;
+            if (!both(above & below)) {
+                Vec segment = $.layerSegment(layer);
+                
+                /*if (!r.outerRect.contains(center))*/
+                    $.updateAllSegments(i, segment);
+                /*else {
+                    if (!above.x)
+                        $.updateSegmentsLeft(x, y);
+                    else if (!below.x)
+                        $.updateSegmentsRight(x, y);
+                    
+                    if (!above.x && !above.y)
+                        $.updateSegmentsLeftDown(x, y);
+                    else if (!above.x && !below.y)
+                        $.updateSegmentsLeftUp(x, y);
+                    else if (!below.x && !above.y)
+                        $.updateSegmentsRightDown(x, y);
+                    else if (!below.x && !below.y)
+                        $.updateSegmentsRightUp(x, y);
+                    
+                    if (!above.y)
+                        $.updateSegmentsRightDown(x, y);
+                    else if (!below.y)
+                        $.updateSegmentsRightUp(x, y);
+                }*/
+            }
+        }
+    }
+    
+    void Priv<View>::resetCleanRects()
+    {
+        using namespace std;
+        auto layers = $.canvas.layers();
+        auto &cleanRects = $.cleanRects;
+        cleanRects.resize(layers.size());
+        $.loadedTiles.clear();
+        $.loadedTiles.resize(layers.size());
+        for (size_t i = 0; i < layers.size(); ++i) {
+            $.updateAllSegments(i, $.layerSegment(layers[i]));
+        }
+    }
+    
+    namespace {
+        void updateSegment(Priv<View> &priv, Layer layer,
+                           std::size_t layeri, std::size_t segmentSize,
+                           std::ptrdiff_t x, std::ptrdiff_t y,
+                           std::size_t tileSize, std::uint8_t *zero)
+        {
+            std::string error;
+            std::size_t quadrant = (x&1) | ((y&1)<<1);
+            auto segment = layer.segment(segmentSize, x, y);
+            std::size_t segmentArea = segmentSize*segmentSize;
+            std::size_t i = segmentArea*quadrant, end = i + segmentArea;
+            if (segment.tiles.empty())
+                for (; i < end; ++i)
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                                    0, 0, i,
+                                    tileSize, tileSize, 1,
+                                    GL_RGBA, GL_UNSIGNED_BYTE,
+                                    zero);
+            else {
+                for (; i < segment.offset; ++i)
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                                    0, 0, i,
+                                    tileSize, tileSize, 1,
+                                    GL_RGBA, GL_UNSIGNED_BYTE,
+                                    zero);
+                
+                for (Layer::tile_t tile : segment.tiles) {
+                    if (tile == 0)
+                        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                                        0, 0, i,
+                                        tileSize, tileSize, 1,
+                                        GL_RGBA, GL_UNSIGNED_BYTE,
+                                        zero);
+                    else {
+                        priv.loadedTiles[layeri][tile - 1] = true;
+                        auto tileData = priv.canvas.loadTile(tile, &error);
+                        assert(tileData);
+                        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                                        0, 0, i,
+                                        tileSize, tileSize, 1,
+                                        GL_RGBA, GL_UNSIGNED_BYTE,
+                                        tileData->getBufferStart());
+                    }
+                    ++i;
+                }
+                
+                for (; i < end; ++i)
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                                    0, 0, i,
+                                    tileSize, tileSize, 1,
+                                    GL_RGBA, GL_UNSIGNED_BYTE,
+                                    zero);                    
+            }
+            assert(i == segmentSize*segmentSize*(quadrant+1));
+            MEGA_ASSERT_GL_NO_ERROR;
+        }
+    }
+    
+    void Priv<View>::updateAllSegments(std::size_t layeri, Vec segment)
+    {
+        using namespace std;
+        
+        Canvas canvas = $.canvas;
+        Layer layer = canvas.layers()[layeri];
+        
+        $.loadedTiles[layeri].clear();
+        $.loadedTiles[layeri].resize(canvas.tileCount());
+                             
+        ptrdiff_t x = ptrdiff_t(segment.x), y = ptrdiff_t(segment.y);
+        size_t segmentSize = $.mappingTextureSize/2;
+        size_t tileByteSize = canvas.tileByteSize();
+        size_t tileSize = canvas.tileSize();
+
+        // fixme use pixel buffer
+        unique_ptr<uint8_t[]> zero(new uint8_t[tileByteSize]());
+        
+        glActiveTexture(GL_TEXTURE0 + TILES_TU);
+        updateSegment($, layer, layeri, segmentSize, x-1, y-1, tileSize, zero.get());
+        updateSegment($, layer, layeri, segmentSize, x,   y-1, tileSize, zero.get());
+        updateSegment($, layer, layeri, segmentSize, x-1, y,   tileSize, zero.get());
+        updateSegment($, layer, layeri, segmentSize, x,   y,   tileSize, zero.get());
+        
+        double segmentSpan = $.segmentSpan();
+        Vec viewportRadius = 0.5*Vec($.width, $.height);
+        
+        Rect innerRect{
+            (segment - 1.0)*segmentSpan + viewportRadius,
+            (segment + 1.0)*segmentSpan - viewportRadius
+        };
+        Rect outerRect{
+            (segment - 2.0)*segmentSpan + viewportRadius,
+            (segment + 2.0)*segmentSpan - viewportRadius
+        };        
+        cleanRects[layeri] = CleanRect(innerRect, outerRect);
     }
     
     bool Priv<View>::isTileLoaded(std::size_t tile)
     {
+        for (auto &tiles : $.loadedTiles) {
+            if (tiles.size() >= tile && tiles[tile - 1])
+                return true;
+        }
         return false;
     }
     
@@ -355,8 +519,8 @@ namespace Mega {
     {
         $.center = c;
         if ($.good) {
-            $.updateCenter(); //fixme progressive update
-            $.loadVisibleTiles();
+            $.updateCenter();
+            $.updateCleanRects();
             MEGA_ASSERT_GL_NO_ERROR;
         }
     }
@@ -365,8 +529,8 @@ namespace Mega {
     {
         $.center += c;
         if ($.good) {
-            $.updateCenter(); //fixme progressive update
-            $.loadVisibleTiles();
+            $.updateCenter();
+            $.updateCleanRects();
             MEGA_ASSERT_GL_NO_ERROR;            
         }
     }

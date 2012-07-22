@@ -42,6 +42,7 @@ namespace Mega { namespace test {
             this->view = View::create(this->canvas.get());
             if (!this->view->prepare(&error))
                 throw std::runtime_error(error);
+            this->view->resize(127.0, 127.0);
             MEGA_CPPUNIT_ASSERT_GL_NO_ERROR;
         }
 

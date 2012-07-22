@@ -18,7 +18,6 @@
 
 namespace Mega {
     struct Layer;
-    struct LayerCursor;
 
     struct Canvas : HasPriv<Canvas> {
         MEGA_PRIV_CTORS(Canvas)

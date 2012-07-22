@@ -209,6 +209,18 @@ namespace Mega {
         INVALID_VALUE = GL_INVALID_VALUE,
         OUT_OF_MEMORY = GL_OUT_OF_MEMORY
     };
+    
+    template<typename T>
+    struct FlipFlop {
+        T members[2];
+        int which = 0;
+        
+        T next() {
+            int i = which;
+            which = !which;
+            return members[i];
+        }
+    };
 }
 
 #ifdef NDEBUG
