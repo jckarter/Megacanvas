@@ -13,12 +13,9 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include "Engine/Util/GL.h"
-#include "Engine/Util/NamedTuple.hpp"
+#include "Engine/Util/StructMeta.hpp"
 
 namespace Mega {
-    template<template<typename> class...Field>
-    using UniformTuple = NamedTuple<Field<GLint>...>;
-
     template<typename T> struct Pad { T pad; };
     
     struct GLVertexType { GLenum type; GLint size; GLboolean normalized; bool isPadding; };
@@ -87,7 +84,7 @@ namespace Mega {
             std::size_t stride;
             bool ok;
             _VertexAttributeBinder(GLuint program, std::size_t stride) : program(program), stride(stride), ok(true) {}
-            void operator()(char const *name, std::size_t offset, std::size_t size, GLVertexType info) {
+            void operator()(char const *name, std::size_t size, std::size_t offset, GLVertexType info) {
                 if (info.isPadding)
                     return;
                 
@@ -102,17 +99,6 @@ namespace Mega {
             }
         };
 
-        struct _VertexShaderInputCollector {
-            std::string code;
-            llvm::raw_string_ostream codes;
-            _VertexShaderInputCollector() : codes(code) {}
-            void operator()(char const *name, std::size_t offset, std::size_t size, GLSLTypeInfo glslType) {
-                if (glslType.isPadding)
-                    return;
-                codes << "in " << glslType.name << ' ' << name << ";\n";
-            }
-        };
-        
         template<typename T>
         struct _UniformLocationGetter {
             GLuint program;
@@ -134,7 +120,7 @@ namespace Mega {
     bool bindVertexAttributes(GLuint prog)
     {
         _VertexAttributeBinder iter(prog, sizeof(T));
-        T::template eachField<GLVertexTraits>(iter);
+        each_field_metadata<T, GLVertexTraits>(iter);
         return iter.ok;
     }
     
@@ -142,18 +128,10 @@ namespace Mega {
     bool getUniformLocations(GLuint prog, T *outFields)
     {
         _UniformLocationGetter<T> iter(prog, *outFields);
-        outFields->template eachInstanceField(iter);
+        each_field(outFields, iter);
         return iter.ok;
     }
 
-    template<typename T>
-    std::string vertexShaderInputs()
-    {
-        _VertexShaderInputCollector iter;
-        T::template eachField<GLSLType>(iter);
-        return std::move(iter.codes.str());
-    }
-    
     bool loadProgramSource(llvm::StringRef baseName, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, std::string *outError);
     
     bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
@@ -182,18 +160,6 @@ namespace Mega {
         return compileAndLinkProgram(makeArrayRef(vert), makeArrayRef(frag), outVert, outFrag, outProg, outLog);
     }
 
-    template<typename T>
-    inline bool compileAndLinkProgramAutoInputs(llvm::StringRef vertMain, llvm::StringRef fragMain,
-                                                GLuint *outVert, GLuint *outFrag, GLuint *outProg,
-                                                llvm::SmallVectorImpl<char> *outLog)
-    {
-        char const *versionString = "#version 150\n";
-        std::string inputs = vertexShaderInputs<T>();
-        llvm::StringRef vert[] = {versionString, inputs, vertMain};
-        llvm::StringRef frag[] = {versionString, fragMain};
-        return compileAndLinkProgram(vert, frag, outVert, outFrag, outProg, outLog);
-    }
-    
     inline void bindTextureUnitTarget(GLuint unit, GLenum target, GLuint name)
     {
         glActiveTexture(GL_TEXTURE0 + unit);

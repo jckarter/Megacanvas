@@ -15,17 +15,10 @@
 #include "GLTest.hpp"
 
 namespace Mega { namespace test {
-    MEGA_FIELD(position)
-    MEGA_FIELD(texcoord)
-    MEGA_FIELD(color)
-    MEGA_FIELD(scalar)
-    MEGA_FIELD(pad)
-
     class GLMetaContextTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(GLMetaContextTest);
         CPPUNIT_TEST(testGLContext);
         CPPUNIT_TEST(testcompileAndLinkProgram);
-        CPPUNIT_TEST(testcompileAndLinkProgramAutoInputs);
         CPPUNIT_TEST(testBindVertexAttributes);
         CPPUNIT_TEST_SUITE_END();
 
@@ -61,18 +54,6 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
         }
 
-        template<typename T>
-        void loadTestProgramAutoInputs(llvm::StringRef basename, GLuint *vert, GLuint *frag, GLuint *prog)
-        {
-            using namespace llvm;
-            OwningPtr<MemoryBuffer> vertSource, fragSource;
-            loadTestProgramSource(basename, &vertSource, &fragSource);
-            SmallString<16> log;
-            if (!compileAndLinkProgramAutoInputs<T>(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
-                throw std::runtime_error(log.c_str());
-            CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
-        }
-
         void testcompileAndLinkProgram()
         {
             GLuint vert, frag, prog;
@@ -97,36 +78,14 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
         }
 
-        void testcompileAndLinkProgramAutoInputs()
-        {
-            using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>>;
-
-            GLuint vert, frag, prog;
-            loadTestProgramAutoInputs<TestVertex>("test1-auto", &vert, &frag, &prog);
-
-            CPPUNIT_ASSERT(glIsProgram(prog));
-            CPPUNIT_ASSERT(glIsShader(vert));
-            CPPUNIT_ASSERT(glIsShader(frag));
-
-            GLint status;
-            glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
-            CPPUNIT_ASSERT(status);
-            glGetShaderiv(frag, GL_COMPILE_STATUS, &status);
-            CPPUNIT_ASSERT(status);
-            glGetProgramiv(prog, GL_LINK_STATUS, &status);
-            CPPUNIT_ASSERT(status);
-
-            GLint type;
-            glGetShaderiv(vert, GL_SHADER_TYPE, &type);
-            CPPUNIT_ASSERT(type == GL_VERTEX_SHADER);
-            glGetShaderiv(frag, GL_SHADER_TYPE, &type);
-            CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
-
-        }
-
         void testBindVertexAttributes()
         {
-            using TestVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, pad<Pad<float>>>;
+#define MEGA_FIELDS_TestVertex(x) \
+    x(position, float[3])\
+    x(texcoord, float[2])\
+    x(color, std::uint8_t[4])\
+    x(pad, Pad<float>)
+            MEGA_STRUCT(TestVertex)
 
             GLuint vert, frag, prog;
             loadTestProgram("test1", &vert, &frag, &prog);
@@ -162,7 +121,7 @@ namespace Mega { namespace test {
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &param); \
             CPPUNIT_ASSERT_EQUAL(GLint(buffer), param); \
             glGetVertexAttribPointerv(name##Index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &pointerParam); \
-            CPPUNIT_ASSERT_EQUAL(TestVertex::offset_of<name>(), reinterpret_cast<std::size_t>(pointerParam)); \
+            CPPUNIT_ASSERT_EQUAL(offsetof(TestVertex, name), reinterpret_cast<std::size_t>(pointerParam)); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_TYPE, &param); \
             CPPUNIT_ASSERT_EQUAL(type, param); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &param); \
@@ -177,25 +136,7 @@ namespace Mega { namespace test {
         }
     };
 
-    class GLMetaNoContextTest : public CppUnit::TestFixture {
-        CPPUNIT_TEST_SUITE(GLMetaNoContextTest);
-        CPPUNIT_TEST(testVertexShaderInputs);
-        CPPUNIT_TEST_SUITE_END();
-    public:
-        void setUp() override { }
-        void tearDown() override { }
-        void testVertexShaderInputs()
-        {
-            using SomeVertex = NamedTuple<position<float[3]>, texcoord<float[2]>, color<std::uint8_t[4]>, scalar<float>, pad<Pad<float>>>;
-
-            CPPUNIT_ASSERT_EQUAL(std::string("in vec3 position;\n"
-                                             "in vec2 texcoord;\n"
-                                             "in vec4 color;\n"
-                                             "in float scalar;\n"), vertexShaderInputs<SomeVertex>());
-        }
-    };
     CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaContextTest);
-    CPPUNIT_TEST_SUITE_REGISTRATION(GLMetaNoContextTest);
 
     void GLContextTestFixture::setUpTestFramebuffer()
     {

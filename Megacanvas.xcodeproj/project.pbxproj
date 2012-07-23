@@ -11,6 +11,9 @@
 		D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */; };
 		D8144DF815B5ED0B00E24675 /* mandelbrot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */; };
+		D81E142915BDBA55008BB24B /* StructMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142815BDBA55008BB24B /* StructMetaTest.cpp */; };
+		D81E142A15BDC80E008BB24B /* GLMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */; };
+		D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -32,13 +35,8 @@
 		D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */; };
 		D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
-		D8FEA32C15A034CC005A2EF3 /* NamedTupleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */; };
-		D8FEA32F15A14380005A2EF3 /* GLMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */; };
 		D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33015A171D3005A2EF3 /* TestGLContext.c */; };
-		D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
-		D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
-		D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
 		D8FEA34115A929E8005A2EF3 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = D8FEA34015A929E8005A2EF3 /* Shaders */; };
 /* End PBXBuildFile section */
 
@@ -80,6 +78,8 @@
 		D8144DF415B5ED0B00E24675 /* mandelbrot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mandelbrot; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8144DF715B5ED0B00E24675 /* mandelbrot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mandelbrot.cpp; sourceTree = "<group>"; };
 		D8144DFE15B6770800E24675 /* mandelmega.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = mandelmega.py; sourceTree = "<group>"; };
+		D81E142715BDAFE7008BB24B /* StructMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StructMeta.hpp; sourceTree = "<group>"; };
+		D81E142815BDBA55008BB24B /* StructMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StructMetaTest.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -117,8 +117,6 @@
 		D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpaqueIteratorTest.cpp; sourceTree = "<group>"; };
 		D8FEA323159E5D9F005A2EF3 /* View.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = View.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA329159EC7C0005A2EF3 /* GL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GL.h; sourceTree = "<group>"; };
-		D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = NamedTuple.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NamedTupleTest.cpp; sourceTree = "<group>"; };
 		D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GLMeta.hpp; sourceTree = "<group>"; };
 		D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMetaTest.cpp; sourceTree = "<group>"; };
 		D8FEA33015A171D3005A2EF3 /* TestGLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TestGLContext.c; sourceTree = "<group>"; };
@@ -203,7 +201,7 @@
 				D8C986F1159416D0000D554E /* Priv.hpp */,
 				D8FEA329159EC7C0005A2EF3 /* GL.h */,
 				D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */,
-				D8FEA32A15A03049005A2EF3 /* NamedTuple.hpp */,
+				D81E142715BDAFE7008BB24B /* StructMeta.hpp */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -214,11 +212,11 @@
 				D8FEA319159A7CA5005A2EF3 /* TestData */,
 				D8C986EB159408F6000D554E /* CanvasTest.cpp */,
 				D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */,
-				D8FEA32B15A034CC005A2EF3 /* NamedTupleTest.cpp */,
 				D8C986EC159408F6000D554E /* main.cpp */,
 				D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */,
 				D8FEA33715A3573E005A2EF3 /* GLTest.hpp */,
 				D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */,
+				D81E142815BDBA55008BB24B /* StructMetaTest.cpp */,
 			);
 			path = EngineTests;
 			sourceTree = "<group>";
@@ -468,12 +466,10 @@
 				D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */,
 				D8C986EF159408F6000D554E /* main.cpp in Sources */,
 				D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */,
-				D8FEA32C15A034CC005A2EF3 /* NamedTupleTest.cpp in Sources */,
-				D8FEA32F15A14380005A2EF3 /* GLMetaTest.cpp in Sources */,
 				D8FEA33115A171D3005A2EF3 /* TestGLContext.c in Sources */,
-				D8FEA33315A24788005A2EF3 /* GLMeta.cpp in Sources */,
-				D8FEA33C15A3F620005A2EF3 /* View.cpp in Sources */,
-				D8FEA33A15A35B47005A2EF3 /* ViewTest.cpp in Sources */,
+				D81E142915BDBA55008BB24B /* StructMetaTest.cpp in Sources */,
+				D81E142A15BDC80E008BB24B /* GLMetaTest.cpp in Sources */,
+				D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -770,6 +766,7 @@
 				D8144DFD15B5ED0B00E24675 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D8EB1298158BADCD00ED0404 /* Build configuration list for PBXProject "Megacanvas" */ = {
 			isa = XCConfigurationList;

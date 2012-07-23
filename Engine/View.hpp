@@ -41,8 +41,6 @@ namespace Mega {
         
         Vec viewToCanvas(Vec viewPoint);
         Vec viewToLayer(Vec viewPoint, Layer l);
-        
-        void syncTextureStreaming();
     };
 }
 
