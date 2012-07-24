@@ -131,6 +131,7 @@ namespace Mega {
         $.eltCount = 6 * layerCount;
         
         bindVertexAttributes<ViewVertex>($.program);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     void Priv<View>::updateViewport()
@@ -172,6 +173,7 @@ namespace Mega {
         assert($.good);
         
         glDrawElements(GL_TRIANGLES, $.eltCount, GL_UNSIGNED_SHORT, nullptr);
+        MEGA_ASSERT_GL_NO_ERROR;
     }
     
     MEGA_PRIV_GETTER(View, center, Vec)
