@@ -59,8 +59,15 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
 - (void)prepareOpenGL
 {
     std::string error;
-    if (!view->prepare(&error))
-        throw std::runtime_error(error);
+    if (!view->prepare(&error)) {
+        [[NSAlert alertWithMessageText:@"Unable to initialize renderer."
+                         defaultButton:@"Close"
+                       alternateButton:nil
+                           otherButton:nil 
+             informativeTextWithFormat:[NSString stringWithUTF8String:error.c_str()]] runModal];
+        [self setHidden:YES];
+        return;
+    }
     MegaCanvasView_resize(self);
 }
 

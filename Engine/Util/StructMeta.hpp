@@ -41,7 +41,7 @@ namespace Mega {
       Trait<__VA_ARGS__>::value());
 
 #define MEGA_STRUCT_APPLY_FIELD(name, ...) \
-    f(instance.name);
+    f(#name, instance.name);
 
 #define MEGA_STRUCT(NAME) \
     struct NAME { \

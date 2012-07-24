@@ -14,6 +14,8 @@
 		D81E142915BDBA55008BB24B /* StructMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142815BDBA55008BB24B /* StructMetaTest.cpp */; };
 		D81E142A15BDC80E008BB24B /* GLMetaTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA32E15A14380005A2EF3 /* GLMetaTest.cpp */; };
 		D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
+		D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
+		D81E142D15BE128D008BB24B /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -470,6 +472,8 @@
 				D81E142915BDBA55008BB24B /* StructMetaTest.cpp in Sources */,
 				D81E142A15BDC80E008BB24B /* GLMetaTest.cpp in Sources */,
 				D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */,
+				D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */,
+				D81E142D15BE128D008BB24B /* View.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

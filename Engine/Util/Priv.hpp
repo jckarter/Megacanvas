@@ -127,11 +127,16 @@ namespace Mega {
 #endif
 
     template<typename T>
-    inline Priv<T> &_self(HasPriv<T> x) { return *x.that; }
+    inline Priv<T> &_priv(HasPriv<T> x) { return *x.that; }
     template<typename T>
-    inline Priv<T> &_self(Priv<T> &x) { return x; }
+    inline Priv<T> &_priv(Priv<T> &x) { return x; }
+    template<typename T>
+    inline T _pub(HasPriv<T> x) { return x.that; }
+    template<typename T>
+    inline T _pub(Priv<T> &x) { return &x; }
     
-#define $ (::Mega::_self(*this))
+#define $ (::Mega::_priv(*this))
+#define $$ (::Mega::_pub(*this))
 }
 
 #endif

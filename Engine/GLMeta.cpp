@@ -10,44 +10,43 @@
 #include <llvm/Support/raw_ostream.h>
 
 namespace Mega {
-    namespace {
-        template<void glGet_iv(GLuint, GLenum, GLint*), void glGet_InfoLog(GLuint, GLsizei, GLsizei*, GLchar*)>
-        void getLog(GLuint object, llvm::SmallVectorImpl<char> *outLog)
-        {
-            GLint length;
-            glGet_iv(object, GL_INFO_LOG_LENGTH, &length);
-            outLog->resize(length);
-            glGet_InfoLog(object, length, NULL, outLog->data());
-        }
-
-        bool compileShader(llvm::ArrayRef<llvm::StringRef> sources, GLenum type, GLuint *outShader, llvm::SmallVectorImpl<char> *outLog)
-        {
-            using namespace llvm;
-            *outShader = glCreateShader(type);
-            SmallVector<GLchar const*, 2> sourceCodes;
-            SmallVector<GLint, 2> lengths;
-            for (auto source : sources) {
-                sourceCodes.push_back(reinterpret_cast<GLchar const*>(source.data()));
-                lengths.push_back(source.size());
-            }
-            glShaderSource(*outShader, sources.size(), sourceCodes.data(), lengths.data());
-            glCompileShader(*outShader);
-            GLint status;
-            glGetShaderiv(*outShader, GL_COMPILE_STATUS, &status);
-            if (!status) {
-                getLog<glGetShaderiv, glGetShaderInfoLog>(*outShader, outLog);
-                glDeleteShader(*outShader);
-                *outShader = 0;
-                return false;
-            }
-            return true;
-        }
+    template<void glGet_iv(GLuint, GLenum, GLint*), void glGet_InfoLog(GLuint, GLsizei, GLsizei*, GLchar*)>
+    static void getLog(GLuint object, std::string *outLog)
+    {
+        GLint length;
+        glGet_iv(object, GL_INFO_LOG_LENGTH, &length);
+        outLog->resize(length);
+        glGet_InfoLog(object, length, NULL, &(*outLog)[0]);
     }
     
-    bool loadProgramSource(llvm::StringRef baseName, 
-                           llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, 
-                           llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, 
-                           std::string *outError)
+    static bool compileShader(llvm::ArrayRef<llvm::StringRef> sources, GLenum type,
+                              GLuint *outShader, std::string *outLog)
+    {
+        using namespace llvm;
+        *outShader = glCreateShader(type);
+        SmallVector<GLchar const*, 2> sourceCodes;
+        SmallVector<GLint, 2> lengths;
+        for (auto source : sources) {
+            sourceCodes.push_back(reinterpret_cast<GLchar const*>(source.data()));
+            lengths.push_back(source.size());
+        }
+        glShaderSource(*outShader, sources.size(), sourceCodes.data(), lengths.data());
+        glCompileShader(*outShader);
+        GLint status;
+        glGetShaderiv(*outShader, GL_COMPILE_STATUS, &status);
+        if (!status) {
+            getLog<glGetShaderiv, glGetShaderInfoLog>(*outShader, outLog);
+            glDeleteShader(*outShader);
+            *outShader = 0;
+            return false;
+        }
+        return true;
+    }
+    
+    static bool loadProgramSource(llvm::StringRef baseName, 
+                                  llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, 
+                                  llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, 
+                                  std::string *outError)
     {
         using namespace llvm;
         using namespace std;
@@ -69,9 +68,10 @@ namespace Mega {
         return true;
     }
     
-    bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
-                        GLuint *outVert, GLuint *outFrag, GLuint *outProg,
-                        llvm::SmallVectorImpl<char> *outLog)
+    static bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert,
+                               llvm::ArrayRef<llvm::StringRef> frag,
+                               GLuint *outVert, GLuint *outFrag, GLuint *outProg,
+                               std::string *outLog)
     {
         *outFrag = *outVert = *outProg = 0;
         outLog->clear();
@@ -95,7 +95,7 @@ namespace Mega {
         return false;
     }
     
-    bool linkProgram(GLuint prog, llvm::SmallVectorImpl<char> *outLog)
+    static bool linkProgram(GLuint prog, std::string *outLog)
     {
         glLinkProgram(prog);
         GLint status;
@@ -107,12 +107,44 @@ namespace Mega {
         return true;
     }
     
-    void destroyProgram(GLuint vert, GLuint frag, GLuint prog)
+    static void destroyProgram(GLuint vert, GLuint frag, GLuint prog)
     {
         glDetachShader(prog, vert);
         glDetachShader(prog, frag);
         glDeleteProgram(prog);
         glDeleteShader(vert);
         glDeleteShader(frag);
+    }
+    
+    bool GLProgram::compile(std::string *outError)
+    {
+        using namespace llvm;
+        using namespace std;
+        
+        assert(!program && !vertexShader && !fragmentShader);
+        
+        OwningPtr<MemoryBuffer> vertSource, fragSource;
+        if (!loadProgramSource(basename, &vertSource, &fragSource, outError))
+            return false;
+        if (!compileProgram(vertSource->getBuffer(), fragSource->getBuffer(),
+                            &vertexShader, &fragmentShader, &program, 
+                            outError))
+            return false;
+        return true;
+    }
+    
+    bool GLProgram::link(std::string *outError)
+    {
+        assert(program && vertexShader && fragmentShader);
+        return linkProgram(program, outError);
+    }
+    
+    void GLProgram::unload()
+    {
+        if (program) {
+            assert(vertexShader && fragmentShader);
+            destroyProgram(vertexShader, fragmentShader, program);
+            vertexShader = fragmentShader = program = 0;
+        }
     }
 }

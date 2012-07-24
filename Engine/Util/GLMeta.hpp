@@ -14,8 +14,25 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include "Engine/Util/GL.h"
 #include "Engine/Util/StructMeta.hpp"
+#include <array>
 
 namespace Mega {
+    enum class GLError : GLenum {
+        NO_ERROR = GL_NO_ERROR,
+        INVALID_ENUM = GL_INVALID_ENUM,
+        INVALID_FRAMEBUFFER_OPERATION = GL_INVALID_FRAMEBUFFER_OPERATION,
+        INVALID_INDEX = GL_INVALID_INDEX,
+        INVALID_OPERATION = GL_INVALID_OPERATION,
+        INVALID_VALUE = GL_INVALID_VALUE,
+        OUT_OF_MEMORY = GL_OUT_OF_MEMORY
+    };
+
+#ifdef NDEBUG
+#define MEGA_ASSERT_GL_NO_ERROR ((void)0)
+#else
+#define MEGA_ASSERT_GL_NO_ERROR do { GLError glError = GLError(glGetError()); assert(glError == GLError::NO_ERROR); } while(0)
+#endif
+
     template<typename T> struct Pad { T pad; };
     
     struct GLVertexType { GLenum type; GLint size; GLboolean normalized; bool isPadding; };
@@ -128,71 +145,133 @@ namespace Mega {
     bool getUniformLocations(GLuint prog, T *outFields)
     {
         _UniformLocationGetter<T> iter(prog, *outFields);
-        each_field(outFields, iter);
+        each_field(*outFields, iter);
         return iter.ok;
     }
 
-    bool loadProgramSource(llvm::StringRef baseName, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource, std::string *outError);
-    
-    bool compileProgram(llvm::ArrayRef<llvm::StringRef> vert, llvm::ArrayRef<llvm::StringRef> frag,
-                        GLuint *outVert, GLuint *outFrag, GLuint *outProg,
-                        llvm::SmallVectorImpl<char> *outLog);
-    bool linkProgram(GLuint prog, llvm::SmallVectorImpl<char> *outLog);
-    void destroyProgram(GLuint vert, GLuint frag, GLuint prog);
-    
-    inline bool compileAndLinkProgram(llvm::ArrayRef<llvm::StringRef> vert,
-                                      llvm::ArrayRef<llvm::StringRef> frag,
-                                      GLuint *outVert, GLuint *outFrag, GLuint *outProg,
-                                      llvm::SmallVectorImpl<char> *outLog)
-    {
-        if (!compileProgram(vert, frag, outVert, outFrag, outProg, outLog))
-            return false;
-        if (!linkProgram(*outProg, outLog)) {
-            destroyProgram(*outVert, *outFrag, *outProg);
-            return false;
+    struct GLProgram {
+        GLuint program = 0, vertexShader = 0, fragmentShader = 0;
+        std::string basename;
+        
+        explicit GLProgram(llvm::StringRef basename) : basename(basename) {}
+        
+        GLProgram(const GLProgram&) = delete;
+        void operator=(const GLProgram&) = delete;
+        
+        GLProgram(GLProgram &&x)
+        : program(x.program), vertexShader(x.vertexShader), fragmentShader(x.fragmentShader)
+        {
+            x.program = x.vertexShader = x.fragmentShader = 0;
         }
-        return true;
-    }
-    inline bool compileAndLinkProgram(llvm::StringRef vert, llvm::StringRef frag,
-                                      GLuint *outVert, GLuint *outFrag, GLuint *outProg,
-                                      llvm::SmallVectorImpl<char> *outLog)
-    {
-        return compileAndLinkProgram(makeArrayRef(vert), makeArrayRef(frag), outVert, outFrag, outProg, outLog);
-    }
-
+        
+        GLProgram &operator=(GLProgram &&x)
+        {
+            std::swap(program, x.program);
+            std::swap(vertexShader, x.vertexShader);
+            std::swap(fragmentShader, x.fragmentShader);
+            return *this;
+        }
+        
+        ~GLProgram() { unload(); }
+        
+        bool compile(std::string *outError);
+        bool link(std::string *outError);
+        
+        void unload();
+        
+        bool compileAndLink(std::string *outError)
+        {
+            if (!compile(outError))
+                return false;
+            if (!link(outError)) {
+                unload();
+                return false;
+            }
+            return true;
+        }
+        
+        explicit operator bool() const { return program != 0; }
+        operator GLuint() const { return program; }
+        
+        GLProgram like() const { return GLProgram(basename); }
+    };
+    
     inline void bindTextureUnitTarget(GLuint unit, GLenum target, GLuint name)
     {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(target, name);
     }
     
-    enum class GLError : GLenum {
-        NO_ERROR = GL_NO_ERROR,
-        INVALID_ENUM = GL_INVALID_ENUM,
-        INVALID_FRAMEBUFFER_OPERATION = GL_INVALID_FRAMEBUFFER_OPERATION,
-        INVALID_INDEX = GL_INVALID_INDEX,
-        INVALID_OPERATION = GL_INVALID_OPERATION,
-        INVALID_VALUE = GL_INVALID_VALUE,
-        OUT_OF_MEMORY = GL_OUT_OF_MEMORY
+    template<void Gen(GLsizei, GLuint*), void Delete(GLsizei, const GLuint*)>
+    struct GLResource {
+        GLuint name = 0;
+        
+        GLResource() {}
+        
+        GLResource(const GLResource&) = delete;
+        void operator=(const GLResource&) = delete;
+        
+        GLResource(GLResource &&x) : name(x.value) { x.value = 0; }
+        GLResource &operator=(GLResource &&x) { std::swap(name, x.value); return *this; }
+        
+        ~GLResource() {
+            if (name)
+                Delete(1, &name);
+        }
+        
+        void gen() { Gen(1, &name); }
+        
+        explicit operator bool() const { return name != 0; }
+        operator GLuint() const { return name; }
     };
     
-    template<typename T>
-    struct FlipFlop {
-        T members[2];
-        int which = 0;
+    template<typename> struct FlipFlop;
+    
+    template<void Gen(GLsizei, GLuint*), void Delete(GLsizei, const GLuint*)>
+    struct FlipFlop<GLResource<Gen, Delete>> {
+        std::array<GLuint,2> names = {{0,0}};
+        int nextIndex = 0;
         
-        T next() {
-            int i = which;
-            which = !which;
-            return members[i];
+        FlipFlop() {}
+        
+        FlipFlop(const FlipFlop&) = delete;
+        void operator=(const FlipFlop&) = delete;
+        
+        FlipFlop(FlipFlop &&x)
+        : names(x.names), nextIndex(x.nextIndex)
+        { x.names[0] = x.names[1] = 0; }
+        
+        FlipFlop &operator=(FlipFlop &&x) {
+            std::swap(names, x.names);
+            nextIndex = x.nextIndex;
+            return *this;
+        }
+
+        ~FlipFlop() {
+            if (names[0]) {
+                Delete(2, names.data());
+            }
+        }
+        
+        void gen() { Gen(2, names.data()); }
+        
+        explicit operator bool() const { return names[0] != 0; }
+        
+        GLuint next() {
+            assert(names[0] && names[1]);
+            int i = nextIndex;
+            nextIndex = !nextIndex;
+            return names[i];
         }
     };
-}
 
-#ifdef NDEBUG
-#define MEGA_ASSERT_GL_NO_ERROR ((void)0)
-#else
-#define MEGA_ASSERT_GL_NO_ERROR do { GLError glError = GLError(glGetError()); assert(glError == GLError(GL_NO_ERROR)); } while(0)
-#endif
+#define _MEGA_GL_RESOURCE(name) using GL##name = GLResource<glGen##name##s, glDelete##name##s>;
+    _MEGA_GL_RESOURCE(Texture)
+    _MEGA_GL_RESOURCE(Buffer)
+    _MEGA_GL_RESOURCE(Framebuffer)
+    _MEGA_GL_RESOURCE(Renderbuffer)
+    _MEGA_GL_RESOURCE(VertexArray)
+#undef _MEGA_GL_RESOURCE
+}
 
 #endif
