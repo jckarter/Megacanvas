@@ -284,6 +284,7 @@ namespace Mega { namespace test {
                 auto tile = canvas->loadTile(1, &error);
                 CPPUNIT_ASSERT_EQUAL(std::string(""), error);
                 CPPUNIT_ASSERT(tile);
+                CPPUNIT_ASSERT_EQUAL(canvas->tileByteSize(), tile.size());
             }
         }
     };

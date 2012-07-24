@@ -12,6 +12,7 @@
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include "Engine/Util/MappedFile.hpp"
 #include "Engine/Util/OpaqueIterator.hpp"
 #include "Engine/Util/Priv.hpp"
 #include <memory>
@@ -34,8 +35,8 @@ namespace Mega {
         std::size_t tileCount();
         
         bool verifyTiles(std::string *outError);
-        std::unique_ptr<llvm::MemoryBuffer> loadTile(std::size_t index, 
-                                                     std::string *outError);
+        MappedFile loadTile(std::size_t index, 
+                            std::string *outError);
         std::size_t addTile(void const *buffer, std::string *outError);
         
         bool save(std::string *outError);

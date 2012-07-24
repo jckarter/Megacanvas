@@ -16,6 +16,8 @@
 		D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
 		D81E142D15BE128D008BB24B /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
+		D81E143015BF18AF008BB24B /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile.cpp */; };
+		D81E143115BF18AF008BB24B /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -82,6 +84,8 @@
 		D8144DFE15B6770800E24675 /* mandelmega.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = mandelmega.py; sourceTree = "<group>"; };
 		D81E142715BDAFE7008BB24B /* StructMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StructMeta.hpp; sourceTree = "<group>"; };
 		D81E142815BDBA55008BB24B /* StructMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StructMetaTest.cpp; sourceTree = "<group>"; };
+		D81E142E15BF16B1008BB24B /* MappedFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MappedFile.hpp; sourceTree = "<group>"; };
+		D81E142F15BF18AF008BB24B /* MappedFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappedFile.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -192,6 +196,7 @@
 				D8C986E5159408E7000D554E /* View.hpp */,
 				D8FEA31415953EF1005A2EF3 /* Vec.hpp */,
 				D8FEA33215A24788005A2EF3 /* GLMeta.cpp */,
+				D81E142F15BF18AF008BB24B /* MappedFile.cpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -204,6 +209,7 @@
 				D8FEA329159EC7C0005A2EF3 /* GL.h */,
 				D8FEA32D15A13FCA005A2EF3 /* GLMeta.hpp */,
 				D81E142715BDAFE7008BB24B /* StructMeta.hpp */,
+				D81E142E15BF16B1008BB24B /* MappedFile.hpp */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -474,6 +480,7 @@
 				D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */,
 				D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */,
 				D81E142D15BE128D008BB24B /* View.cpp in Sources */,
+				D81E143115BF18AF008BB24B /* MappedFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,6 +502,7 @@
 				D8C986E6159408E7000D554E /* Canvas.cpp in Sources */,
 				D8D15A2D15B289C600312EDA /* GLMeta.cpp in Sources */,
 				D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */,
+				D81E143015BF18AF008BB24B /* MappedFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

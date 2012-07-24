@@ -365,23 +365,15 @@ error:
         return ok;
     }
     
-    std::unique_ptr<llvm::MemoryBuffer>
+    MappedFile
     Canvas::loadTile(std::size_t index, std::string *outError)
     {
         assert(index >= 1 && index <= $.tileCount);
-        using namespace std;
-        using namespace llvm;
         
-        SmallString<260> path;
+        llvm::SmallString<260> path;
         $.makeTilePath(index, &path);
         
-        OwningPtr<MemoryBuffer> buf;
-        error_code err = MemoryBuffer::getFile(path, buf);
-        if (err) {
-            *outError = err.message();
-            return unique_ptr<MemoryBuffer>();
-        }
-        return unique_ptr<MemoryBuffer>(buf.take());
+        return MappedFile(path, outError);
     }
 
     //
