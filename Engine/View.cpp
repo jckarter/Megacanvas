@@ -190,14 +190,13 @@ namespace Mega {
     MEGA_PRIV_GETTER(View, zoom, double)
     void View::zoom(double z)
     {
-        $.zoom = z;
+        $.zoom = std::max(0.5, z);
         $.updateViewport();
     }
     
     void View::moveZoom(double z)
     {
-        $.zoom += z;
-        $.updateViewport();
+        $$.zoom($.zoom + z);
     }
     
     Vec View::viewToLayer(Mega::Vec viewPoint, Layer l)
