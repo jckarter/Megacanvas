@@ -89,7 +89,7 @@ namespace Mega { namespace test {
             struct fill {
                 int x = 0;
                 template<typename T>
-                void operator()(T &y) {
+                void operator()(char const *name, T &y) {
                     y = x++;
                 }
             };

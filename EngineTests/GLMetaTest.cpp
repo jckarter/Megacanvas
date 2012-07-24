@@ -18,7 +18,7 @@ namespace Mega { namespace test {
     class GLMetaContextTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(GLMetaContextTest);
         CPPUNIT_TEST(testGLContext);
-        CPPUNIT_TEST(testcompileAndLinkProgram);
+        CPPUNIT_TEST(testProgram);
         CPPUNIT_TEST(testBindVertexAttributes);
         CPPUNIT_TEST_SUITE_END();
 
@@ -33,48 +33,35 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(maj > 3 || (maj == 3 && min >= 2));
         }
 
-        void loadTestProgramSource(llvm::StringRef basename, llvm::OwningPtr<llvm::MemoryBuffer> *outVertSource, llvm::OwningPtr<llvm::MemoryBuffer> *outFragSource)
+        void testProgram()
         {
-            std::string fullBasename = "EngineTests/TestData/shaders/";
-            fullBasename += basename;
-            std::string error;
+            GLProgram program("EngineTests/TestData/shaders/test1");
             
-            if (!loadProgramSource(fullBasename, outVertSource, outFragSource, &error))
+            CPPUNIT_ASSERT(!program);
+            
+            std::string error;
+            if (!program.compileAndLink(&error)) {
                 throw std::runtime_error(error);
-        }
-
-        void loadTestProgram(llvm::StringRef basename, GLuint *vert, GLuint *frag, GLuint *prog)
-        {
-            using namespace llvm;
-            OwningPtr<MemoryBuffer> vertSource, fragSource;
-            loadTestProgramSource(basename, &vertSource, &fragSource);
-            SmallString<16> log;
-            if (!compileAndLinkProgram(vertSource->getBuffer(), fragSource->getBuffer(), vert, frag, prog, &log))
-                throw std::runtime_error(log.c_str());
-            CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
-        }
-
-        void testcompileAndLinkProgram()
-        {
-            GLuint vert, frag, prog;
-            loadTestProgram("test1", &vert, &frag, &prog);
-
-            CPPUNIT_ASSERT(glIsProgram(prog));
-            CPPUNIT_ASSERT(glIsShader(vert));
-            CPPUNIT_ASSERT(glIsShader(frag));
+            }
+            
+            CPPUNIT_ASSERT(program);
+            
+            CPPUNIT_ASSERT(glIsProgram(program.program));
+            CPPUNIT_ASSERT(glIsShader(program.vertexShader));
+            CPPUNIT_ASSERT(glIsShader(program.fragmentShader));
 
             GLint status;
-            glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
+            glGetShaderiv(program.vertexShader, GL_COMPILE_STATUS, &status);
             CPPUNIT_ASSERT(status);
-            glGetShaderiv(frag, GL_COMPILE_STATUS, &status);
+            glGetShaderiv(program.fragmentShader, GL_COMPILE_STATUS, &status);
             CPPUNIT_ASSERT(status);
-            glGetProgramiv(prog, GL_LINK_STATUS, &status);
+            glGetProgramiv(program.program, GL_LINK_STATUS, &status);
             CPPUNIT_ASSERT(status);
 
             GLint type;
-            glGetShaderiv(vert, GL_SHADER_TYPE, &type);
+            glGetShaderiv(program.vertexShader, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_VERTEX_SHADER);
-            glGetShaderiv(frag, GL_SHADER_TYPE, &type);
+            glGetShaderiv(program.fragmentShader, GL_SHADER_TYPE, &type);
             CPPUNIT_ASSERT(type == GL_FRAGMENT_SHADER);
         }
 
@@ -87,10 +74,13 @@ namespace Mega { namespace test {
     x(pad, Pad<float>)
             MEGA_STRUCT(TestVertex)
 
-            GLuint vert, frag, prog;
-            loadTestProgram("test1", &vert, &frag, &prog);
+            GLProgram program("EngineTests/TestData/shaders/test1");
+            std::string error;
+            if (!program.compileAndLink(&error)) {
+                throw std::runtime_error(error);
+            }
 
-            glUseProgram(prog);
+            glUseProgram(program);
 
             GLuint buffer;
             glGenBuffers(1, &buffer);
@@ -101,18 +91,18 @@ namespace Mega { namespace test {
             glGenVertexArrays(1, &array);
             glBindVertexArray(array);
 
-            bool ok = bindVertexAttributes<TestVertex>(prog);
+            bool ok = bindVertexAttributes<TestVertex>(program);
             CPPUNIT_ASSERT(ok);
 
             CPPUNIT_ASSERT_EQUAL(GLenum(GL_NO_ERROR), glGetError());
 
-            CPPUNIT_ASSERT_EQUAL(GLint(-1), glGetAttribLocation(prog, "pad"));
+            CPPUNIT_ASSERT_EQUAL(GLint(-1), glGetAttribLocation(program, "pad"));
 
             GLint param;
             GLvoid *pointerParam;
             
 #define _MEGA_ASSERT_ATTRIBUTE(name, type, normalized, size) \
-            GLuint name##Index = glGetAttribLocation(prog, #name); \
+            GLuint name##Index = glGetAttribLocation(program, #name); \
             CPPUNIT_ASSERT(name##Index != -1); \
             glGetVertexAttribiv(name##Index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &param); \
             CPPUNIT_ASSERT(param); \

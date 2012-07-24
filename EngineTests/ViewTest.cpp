@@ -16,6 +16,7 @@
 namespace Mega { namespace test {
     class ViewTest : public GLContextTestFixture {
         CPPUNIT_TEST_SUITE(ViewTest);
+        CPPUNIT_TEST(testSetUp);
         CPPUNIT_TEST_SUITE_END();
 
         Owner<Canvas> canvas;
@@ -43,6 +44,12 @@ namespace Mega { namespace test {
             this->GLContextTestFixture::tearDown();
         }
 
+        void testSetUp()
+        {
+            // do nothing; setUp and tearDown should succeed
+        }
+        
+        
     };
     CPPUNIT_TEST_SUITE_REGISTRATION(ViewTest);
 }}
