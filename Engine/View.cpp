@@ -53,7 +53,7 @@ namespace Mega {
         GLVertexArray meshArray;
         FlipFlop<GLBuffer> pixelBuffers;
         
-        std::size_t eltCount;
+        GLsizei eltCount;
         
         Priv(Canvas c);
         
@@ -68,7 +68,7 @@ namespace Mega {
 
     Priv<View>::Priv(Canvas c)
     : 
-    canvas(c), center(0.0, 0.0), zoom(1.0), viewport(0.0, 0.0), good(false), uniforms(),
+    canvas(c), center{0.0, 0.0}, zoom(1.0), viewport{0.0, 0.0}, good(false), uniforms(),
     program(string(shaderPath) + "/megacanvas"),
     eltCount(0)
     {
@@ -134,7 +134,8 @@ namespace Mega {
     void Priv<View>::updateMesh()
     {        
         auto layers = $.canvas.layers();
-        size_t layerCount = layers.size();
+        assert(layers.size() <= numeric_limits<GLsizei>::max());
+        GLsizei layerCount = GLsizei(layers.size());
         unique_ptr<ViewVertex[]> mesh(new ViewVertex[4 * layerCount]);
         unique_ptr<GLushort[]> elts(new GLushort[6 * layerCount]);
         ViewVertex *meshp = mesh.get();
@@ -146,12 +147,11 @@ namespace Mega {
             float ox = float(origin.x), oy = float(origin.y);
             float px = float(parallax.x), py = float(parallax.y);
             float layer = float(i);
-            
-            // fixme use C++11 ilists instead of C99 struct literals
-            *meshp++ = (ViewVertex){{-1.0f, -1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
-            *meshp++ = (ViewVertex){{ 1.0f, -1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
-            *meshp++ = (ViewVertex){{-1.0f,  1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
-            *meshp++ = (ViewVertex){{ 1.0f,  1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
+
+            *meshp++ = ViewVertex{{-1.0f, -1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
+            *meshp++ = ViewVertex{{ 1.0f, -1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
+            *meshp++ = ViewVertex{{-1.0f,  1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
+            *meshp++ = ViewVertex{{ 1.0f,  1.0f}, {ox, oy}, {px, py}, layer, {0.0f}};
 
             *eltsp++ = 4*i + 0;
             *eltsp++ = 4*i + 1;
@@ -209,7 +209,7 @@ namespace Mega {
     
     void View::resize(double width, double height)
     {
-        $.viewport = Vec(width, height);
+        $.viewport = Vec{width, height};
         $.updateViewport();
     }
     
@@ -219,7 +219,7 @@ namespace Mega {
         
         Vec viewportRadius = 0.5*$.viewport;
         
-        $.tiles->require(Rect($.center - viewportRadius, $.center + viewportRadius));
+        $.tiles->require(Rect{$.center - viewportRadius, $.center + viewportRadius});
         
         glDrawElements(GL_TRIANGLES, $.eltCount, GL_UNSIGNED_SHORT, nullptr);
         MEGA_ASSERT_GL_NO_ERROR;

@@ -94,59 +94,41 @@ namespace Mega {
         static int value() { return 0; }
     };
 
-    namespace {
-        // xcode 4.3 can't handle lambdas
-        struct _VertexAttributeBinder {
-            GLuint program;
-            std::size_t stride;
-            bool ok;
-            _VertexAttributeBinder(GLuint program, std::size_t stride) : program(program), stride(stride), ok(true) {}
-            void operator()(char const *name, std::size_t size, std::size_t offset, GLVertexType info) {
-                if (info.isPadding)
-                    return;
-                
-                GLint location = glGetAttribLocation(program, name);
-                if (location == -1) {
-                    ok = false;
-                    return;
-                }
-                glVertexAttribPointer(location, info.size, info.type, info.normalized,
-                                      stride, reinterpret_cast<const GLvoid*>(offset));
-                glEnableVertexAttribArray(location);
-            }
-        };
-
-        template<typename T>
-        struct _UniformLocationGetter {
-            GLuint program;
-            T &uniforms;
-            bool ok;
-            _UniformLocationGetter(GLuint program, T &uniforms) : program(program), uniforms(uniforms), ok(true) {}
-            
-            void operator()(char const *name, GLint &field) {
-                field = glGetUniformLocation(program, name);
-                if (field == -1) {
-                    ok = false;
-                    return;
-                }
-            }
-        };
-    }
-
     template<typename T>
     bool bindVertexAttributes(GLuint prog)
     {
-        _VertexAttributeBinder iter(prog, sizeof(T));
-        each_field_metadata<T, GLVertexTraits>(iter);
-        return iter.ok;
+        bool ok = true;
+        each_field_metadata<T, GLVertexTraits>([prog, &ok](char const *name,
+                                                            std::size_t size,
+                                                            std::size_t offset,
+                                                            GLVertexType info) {
+            if (info.isPadding)
+                return;
+            
+            GLint location = glGetAttribLocation(prog, name);
+            if (location == -1) {
+                ok = false;
+                return;
+            }
+            glVertexAttribPointer(location, info.size, info.type, info.normalized,
+                                  sizeof(T), reinterpret_cast<const GLvoid*>(offset));
+            glEnableVertexAttribArray(location);
+        });
+        return ok;
     }
     
     template<typename T>
     bool getUniformLocations(GLuint prog, T *outFields)
     {
-        _UniformLocationGetter<T> iter(prog, *outFields);
-        each_field(*outFields, iter);
-        return iter.ok;
+        bool ok = true;
+        each_field(*outFields, [prog, &ok](char const *name, GLint &field) {
+            field = glGetUniformLocation(prog, name);
+            if (field == -1) {
+                ok = false;
+                return;
+            }
+        });
+        return ok;
     }
 
     struct GLProgram {
@@ -235,7 +217,7 @@ namespace Mega {
     
     template<void Gen(GLsizei, GLuint*), void Delete(GLsizei, const GLuint*)>
     struct FlipFlop<GLResource<Gen, Delete>> {
-        std::array<GLuint,2> names = {{0,0}};
+        std::array<GLuint,2> names = {0,0};
         int nextIndex = 0;
         
         FlipFlop() {}

@@ -15,14 +15,13 @@ namespace Mega {
     struct BoolVec {
         bool x, y;
         
-        constexpr BoolVec() = default;
-        constexpr BoolVec(bool x, bool y) : x(x), y(y) {}
+        BoolVec() = default;
         
         constexpr bool both() const { return x && y; }
         constexpr bool either() const { return x || y; }
         
-        constexpr BoolVec operator&(BoolVec o) const { return BoolVec(x && o.x, y && o.y); }
-        constexpr BoolVec operator|(BoolVec o) const { return BoolVec(x || o.x, y || o.y); }
+        constexpr BoolVec operator&(BoolVec o) const { return BoolVec{x && o.x, y && o.y}; }
+        constexpr BoolVec operator|(BoolVec o) const { return BoolVec{x || o.x, y || o.y}; }
     };
     
     inline constexpr bool both(BoolVec b) { return b.x && b.y; }
@@ -30,17 +29,16 @@ namespace Mega {
     
     struct Vec {
         double x, y;
-        constexpr Vec() = default;
-        constexpr Vec(double x, double y) : x(x), y(y) {}
+        Vec() = default;
 
         constexpr bool operator==(Vec o) const { return x == o.x && y == o.y; }
         constexpr bool operator!=(Vec o) const { return x != o.x || y != o.y; }
         
 #define _MEGA_VEC_MATH_OP(op) \
-    Vec operator op(Vec o) const { return Vec(x op o.x, y op o.y); } \
-    Vec operator op(double o) const { return Vec(x op o, y op o); } \
+    Vec operator op(Vec o) const { return Vec{x op o.x, y op o.y}; } \
+    Vec operator op(double o) const { return Vec{x op o, y op o}; } \
     Vec &operator op##=(Vec o) { x op##= o.x; y op##= o.y; return *this; } \
-    friend Vec operator op(double o, Vec v) { return Vec(o op v.x, o op v.y); }
+    friend Vec operator op(double o, Vec v) { return Vec{o op v.x, o op v.y}; }
         _MEGA_VEC_MATH_OP(+)
         _MEGA_VEC_MATH_OP(-)
         _MEGA_VEC_MATH_OP(*)
@@ -48,7 +46,7 @@ namespace Mega {
 #undef _MEGA_VEC_MATH_OP
         
 #define _MEGA_VEC_MATH_METHOD(op) \
-    Vec op() const { return Vec(std::op(x), std::op(y)); }
+    Vec op() const { return Vec{std::op(x), std::op(y)}; }
         _MEGA_VEC_MATH_METHOD(floor)
         _MEGA_VEC_MATH_METHOD(ceil)
         _MEGA_VEC_MATH_METHOD(round)
@@ -56,9 +54,9 @@ namespace Mega {
 #undef _MEGA_VEC_MATH_METHOD
 
 #define _MEGA_VEC_COMPARE_OP(op) \
-    BoolVec operator op(Vec o) const { return BoolVec(x op o.x, y op o.y); } \
-    BoolVec operator op(double o) const { return BoolVec(x op o, y op o); } \
-    friend BoolVec operator op(double o, Vec v) { return BoolVec(o op v.x, o op v.y); }
+    BoolVec operator op(Vec o) const { return BoolVec{x op o.x, y op o.y}; } \
+    BoolVec operator op(double o) const { return BoolVec{x op o, y op o}; } \
+    friend BoolVec operator op(double o, Vec v) { return BoolVec{o op v.x, o op v.y}; }
         _MEGA_VEC_COMPARE_OP(<=)
         _MEGA_VEC_COMPARE_OP(<)
         _MEGA_VEC_COMPARE_OP(>)
@@ -70,9 +68,9 @@ namespace Mega {
         Vec lo, hi;
         
         Rect() = default;
-        constexpr Rect(Vec lo, Vec hi) : lo(lo), hi(hi) {}
+        Rect(Vec lo, Vec hi) : lo(lo), hi(hi) {}
         constexpr Rect(double lox, double loy, double hix, double hiy)
-        : lo(lox, loy), hi(hix, hiy) {}
+        : lo{lox, loy}, hi{hix, hiy} {}
         
         bool contains(Vec v) const { return both(lo <= v & v < hi); }
     };

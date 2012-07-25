@@ -8,6 +8,7 @@
 
 #include "Engine/Util/GLMeta.hpp"
 #include <llvm/Support/raw_ostream.h>
+#include <limits>
 
 namespace Mega {
     template<void glGet_iv(GLuint, GLenum, GLint*), void glGet_InfoLog(GLuint, GLsizei, GLsizei*, GLchar*)>
@@ -23,14 +24,16 @@ namespace Mega {
                               GLuint *outShader, std::string *outLog)
     {
         using namespace llvm;
+        assert(sources.size() <= std::numeric_limits<GLsizei>::max());
         *outShader = glCreateShader(type);
         SmallVector<GLchar const*, 2> sourceCodes;
         SmallVector<GLint, 2> lengths;
         for (auto source : sources) {
+            assert(source.size() <= std::numeric_limits<GLint>::max());
             sourceCodes.push_back(reinterpret_cast<GLchar const*>(source.data()));
-            lengths.push_back(source.size());
+            lengths.push_back(GLint(source.size()));
         }
-        glShaderSource(*outShader, sources.size(), sourceCodes.data(), lengths.data());
+        glShaderSource(*outShader, GLsizei(sources.size()), sourceCodes.data(), lengths.data());
         glCompileShader(*outShader);
         GLint status;
         glGetShaderiv(*outShader, GL_COMPILE_STATUS, &status);

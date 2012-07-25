@@ -45,7 +45,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(canvas.tileCount() == 0);
             CPPUNIT_ASSERT(canvas.layers().size() == 1);
             Layer layer = canvas.layers()[0];
-            CPPUNIT_ASSERT(layer.parallax() == Vec(1., 1.));
+            CPPUNIT_ASSERT(layer.parallax() == (Vec{1.0, 1.0}));
         }
 
         void testLoadCanvasTest1()
@@ -63,9 +63,9 @@ namespace Mega { namespace test {
             auto layers = canvas.layers();
             CPPUNIT_ASSERT(layers.size() == 2);
 
-            CPPUNIT_ASSERT(layers[0].parallax() == Vec(1., 1.));
+            CPPUNIT_ASSERT(layers[0].parallax() == (Vec{1., 1.}));
 
-            CPPUNIT_ASSERT(layers[1].parallax() == Vec(0.5, 0.5));
+            CPPUNIT_ASSERT(layers[1].parallax() == (Vec{0.5, 0.5}));
 
             CPPUNIT_ASSERT(canvas.tileCount() == 20);
         }

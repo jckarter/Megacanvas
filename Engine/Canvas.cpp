@@ -68,7 +68,7 @@ namespace Mega {
         std::size_t quadtreeDepth;
 
         Priv()
-        : parallax(Vec(1.0, 1.0)), origin(Vec(0.0, 0.0)), quadtreeDepth(0)
+        : parallax{1.0, 1.0}, origin{0.0, 0.0}, quadtreeDepth(0)
         {}
 
         Priv(Vec parallax, Vec origin, std::size_t quadtreeDepth, std::vector<Layer::tile_t> &&tiles)
@@ -151,7 +151,7 @@ namespace Mega {
                         return Optional<Vec>();
                     ++i;
                 }
-                return Vec(components[0], components[1]);
+                return Vec{components[0], components[1]};
             }
             return Optional<Vec>();
         }

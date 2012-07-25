@@ -18,6 +18,7 @@ namespace Mega {
     struct MappedFile {
         llvm::ArrayRef<std::uint8_t> data;
         
+        MappedFile() : data() {}
         MappedFile(llvm::StringRef path, std::string *outError);
         ~MappedFile();
         
