@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D804D5EA15BF81CB00019D0D /* TileManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D804D5E915BF81CB00019D0D /* TileManagerTest.cpp */; };
 		D813708B1592EEE000A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D813708C1592EEF600A58ADD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D813708A1592EEE000A58ADD /* OpenGL.framework */; };
 		D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */; };
@@ -16,8 +17,10 @@
 		D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33215A24788005A2EF3 /* GLMeta.cpp */; };
 		D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */; };
 		D81E142D15BE128D008BB24B /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA323159E5D9F005A2EF3 /* View.cpp */; };
-		D81E143015BF18AF008BB24B /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile.cpp */; };
-		D81E143115BF18AF008BB24B /* MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile.cpp */; };
+		D81E143015BF18AF008BB24B /* MappedFile-unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */; };
+		D81E143115BF18AF008BB24B /* MappedFile-unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */; };
+		D81E143415BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
+		D81E143515BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -76,6 +79,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D804D5E915BF81CB00019D0D /* TileManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileManagerTest.cpp; sourceTree = "<group>"; };
 		D813708A1592EEE000A58ADD /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D81370911592EF5400A58ADD /* EngineTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EngineTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libcppunit-1.12.1.0.0.dylib"; path = "/usr/local/cppunit/lib/libcppunit-1.12.1.0.0.dylib"; sourceTree = "<absolute>"; };
@@ -85,7 +89,9 @@
 		D81E142715BDAFE7008BB24B /* StructMeta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StructMeta.hpp; sourceTree = "<group>"; };
 		D81E142815BDBA55008BB24B /* StructMetaTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StructMetaTest.cpp; sourceTree = "<group>"; };
 		D81E142E15BF16B1008BB24B /* MappedFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MappedFile.hpp; sourceTree = "<group>"; };
-		D81E142F15BF18AF008BB24B /* MappedFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappedFile.cpp; sourceTree = "<group>"; };
+		D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "MappedFile-unix.cpp"; sourceTree = "<group>"; };
+		D81E143215BF5128008BB24B /* TileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TileManager.hpp; sourceTree = "<group>"; };
+		D81E143315BF5BD8008BB24B /* TileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileManager.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -128,7 +134,6 @@
 		D8FEA33015A171D3005A2EF3 /* TestGLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TestGLContext.c; sourceTree = "<group>"; };
 		D8FEA33215A24788005A2EF3 /* GLMeta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLMeta.cpp; sourceTree = "<group>"; };
 		D8FEA33715A3573E005A2EF3 /* GLTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = GLTest.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "View-priv.hpp"; sourceTree = "<group>"; };
 		D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ViewTest.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8FEA34015A929E8005A2EF3 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Shaders; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -192,11 +197,12 @@
 				D8C986DE159408E7000D554E /* Layer.hpp */,
 				D8C986DF159408E7000D554E /* Util */,
 				D8FEA323159E5D9F005A2EF3 /* View.cpp */,
-				D8FEA33815A35AF7005A2EF3 /* View-priv.hpp */,
+				D81E143215BF5128008BB24B /* TileManager.hpp */,
+				D81E143315BF5BD8008BB24B /* TileManager.cpp */,
 				D8C986E5159408E7000D554E /* View.hpp */,
 				D8FEA31415953EF1005A2EF3 /* Vec.hpp */,
 				D8FEA33215A24788005A2EF3 /* GLMeta.cpp */,
-				D81E142F15BF18AF008BB24B /* MappedFile.cpp */,
+				D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -225,6 +231,7 @@
 				D8FEA33715A3573E005A2EF3 /* GLTest.hpp */,
 				D8FEA33915A35B47005A2EF3 /* ViewTest.cpp */,
 				D81E142815BDBA55008BB24B /* StructMetaTest.cpp */,
+				D804D5E915BF81CB00019D0D /* TileManagerTest.cpp */,
 			);
 			path = EngineTests;
 			sourceTree = "<group>";
@@ -480,7 +487,9 @@
 				D81E142B15BDC813008BB24B /* GLMeta.cpp in Sources */,
 				D81E142C15BE1289008BB24B /* ViewTest.cpp in Sources */,
 				D81E142D15BE128D008BB24B /* View.cpp in Sources */,
-				D81E143115BF18AF008BB24B /* MappedFile.cpp in Sources */,
+				D81E143115BF18AF008BB24B /* MappedFile-unix.cpp in Sources */,
+				D81E143515BF5BD8008BB24B /* TileManager.cpp in Sources */,
+				D804D5EA15BF81CB00019D0D /* TileManagerTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,7 +511,8 @@
 				D8C986E6159408E7000D554E /* Canvas.cpp in Sources */,
 				D8D15A2D15B289C600312EDA /* GLMeta.cpp in Sources */,
 				D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */,
-				D81E143015BF18AF008BB24B /* MappedFile.cpp in Sources */,
+				D81E143015BF18AF008BB24B /* MappedFile-unix.cpp in Sources */,
+				D81E143415BF5BD8008BB24B /* TileManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

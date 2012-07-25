@@ -215,11 +215,17 @@ namespace Mega {
         GLResource &operator=(GLResource &&x) { std::swap(name, x.value); return *this; }
         
         ~GLResource() {
-            if (name)
+            if (name) {
                 Delete(1, &name);
+                MEGA_ASSERT_GL_NO_ERROR;
+            }
         }
         
-        void gen() { Gen(1, &name); }
+        void gen() {
+            Gen(1, &name);
+            MEGA_ASSERT_GL_NO_ERROR;
+            assert(name);
+        }
         
         explicit operator bool() const { return name != 0; }
         operator GLuint() const { return name; }
@@ -250,10 +256,15 @@ namespace Mega {
         ~FlipFlop() {
             if (names[0]) {
                 Delete(2, names.data());
+                MEGA_ASSERT_GL_NO_ERROR;
             }
         }
         
-        void gen() { Gen(2, names.data()); }
+        void gen() {
+            Gen(2, names.data());
+            MEGA_ASSERT_GL_NO_ERROR;
+            assert(names[0] && names[1]);
+        }
         
         explicit operator bool() const { return names[0] != 0; }
         

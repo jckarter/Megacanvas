@@ -69,6 +69,11 @@ namespace Mega {
     struct Rect {
         Vec lo, hi;
         
+        Rect() = default;
+        constexpr Rect(Vec lo, Vec hi) : lo(lo), hi(hi) {}
+        constexpr Rect(double lox, double loy, double hix, double hiy)
+        : lo(lox, loy), hi(hix, hiy) {}
+        
         bool contains(Vec v) const { return both(lo <= v & v < hi); }
     };
 }
