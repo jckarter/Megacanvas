@@ -73,6 +73,8 @@ namespace Mega {
         : lo{lox, loy}, hi{hix, hiy} {}
         
         bool contains(Vec v) const { return both(lo <= v & v < hi); }
+        
+        bool contains(Rect r) const { return contains(r.lo) && contains(r.hi); };
     };
 }
 

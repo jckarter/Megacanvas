@@ -9,6 +9,7 @@
 #ifndef Megacanvas_MappedFile_hpp
 #define Megacanvas_MappedFile_hpp
 
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <llvm/ADT/ArrayRef.h>
@@ -19,8 +20,8 @@ namespace Mega {
         llvm::ArrayRef<std::uint8_t> data;
         
         MappedFile() : data() {}
-        MappedFile(llvm::StringRef path, std::string *outError);
-        ~MappedFile();
+        MappedFile(llvm::StringRef path, std::string *outError) : data() { load(path, outError); }
+        ~MappedFile() { reset(); }
         
         MappedFile(const MappedFile&) = delete;
         void operator=(const MappedFile&) = delete;
@@ -33,6 +34,12 @@ namespace Mega {
         MappedFile &operator=(MappedFile &&x)
         {
             std::swap(data, x.data);
+            return *this;
+        }
+        
+        MappedFile &operator=(std::nullptr_t)
+        {
+            reset();
             return *this;
         }
         
@@ -52,6 +59,9 @@ namespace Mega {
         std::uint8_t const *begin() const { return data.begin(); }
         std::uint8_t const *end() const { return data.end(); }
         std::size_t size() const { return data.size(); }
+        
+        bool load(llvm::StringRef path, std::string *outError);
+        void reset();
         
         void dontNeed() const;
         void willNeed() const;

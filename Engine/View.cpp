@@ -51,8 +51,7 @@ namespace Mega {
         Owner<TileManager> tiles;
         GLBuffer meshBuffer, eltBuffer;
         GLVertexArray meshArray;
-        FlipFlop<GLBuffer> pixelBuffers;
-        
+
         GLsizei eltCount;
         
         Priv(Canvas c);
@@ -112,7 +111,6 @@ namespace Mega {
         
         $.meshBuffer.gen();
         $.eltBuffer.gen();
-        $.pixelBuffers.gen();
         $.meshArray.gen();
         
         $.tiles = TileManager::create($.canvas);
@@ -221,6 +219,7 @@ namespace Mega {
         
         $.tiles->require(Rect{$.center - viewportRadius, $.center + viewportRadius});
         
+        glClear(GL_COLOR_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, $.eltCount, GL_UNSIGNED_SHORT, nullptr);
         MEGA_ASSERT_GL_NO_ERROR;
     }

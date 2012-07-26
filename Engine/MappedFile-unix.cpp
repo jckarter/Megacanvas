@@ -14,8 +14,7 @@
 #include <llvm/ADT/SmallString.h>
 
 namespace Mega {
-    MappedFile::MappedFile(llvm::StringRef path, std::string *outError)
-    : data()
+    bool MappedFile::load(llvm::StringRef path, std::string *outError)
     {
         llvm::SmallString<260> paths(path);
 
@@ -25,8 +24,10 @@ namespace Mega {
         } while (fd == -1 && errno == EINTR);
         if (fd == -1) {
             *outError = strerror(errno);
-            return;
+            return false;
         }
+        
+        bool ok = false;
         
         struct stat stats;
         int err;
@@ -51,15 +52,18 @@ namespace Mega {
         
         data = llvm::makeArrayRef(reinterpret_cast<std::uint8_t const*>(mapping),
                                   stats.st_size);
+        ok = true;
         
     close_fd:
         do {
             err = close(fd);
         } while (err == -1 && (errno == EINTR || errno == EAGAIN));
         assert(err != -1);
+        
+        return ok;
     }
     
-    MappedFile::~MappedFile()
+    void MappedFile::reset()
     {
         if (data.begin()) {
             int err;
@@ -69,6 +73,7 @@ namespace Mega {
             } while (err == -1 && errno == EINTR);
             assert(err != -1);
         }
+        data = llvm::ArrayRef<std::uint8_t>();
     }
     
     static void advise(llvm::ArrayRef<std::uint8_t> data, int advice)

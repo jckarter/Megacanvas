@@ -16,6 +16,8 @@
 #include "Engine/Vec.hpp"
 
 namespace Mega {
+    size_t swizzle(std::size_t x, std::size_t y);
+    
     struct Layer : HasPriv<Layer> {
         using tile_t = std::uint16_t;
         
@@ -29,6 +31,18 @@ namespace Mega {
         struct SegmentRef {        
             llvm::ArrayRef<tile_t> tiles;
             std::size_t offset;
+            
+            tile_t operator[](size_t i) const
+            {
+                if (i >= offset) {
+                    i -= offset;
+                    if (i < tiles.size())
+                        return tiles[i];
+                }
+                return 0;
+            }
+            
+            tile_t at(size_t x, size_t y) const { return (*this)[swizzle(x, y)]; }
         };
         SegmentRef segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y);
     };

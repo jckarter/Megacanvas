@@ -64,7 +64,7 @@ static void MegaCanvasView_resize(MegaCanvasView *self)
                          defaultButton:@"Close"
                        alternateButton:nil
                            otherButton:nil 
-             informativeTextWithFormat:[NSString stringWithUTF8String:error.c_str()]] runModal];
+             informativeTextWithFormat:@"%s", error.c_str()] runModal];
         [self setHidden:YES];
         return;
     }
