@@ -13,7 +13,7 @@ noperspective out vec3 frag_texCoord;
 
 void main() {
     vec2 layerCenter = (center - layerOrigin) * layerParallax;
-    vec2 layerCoord = (layerCenter + position*0.5*viewport)/tilesTextureSize;
+    vec2 layerCoord = floor(layerCenter + position*0.5*viewport)/tilesTextureSize;
     
     frag_texCoord = vec3(layerCoord, layer);
     gl_Position = vec4(position, 0.0, 1.0);
