@@ -179,16 +179,12 @@ namespace Mega {
         Vec zoomedView = $.viewport / $.zoom;
         glUniform2f($.uniforms.viewport, zoomedView.x, zoomedView.y);
         MEGA_ASSERT_GL_NO_ERROR;
-        
-        $.tiles->viewportHint($.viewport, $.zoom);
     }
     
     void Priv<View>::updateCenter()
     {
         glUniform2f($.uniforms.center, $.center.x, $.center.y);
         MEGA_ASSERT_GL_NO_ERROR;
-        
-        $.tiles->centerHint($.center);
     }
 
     void View::bindState()
@@ -215,9 +211,7 @@ namespace Mega {
     {
         assert($.good);
         
-        Vec viewportRadius = 0.5*$.viewport;
-        
-        $.tiles->require(Rect{$.center - viewportRadius, $.center + viewportRadius});
+        $.tiles->require($.center, $.viewport/$.zoom);
         
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, $.eltCount, GL_UNSIGNED_SHORT, nullptr);

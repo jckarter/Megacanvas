@@ -44,7 +44,7 @@ namespace Mega { namespace test {
         
         void testRequire()
         {
-            tileManager->require(Rect(-64.0, -64.0, 64.0, 64.0));
+            tileManager->require(Vec{0.0, 0.0}, Vec{128.0, 128.0});
             CPPUNIT_ASSERT(tileManager->isTileReady(1));
             CPPUNIT_ASSERT(tileManager->isTileReady(2));
             CPPUNIT_ASSERT(tileManager->isTileReady(3));
@@ -52,7 +52,7 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(tileManager->isTileReady(7));
             CPPUNIT_ASSERT(tileManager->isTileReady(13));
             
-            tileManager->require(Rect(444.0, -64.0, 572.0, 64.0));
+            tileManager->require(Vec{444.0, -64.0}, Vec{128.0, 128.0});
             CPPUNIT_ASSERT(tileManager->isTileReady(8));
             CPPUNIT_ASSERT(tileManager->isTileReady(11));
             CPPUNIT_ASSERT(tileManager->isTileReady(14));

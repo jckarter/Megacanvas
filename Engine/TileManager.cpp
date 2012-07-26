@@ -18,14 +18,12 @@ namespace Mega {
     using namespace std;
     using namespace llvm;
     
-    static constexpr size_t TEXTURE_SIZE = 2048;
+    static constexpr size_t TEXTURE_SIZE = 4096;
     
     static constexpr Layer::tile_t NO_TILE = Layer::tile_t(-1);
     
     struct TileLayer {
         Rect readyRect = {0.0, 0.0, 0.0, 0.0};
-        ptrdiff_t baseSegment[2] = {0, 0};
-        Layer::SegmentRef segments[4];
         unique_ptr<Layer::tile_t[]> tileMap;
     };
     
@@ -40,17 +38,16 @@ namespace Mega {
         unique_ptr<MappedFile[]> tileCache;
         unique_ptr<TileLayer[]> tileLayers;
         
-        size_t tileSize, segmentSize, textureTileCount;
+        size_t tileSize, textureTileSize, textureTileCount;
         
         Priv(Canvas c);
         
         void prepareTexture();
         ArrayRef<uint8_t> tile(size_t i);
         
-        void loadTilesInRect(Rect r);
-        void loadSegments(TileLayer &tl, Layer l, ptrdiff_t x, ptrdiff_t y);
-        
-        void uploadTile(TileLayer &tl, ptrdiff_t x, ptrdiff_t y, size_t layer);
+        void loadTilesInView(Vec center, Vec viewport);        
+        void uploadTile(TileLayer &tl, Layer l,
+                        ptrdiff_t x, ptrdiff_t y, size_t layer);
     };
     MEGA_PRIV_DTOR(TileManager)
     
@@ -62,8 +59,8 @@ namespace Mega {
     tileCache(new MappedFile[c.tileCount()]()),
     tileLayers(new TileLayer[c.layers().size()]()),
     tileSize(c.tileSize()),
-    segmentSize(TEXTURE_SIZE >> (c.tileLogSize() + 1)),
-    textureTileCount(segmentSize*segmentSize*4)
+    textureTileSize(TEXTURE_SIZE >> c.tileLogSize()),
+    textureTileCount(textureTileSize*textureTileSize)
     {
         // nb: must be constructed with a valid GL context available
         $.texture.gen();
@@ -111,16 +108,16 @@ namespace Mega {
         return file.data;
     }
     
-    void Priv<TileManager>::loadTilesInRect(Rect r)
+    void Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
     {
         size_t tileSize = $.canvas.tileSize();
         auto layers = $.canvas.layers();
+        Vec radius = 0.5*viewport;
 
         for (size_t i = 0, end = layers.size(); i < end; ++i) {
             Layer l = layers[i];
             TileLayer &tl = $.tileLayers[i];
             
-            Vec center = 0.5*(r.hi + r.lo), radius = 0.5*(r.hi - r.lo);
             Vec layerCenter = (center - l.origin()) * l.parallax();
             
             if (tl.readyRect.contains(layerCenter - radius)
@@ -130,38 +127,20 @@ namespace Mega {
             Vec loTile = ((layerCenter - radius)/tileSize).floor();
             Vec hiTile = ((layerCenter + radius)/tileSize).ceil();
             
-            Vec loSeg = (loTile/$.segmentSize).floor();
-            $.loadSegments(tl, l, loSeg.x, loSeg.y);
-            
             for (ptrdiff_t y = loTile.y, yend = hiTile.y; y < yend; ++y)
                 for (ptrdiff_t x = loTile.x, xend = hiTile.x; x < xend; ++x)
-                    $.uploadTile(tl, x, y, i);
+                    $.uploadTile(tl, l, x, y, i);
             
             tl.readyRect = Rect{loTile * tileSize, hiTile * tileSize};
         }
     }
     
-    void Priv<TileManager>::loadSegments(TileLayer &tl, Layer l, ptrdiff_t x, ptrdiff_t y)
+    void Priv<TileManager>::uploadTile(TileLayer &tl, Layer l,
+                                       ptrdiff_t x, ptrdiff_t y, size_t layer)
     {
-        auto quadrant = [](ptrdiff_t x, ptrdiff_t y) { return (x&1) + (y&1)*2; };
-        
-        if (tl.baseSegment[0] != x || tl.baseSegment[1] != y) {
-            tl.segments[quadrant(x  , y  )] = l.segment($.segmentSize, x,   y  );
-            tl.segments[quadrant(x+1, y  )] = l.segment($.segmentSize, x+1, y  );
-            tl.segments[quadrant(x  , y+1)] = l.segment($.segmentSize, x,   y+1);
-            tl.segments[quadrant(x+1, y+1)] = l.segment($.segmentSize, x+1, y+1);
-        }
-    }
-    
-    void Priv<TileManager>::uploadTile(TileLayer &tl, ptrdiff_t x, ptrdiff_t y, size_t layer)
-    {
-        size_t xw = x & (segmentSize*2 - 1), yw = y & (segmentSize*2 - 1);
-        size_t s = swizzle(xw, yw);
-        size_t segi = s % (segmentSize*segmentSize);
-        size_t seg = s/(segmentSize*segmentSize);
-        assert(seg >= 0 && seg < 4);
-        Layer::tile_t layerTile = tl.segments[seg][segi];
-        Layer::tile_t &loadedTile = tl.tileMap[yw*segmentSize*2 + xw];
+        size_t xw = x & ($.textureTileSize-1), yw = y & ($.textureTileSize-1);
+        Layer::tile_t layerTile = l.segment(1, x, y)[0];
+        Layer::tile_t &loadedTile = tl.tileMap[yw*textureTileSize + xw];
         
         if (loadedTile != layerTile) {
             loadedTile = layerTile;
@@ -200,27 +179,16 @@ namespace Mega {
         return TEXTURE_SIZE;
     }
     
-    void TileManager::require(Rect r)
+    void TileManager::require(Vec center, Vec viewport)
     {
-        $.requiredRect = r;
-        $.loadTilesInRect(r);
-    }
-    
-    void TileManager::centerHint(Vec center)
-    {
-        
-    }
-    
-    void TileManager::viewportHint(Vec viewport, double zoom)
-    {
-        
+        $.loadTilesInView(center, viewport);
     }
     
     bool TileManager::isTileReady(size_t tile)
     {
         for (size_t l = 0, end = $.canvas.layers().size(); l < end; ++l) {
             Layer::tile_t *tiles = $.tileLayers[l].tileMap.get();
-            for (size_t i = 0, end = $.segmentSize*$.segmentSize*4; i < end; ++i)
+            for (size_t i = 0, end = $.textureTileSize*$.textureTileSize; i < end; ++i)
                 if (tiles[i] == tile)
                     return true;
         }

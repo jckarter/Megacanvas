@@ -41,8 +41,6 @@ namespace Mega {
                 }
                 return 0;
             }
-            
-            tile_t at(size_t x, size_t y) const { return (*this)[swizzle(x, y)]; }
         };
         SegmentRef segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y);
     };
