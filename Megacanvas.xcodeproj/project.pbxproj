@@ -93,6 +93,7 @@
 		D81E143215BF5128008BB24B /* TileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TileManager.hpp; sourceTree = "<group>"; };
 		D81E143315BF5BD8008BB24B /* TileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileManager.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
+		D8C833E815C1CB8100333D4B /* TileManager.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; name = TileManager.d; path = dtrace/TileManager.d; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Layer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -188,6 +189,14 @@
 			path = mandelbrot;
 			sourceTree = "<group>";
 		};
+		D8C833E915C1CB9500333D4B /* dtrace */ = {
+			isa = PBXGroup;
+			children = (
+				D8C833E815C1CB8100333D4B /* TileManager.d */,
+			);
+			name = dtrace;
+			sourceTree = "<group>";
+		};
 		D8C986DA159408E7000D554E /* Engine */ = {
 			isa = PBXGroup;
 			children = (
@@ -239,6 +248,7 @@
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
+				D8C833E915C1CB9500333D4B /* dtrace */,
 				D8EB12B0158BADCD00ED0404 /* prefix.pch */,
 				D8C986EA159408F6000D554E /* EngineTests */,
 				D8C986DA159408E7000D554E /* Engine */,
