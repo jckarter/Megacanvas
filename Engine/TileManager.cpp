@@ -110,9 +110,14 @@ namespace Mega {
     
     void Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
     {
-        size_t tileSize = $.canvas.tileSize();
+        size_t tileSize = $.tileSize;
         auto layers = $.canvas.layers();
         Vec radius = 0.5*viewport;
+        
+        if (viewport.x > (TEXTURE_SIZE - $.tileSize)
+            || viewport.y > (TEXTURE_SIZE - $.tileSize))
+            errs() << "warning: viewport dimensions " << viewport.x << ","
+            << viewport.y << " too large for texture size\n";
 
         for (size_t i = 0, end = layers.size(); i < end; ++i) {
             Layer l = layers[i];
