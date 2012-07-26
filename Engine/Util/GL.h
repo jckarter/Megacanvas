@@ -12,7 +12,7 @@
 #ifdef __APPLE__
 #   include <OpenGL/gl3.h>
 // prevent Cocoa from loading gl.h
-#define __gl_h_
+#   define __gl_h_
 #else
 #   include <GL/glew.h>
 #endif

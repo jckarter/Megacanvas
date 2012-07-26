@@ -28,6 +28,8 @@
     #include <utility>
     #include <vector>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
     #include <llvm/ADT/ArrayRef.h>
     #include <llvm/ADT/Optional.h>
     #include <llvm/ADT/SmallString.h>
@@ -41,4 +43,5 @@
     #include <llvm/Support/YAMLParser.h>
     #include <llvm/Support/raw_ostream.h>
     #include <llvm/Support/system_error.h>
+#pragma clang diagnostic pop
 #endif
