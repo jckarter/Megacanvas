@@ -14,6 +14,7 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <deque>
 #include <limits>
 #include <llvm/ADT/ArrayRef.h>
 #include <mutex>
@@ -48,10 +49,15 @@ namespace Mega {
         size_t tileSize, textureTileSize, textureTileCount;
         
         thread prefetcher;
-        bool runPrefetcher;
+        
+        bool runPrefetcher; // guarded by lockPrefetcher mutex
         mutex lockPrefetcher;
         condition_variable cvPrefetcher;
         atomic<size_t> viewportAge;
+        
+        struct PrefetcherState {
+            
+        } pf;
         
         Priv(Canvas c);
         ~Priv();
@@ -60,8 +66,6 @@ namespace Mega {
         ArrayRef<uint8_t> tile(size_t i);
         
         void loadTilesInView(Vec center, Vec viewport);        
-        bool uploadTile(TileLayer &tl, Layer l,
-                        ptrdiff_t x, ptrdiff_t y, size_t layer);
         
         ArrayRef<uint8_t> zeroTileRef() {
             return {zeroTile.get(), $.canvas.tileByteSize()};
@@ -159,11 +163,13 @@ namespace Mega {
     {
 #ifdef MEGA_TILE_MANAGER_STATS
         auto begun = chrono::high_resolution_clock::now();
-        size_t uploaded = 0;
 #endif
         size_t tileSize = $.tileSize;
         auto layers = $.canvas.layers();
         Vec radius = 0.5*viewport;
+        
+        struct Upload { ArrayRef<uint8_t> tile; size_t xw; size_t yw; size_t layer; };
+        SmallVector<Upload, 16> uploads;
         
         if (viewport.x > (TEXTURE_SIZE - $.tileSize)
             || viewport.y > (TEXTURE_SIZE - $.tileSize))
@@ -185,54 +191,48 @@ namespace Mega {
             
             for (ptrdiff_t y = loTile.y, yend = hiTile.y; y < yend; ++y)
                 for (ptrdiff_t x = loTile.x, xend = hiTile.x; x < xend; ++x) {
-                    bool didUpload = $.uploadTile(tl, l, x, y, i);
-#ifdef MEGA_TILE_MANAGER_STATS
-                    if (didUpload) ++uploaded;
-#endif
+                    size_t xw = x & ($.textureTileSize-1), yw = y & ($.textureTileSize-1);
+                    Layer::tile_t layerTile = l.segment(1, x, y)[0];
+                    Layer::tile_t &loadedTile = $.tileMapRef(i)[yw*textureTileSize + xw];
+                    
+                    if (loadedTile != layerTile) {
+                        loadedTile = layerTile;
+                        uploads.push_back(Upload{$.tile(layerTile), xw, yw, i});
+                    }
                 }
             
             tl.readyRect = Rect{loTile * tileSize, hiTile * tileSize};
         }
 
-#ifdef MEGA_TILE_MANAGER_STATS
-        auto ended = chrono::high_resolution_clock::now();
-        errs() << "uploaded " << uploaded << " tiles in "
-        << chrono::duration_cast<chrono::nanoseconds>(ended - begun).count() << " ns\n";
-#endif
-    }
-    
-    bool Priv<TileManager>::uploadTile(TileLayer &tl, Layer l,
-                                       ptrdiff_t x, ptrdiff_t y, size_t layer)
-    {
-        size_t xw = x & ($.textureTileSize-1), yw = y & ($.textureTileSize-1);
-        Layer::tile_t layerTile = l.segment(1, x, y)[0];
-        Layer::tile_t &loadedTile = $.tileMapRef(layer)[yw*textureTileSize + xw];
-        
-        if (loadedTile != layerTile) {
-            loadedTile = layerTile;
-            auto tile = $.tile(layerTile);
-            
+        for (Upload &upload : uploads) {
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, $.pixelBuffers.next());
-            glBufferData(GL_PIXEL_UNPACK_BUFFER, tile.size(), tile.begin(), GL_STREAM_DRAW);
+            glBufferData(GL_PIXEL_UNPACK_BUFFER,
+                         upload.tile.size(), upload.tile.begin(),
+                         GL_STREAM_DRAW);
             /*glBufferData(GL_PIXEL_UNPACK_BUFFER, tile.size(), nullptr, GL_STREAM_DRAW);
-            void *buf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-            assert(buf);
-            memcpy(buf, tile.begin(), tile.size());
-            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);*/
+             void *buf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+             assert(buf);
+             memcpy(buf, tile.begin(), tile.size());
+             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);*/
             MEGA_ASSERT_GL_NO_ERROR;
             
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
-                            GLuint(xw * $.tileSize), GLuint(yw * $.tileSize), GLuint(layer),
+                            GLuint(upload.xw * $.tileSize),
+                            GLuint(upload.yw * $.tileSize),
+                            GLuint(upload.layer),
                             GLuint($.tileSize), GLuint($.tileSize), 1,
                             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
             MEGA_ASSERT_GL_NO_ERROR;
-            
-            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-            MEGA_ASSERT_GL_NO_ERROR;
-            
-            return true;
         }
-        return false;
+        
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+        MEGA_ASSERT_GL_NO_ERROR;
+
+#ifdef MEGA_TILE_MANAGER_STATS
+        auto ended = chrono::high_resolution_clock::now();
+        errs() << "uploaded " << uploads.size() << " tiles in "
+        << chrono::duration_cast<chrono::nanoseconds>(ended - begun).count() << " ns\n";
+#endif
     }
     
     void Priv<TileManager>::prefetchThread(gl_context_t mainContext)

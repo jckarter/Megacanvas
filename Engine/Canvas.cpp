@@ -391,7 +391,9 @@ error:
         llvm::SmallString<260> path;
         $.makeTilePath(index, &path);
         
-        return MappedFile(path, outError);
+        MappedFile f(path, outError);
+        f.sequential();
+        return f;
     }
 
     //

@@ -85,6 +85,10 @@ namespace Mega {
         } while (err == -1 && errno == EINTR);
     }
     
+    void MappedFile::sequential() const
+    {
+        advise(data, MADV_SEQUENTIAL);
+    }
     void MappedFile::willNeed() const
     {
         advise(data, MADV_WILLNEED);

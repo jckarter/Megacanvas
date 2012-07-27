@@ -63,6 +63,7 @@ namespace Mega {
         bool load(llvm::StringRef path, std::string *outError);
         void reset();
         
+        void sequential() const;
         void dontNeed() const;
         void willNeed() const;
         void free() const;
