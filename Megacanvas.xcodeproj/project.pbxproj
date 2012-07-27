@@ -21,6 +21,8 @@
 		D81E143115BF18AF008BB24B /* MappedFile-unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */; };
 		D81E143415BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
 		D81E143515BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
+		D8C833EB15C2FE8F00333D4B /* GLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8C833EA15C2FE8F00333D4B /* GLContext.c */; };
+		D8C833EC15C2FE8F00333D4B /* GLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8C833EA15C2FE8F00333D4B /* GLContext.c */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986E7159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
 		D8C986EE159408F6000D554E /* CanvasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986EB159408F6000D554E /* CanvasTest.cpp */; };
@@ -94,6 +96,7 @@
 		D81E143315BF5BD8008BB24B /* TileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileManager.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
 		D8C833E815C1CB8100333D4B /* TileManager.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; name = TileManager.d; path = dtrace/TileManager.d; sourceTree = "<group>"; };
+		D8C833EA15C2FE8F00333D4B /* GLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLContext.c; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DC159408E7000D554E /* Canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Canvas.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		D8C986DE159408E7000D554E /* Layer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = Layer.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -306,6 +309,7 @@
 				D8EB12BA158BADCD00ED0404 /* MainMenu.xib */,
 				D8EB12A9158BADCD00ED0404 /* Supporting Files */,
 				D8FEA33015A171D3005A2EF3 /* TestGLContext.c */,
+				D8C833EA15C2FE8F00333D4B /* GLContext.c */,
 			);
 			path = Mac;
 			sourceTree = "<group>";
@@ -500,6 +504,7 @@
 				D81E143115BF18AF008BB24B /* MappedFile-unix.cpp in Sources */,
 				D81E143515BF5BD8008BB24B /* TileManager.cpp in Sources */,
 				D804D5EA15BF81CB00019D0D /* TileManagerTest.cpp in Sources */,
+				D8C833EC15C2FE8F00333D4B /* GLContext.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +528,7 @@
 				D8FEA324159E5D9F005A2EF3 /* View.cpp in Sources */,
 				D81E143015BF18AF008BB24B /* MappedFile-unix.cpp in Sources */,
 				D81E143415BF5BD8008BB24B /* TileManager.cpp in Sources */,
+				D8C833EB15C2FE8F00333D4B /* GLContext.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

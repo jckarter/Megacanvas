@@ -11,18 +11,23 @@
 #ifdef __cplusplus
     #include <array>
     #include <algorithm>
+    #include <atomic>
     #include <cassert>
+    #include <chrono>
     #include <cmath>
+    #include <condition_variable>
     #include <cstddef>
     #include <cstdint>
+    #include <cstdio>
     #include <cstdlib>
     #include <cstring>
     #include <functional>
     #include <iterator>
     #include <limits>
     #include <memory>
-    #include <stdexcept>
+    #include <mutex>
     #include <string>
+    #include <thread>
     #include <tuple>
     #include <type_traits>
     #include <utility>
@@ -37,6 +42,7 @@
     #include <llvm/ADT/StringRef.h>
     #include <llvm/ADT/StringSwitch.h>
     #include <llvm/Support/Casting.h>
+    #include <llvm/Support/FileSystem.h>
     #include <llvm/Support/Path.h>
     #include <llvm/Support/MemoryBuffer.h>
     #include <llvm/Support/SourceMgr.h>

@@ -257,6 +257,19 @@ namespace Mega {
             return names[i];
         }
     };
+    
+    struct GLContext {
+        gl_context_t context;
+        GLContext(gl_context_t context) : context(context) {}
+        ~GLContext() { if (context) destroyGLContext(context); }
+        GLContext(const GLContext&) = delete;
+        void operator=(const GLContext&) = delete;
+        GLContext(GLContext &&x) : context(x.context) { x.context = nullptr; }
+        GLContext &operator=(GLContext &&x) { std::swap(context, x.context); return *this; }
+        
+        explicit operator bool() const { return !!context; }
+        operator gl_context_t() const { return context; }
+    };
 
 #define _MEGA_GL_RESOURCE(name) using GL##name = GLResource<glGen##name##s, glDelete##name##s>;
     _MEGA_GL_RESOURCE(Texture)

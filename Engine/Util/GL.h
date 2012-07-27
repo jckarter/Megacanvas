@@ -17,4 +17,18 @@
 #   include <GL/glew.h>
 #endif
 
+#ifdef __cplusplus
+namespace Mega {
+    extern "C" {
+#endif
+        typedef struct Q_gl_context *gl_context_t;
+        gl_context_t currentGLContext(void);
+        gl_context_t makeSharedGLContext(gl_context_t shareWith, char const **outError);
+        void setCurrentGLContext(gl_context_t context);
+        void destroyGLContext(gl_context_t context);
+#ifdef __cplusplus
+    }
+}
+#endif
+
 #endif

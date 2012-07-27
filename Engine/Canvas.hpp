@@ -11,11 +11,9 @@
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/MemoryBuffer.h>
 #include "Engine/Util/MappedFile.hpp"
 #include "Engine/Util/OpaqueIterator.hpp"
 #include "Engine/Util/Priv.hpp"
-#include <memory>
 
 namespace Mega {
     struct Layer;

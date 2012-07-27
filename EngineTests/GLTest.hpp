@@ -16,13 +16,13 @@
 #include <algorithm>
 #include <utility>
 
-extern "C" {
-    int createTestGLContext(void);
-    void destroyTestGLContext(void);
-    void syncTestGLContext(void);
-}
-
 namespace Mega { namespace test {
+    extern "C" {
+        int createTestGLContext(void);
+        void destroyTestGLContext(void);
+        void syncTestGLContext(void);
+    }
+    
     class GLContextTestFixture : public CppUnit::TestFixture {
     public:
         void setUpTestFramebuffer();

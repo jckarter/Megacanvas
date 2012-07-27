@@ -21,7 +21,6 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/system_error.h>
 #include <functional>
-#include <stdexcept>
 #include <vector>
 
 namespace Mega {

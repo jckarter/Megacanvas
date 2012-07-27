@@ -11,8 +11,15 @@
 #include "Engine/Layer.hpp"
 #include "Engine/Util/GLMeta.hpp"
 #include "Engine/Util/MappedFile.hpp"
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <limits>
 #include <llvm/ADT/ArrayRef.h>
+#include <mutex>
+#include <thread>
+
+#define MEGA_TILE_MANAGER_STATS
 
 namespace Mega {
     using namespace std;
@@ -40,17 +47,24 @@ namespace Mega {
         
         size_t tileSize, textureTileSize, textureTileCount;
         
+        thread prefetcher;
+        bool runPrefetcher;
+        mutex lockPrefetcher;
+        condition_variable cvPrefetcher;
+        atomic<size_t> viewportAge;
+        
         Priv(Canvas c);
+        ~Priv();
         
         void prepareTexture();
         ArrayRef<uint8_t> tile(size_t i);
         
         void loadTilesInView(Vec center, Vec viewport);        
-        void uploadTile(TileLayer &tl, Layer l,
+        bool uploadTile(TileLayer &tl, Layer l,
                         ptrdiff_t x, ptrdiff_t y, size_t layer);
         
         ArrayRef<uint8_t> zeroTileRef() {
-            return makeArrayRef(zeroTile.get(), $.canvas.tileByteSize());
+            return {zeroTile.get(), $.canvas.tileByteSize()};
         }
         
         MutableArrayRef<MappedFile> tileCacheRef() {
@@ -64,9 +78,11 @@ namespace Mega {
         MutableArrayRef<Layer::tile_t> tileMapRef(size_t layer) {
             return {tileLayersRef()[layer].tileMap.get(), $.textureTileCount};
         }
+        
+        void prefetchThread(gl_context_t mainContext);
     };
     MEGA_PRIV_DTOR(TileManager)
-    
+        
     Priv<TileManager>::Priv(Canvas c)
     :
     canvas(c),
@@ -76,7 +92,9 @@ namespace Mega {
     tileLayers(new TileLayer[c.layers().size()]()),
     tileSize(c.tileSize()),
     textureTileSize(TEXTURE_SIZE >> c.tileLogSize()),
-    textureTileCount(textureTileSize*textureTileSize)
+    textureTileCount(textureTileSize*textureTileSize),
+    runPrefetcher(true),
+    viewportAge(0)
     {
         // nb: must be constructed with a valid GL context available
         $.texture.gen();
@@ -87,6 +105,20 @@ namespace Mega {
             tl.tileMap.reset(new Layer::tile_t[$.textureTileCount]);
             fill(&tl.tileMap[0], &tl.tileMap[$.textureTileCount], NO_TILE);
         }
+        
+        prefetcher = thread([](Priv *that, gl_context_t mainContext) {
+            that->prefetchThread(mainContext);
+        }, this, currentGLContext());
+    }
+    
+    Priv<TileManager>::~Priv()
+    {
+        {
+            unique_lock<mutex> lock($.lockPrefetcher);
+            $.runPrefetcher = false;
+            $.cvPrefetcher.notify_all();
+        }
+        $.prefetcher.join();
     }
     
     void Priv<TileManager>::prepareTexture()
@@ -125,6 +157,10 @@ namespace Mega {
     
     void Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
     {
+#ifdef MEGA_TILE_MANAGER_STATS
+        auto begun = chrono::high_resolution_clock::now();
+        size_t uploaded = 0;
+#endif
         size_t tileSize = $.tileSize;
         auto layers = $.canvas.layers();
         Vec radius = 0.5*viewport;
@@ -148,14 +184,24 @@ namespace Mega {
             Vec hiTile = ((layerCenter + radius)/tileSize).ceil();
             
             for (ptrdiff_t y = loTile.y, yend = hiTile.y; y < yend; ++y)
-                for (ptrdiff_t x = loTile.x, xend = hiTile.x; x < xend; ++x)
-                    $.uploadTile(tl, l, x, y, i);
+                for (ptrdiff_t x = loTile.x, xend = hiTile.x; x < xend; ++x) {
+                    bool didUpload = $.uploadTile(tl, l, x, y, i);
+#ifdef MEGA_TILE_MANAGER_STATS
+                    if (didUpload) ++uploaded;
+#endif
+                }
             
             tl.readyRect = Rect{loTile * tileSize, hiTile * tileSize};
         }
+
+#ifdef MEGA_TILE_MANAGER_STATS
+        auto ended = chrono::high_resolution_clock::now();
+        errs() << "uploaded " << uploaded << " tiles in "
+        << chrono::duration_cast<chrono::nanoseconds>(ended - begun).count() << " ns\n";
+#endif
     }
     
-    void Priv<TileManager>::uploadTile(TileLayer &tl, Layer l,
+    bool Priv<TileManager>::uploadTile(TileLayer &tl, Layer l,
                                        ptrdiff_t x, ptrdiff_t y, size_t layer)
     {
         size_t xw = x & ($.textureTileSize-1), yw = y & ($.textureTileSize-1);
@@ -178,7 +224,43 @@ namespace Mega {
             
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
             MEGA_ASSERT_GL_NO_ERROR;
+            
+            return true;
         }
+        return false;
+    }
+    
+    void Priv<TileManager>::prefetchThread(gl_context_t mainContext)
+    {
+        char const *error;
+        GLContext ourContext(makeSharedGLContext(mainContext, &error));
+        
+        if (!ourContext) {
+            errs() << "unable to create shared GL context for prefetch thread: " << error << '\n';
+            goto done;
+        }
+        
+        setCurrentGLContext(ourContext);
+
+        $$.bindState();
+        
+        errs() << "\nstart";
+        {
+            unique_lock<mutex> lock($.lockPrefetcher);
+            size_t lastViewportAge = 0, viewportAge;
+            while ($.runPrefetcher) {
+                $.cvPrefetcher.wait(lock);
+                
+                while ((viewportAge = $.viewportAge.load()) > lastViewportAge) {
+                    // do some prefetching
+                    lastViewportAge = viewportAge;
+                }
+                errs() << "."; errs().flush();
+            }
+        }
+        
+    done:
+        errs() << "end\n";
     }
 
     Owner<TileManager> TileManager::create(Canvas c)
