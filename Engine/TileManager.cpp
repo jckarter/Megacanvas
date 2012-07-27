@@ -214,6 +214,11 @@ namespace Mega {
             
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, $.pixelBuffers.next());
             glBufferData(GL_PIXEL_UNPACK_BUFFER, tile.size(), tile.begin(), GL_STREAM_DRAW);
+            /*glBufferData(GL_PIXEL_UNPACK_BUFFER, tile.size(), nullptr, GL_STREAM_DRAW);
+            void *buf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            assert(buf);
+            memcpy(buf, tile.begin(), tile.size());
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);*/
             MEGA_ASSERT_GL_NO_ERROR;
             
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
