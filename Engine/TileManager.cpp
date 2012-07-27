@@ -48,6 +48,22 @@ namespace Mega {
         void loadTilesInView(Vec center, Vec viewport);        
         void uploadTile(TileLayer &tl, Layer l,
                         ptrdiff_t x, ptrdiff_t y, size_t layer);
+        
+        ArrayRef<uint8_t> zeroTileRef() {
+            return makeArrayRef(zeroTile.get(), $.canvas.tileByteSize());
+        }
+        
+        MutableArrayRef<MappedFile> tileCacheRef() {
+            return {tileCache.get(), $.canvas.tileCount()};
+        }
+        
+        MutableArrayRef<TileLayer> tileLayersRef() {
+            return {tileLayers.get(), $.canvas.layers().size()};
+        }
+        
+        MutableArrayRef<Layer::tile_t> tileMapRef(size_t layer) {
+            return {tileLayersRef()[layer].tileMap.get(), $.textureTileCount};
+        }
     };
     MEGA_PRIV_DTOR(TileManager)
     
@@ -67,8 +83,7 @@ namespace Mega {
         $.pixelBuffers.gen();
         $.prepareTexture();
         
-        for (size_t i = 0, end = c.layers().size(); i < end; ++i) {
-            TileLayer &tl = $.tileLayers[i];
+        for (TileLayer &tl : $.tileLayersRef()) {
             tl.tileMap.reset(new Layer::tile_t[$.textureTileCount]);
             fill(&tl.tileMap[0], &tl.tileMap[$.textureTileCount], NO_TILE);
         }
@@ -97,8 +112,8 @@ namespace Mega {
     {
         assert(i >= 0 && i <= $.canvas.tileCount());
         if (i == 0)
-            return makeArrayRef($.zeroTile.get(), $.canvas.tileByteSize());
-        MappedFile &file = $.tileCache[i-1];
+            return $.zeroTileRef();
+        MappedFile &file = $.tileCacheRef()[i-1];
         if (!file) {
             string error;
             file = $.canvas.loadTile(i, &error);
@@ -121,7 +136,7 @@ namespace Mega {
 
         for (size_t i = 0, end = layers.size(); i < end; ++i) {
             Layer l = layers[i];
-            TileLayer &tl = $.tileLayers[i];
+            TileLayer &tl = $.tileLayersRef()[i];
             
             Vec layerCenter = (center - l.origin()) * l.parallax();
             
@@ -145,7 +160,7 @@ namespace Mega {
     {
         size_t xw = x & ($.textureTileSize-1), yw = y & ($.textureTileSize-1);
         Layer::tile_t layerTile = l.segment(1, x, y)[0];
-        Layer::tile_t &loadedTile = tl.tileMap[yw*textureTileSize + xw];
+        Layer::tile_t &loadedTile = $.tileMapRef(layer)[yw*textureTileSize + xw];
         
         if (loadedTile != layerTile) {
             loadedTile = layerTile;
@@ -192,9 +207,9 @@ namespace Mega {
     bool TileManager::isTileReady(size_t tile)
     {
         for (size_t l = 0, end = $.canvas.layers().size(); l < end; ++l) {
-            Layer::tile_t *tiles = $.tileLayers[l].tileMap.get();
-            for (size_t i = 0, end = $.textureTileSize*$.textureTileSize; i < end; ++i)
-                if (tiles[i] == tile)
+            auto tileMap = $.tileMapRef(l);
+            for (Layer::tile_t mappedTile : tileMap)
+                if (mappedTile == tile)
                     return true;
         }
         return false;

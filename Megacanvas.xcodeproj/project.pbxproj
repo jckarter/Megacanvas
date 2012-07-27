@@ -248,8 +248,8 @@
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
-				D8C833E915C1CB9500333D4B /* dtrace */,
 				D8EB12B0158BADCD00ED0404 /* prefix.pch */,
+				D8C833E915C1CB9500333D4B /* dtrace */,
 				D8C986EA159408F6000D554E /* EngineTests */,
 				D8C986DA159408E7000D554E /* Engine */,
 				D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */,

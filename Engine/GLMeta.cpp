@@ -56,7 +56,7 @@ namespace Mega {
         string vertName = baseName, fragName = baseName;
         vertName += ".v.glsl"; fragName += ".f.glsl";
         
-        error_code error;
+        llvm::error_code error;
         error = MemoryBuffer::getFile(vertName, *outVertSource);
         if (error) {
             *outError = error.message();
