@@ -76,14 +76,13 @@ mkdir(args.name)
 
 pool = Pool(processes=args.jobs, initializer=initWorker)
 tilespan = [(hi - lo)/float(args.size) for hi,lo in zip(args.hi, args.lo)]
-tilesize = [span * float(args.tile) / float(args.tile - 1) for span in tilespan]
 
 tilei = 1
 try:
     for y in xrange(args.size):
         for x in xrange(args.size):
             tilelo = [lo + span * xy for lo, span, xy in zip(args.lo, tilespan, [x,y])]
-            tilehi = [lo + size for lo, size in zip(tilelo, tilesize)]
+            tilehi = [lo + span for lo, span in zip(tilelo, tilespan)]
             path = args.name + '/' + str(tilei) + '.rgba'
             pool.apply_async(makeTile, [
                 args.mandelbrot, path,
