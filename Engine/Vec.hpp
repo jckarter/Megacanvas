@@ -75,6 +75,13 @@ namespace Mega {
         bool contains(Vec v) const { return both(lo <= v & v < hi); }
         
         bool contains(Rect r) const { return contains(r.lo) && contains(r.hi); };
+        
+        Rect intersect(Rect r) const {
+            return {
+                std::max(lo.x, r.lo.x), std::max(lo.y, r.lo.y),
+                std::min(hi.x, r.hi.x), std::min(hi.y, r.hi.y)
+            };
+        }
     };
 }
 

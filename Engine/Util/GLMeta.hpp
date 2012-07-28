@@ -260,6 +260,7 @@ namespace Mega {
     
     struct GLContext {
         gl_context_t context;
+        GLContext() : context(nullptr) {}
         GLContext(gl_context_t context) : context(context) {}
         ~GLContext() { if (context) destroyGLContext(context); }
         GLContext(const GLContext&) = delete;
