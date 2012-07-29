@@ -40,7 +40,6 @@ namespace Mega {
         Canvas canvas;
         GLTexture texture;
         FlipFlop<GLBuffer> pixelBuffers;
-        Rect requiredRect;
         
         unique_ptr<uint8_t[]> zeroTile;
         unique_ptr<MappedFile[]> tileCache;
@@ -48,19 +47,7 @@ namespace Mega {
         
         size_t tileSize, textureTileSize, textureTileCount;
         
-        thread prefetcher;
-        
-        bool runPrefetcher; // guarded by lockPrefetcher mutex
-        mutex lockPrefetcher;
-        condition_variable cvPrefetcher;
-        atomic<size_t> viewportAge;
-        
-        struct PrefetcherState {
-            
-        } pf;
-        
         Priv(Canvas c);
-        ~Priv();
         
         void prepareTexture();
         ArrayRef<uint8_t> tile(size_t i);
@@ -82,23 +69,18 @@ namespace Mega {
         MutableArrayRef<Layer::tile_t> tileMapRef(size_t layer) {
             return {tileLayersRef()[layer].tileMap.get(), $.textureTileCount};
         }
-        
-        void prefetchThread(gl_context_t mainContext);
     };
     MEGA_PRIV_DTOR(TileManager)
         
     Priv<TileManager>::Priv(Canvas c)
     :
     canvas(c),
-    requiredRect{0.0, 0.0, 0.0, 0.0},
     zeroTile(new uint8_t[c.tileByteSize()]()),
     tileCache(new MappedFile[c.tileCount()]()),
     tileLayers(new TileLayer[c.layers().size()]()),
     tileSize(c.tileSize()),
     textureTileSize(TEXTURE_SIZE >> c.tileLogSize()),
-    textureTileCount(textureTileSize*textureTileSize),
-    runPrefetcher(true),
-    viewportAge(0)
+    textureTileCount(textureTileSize*textureTileSize)
     {
         // nb: must be constructed with a valid GL context available
         $.texture.gen();
@@ -109,20 +91,6 @@ namespace Mega {
             tl.tileMap.reset(new Layer::tile_t[$.textureTileCount]);
             fill(&tl.tileMap[0], &tl.tileMap[$.textureTileCount], NO_TILE);
         }
-        
-        prefetcher = thread([](Priv *that, gl_context_t mainContext) {
-            that->prefetchThread(mainContext);
-        }, this, currentGLContext());
-    }
-    
-    Priv<TileManager>::~Priv()
-    {
-        {
-            unique_lock<mutex> lock($.lockPrefetcher);
-            $.runPrefetcher = false;
-            $.cvPrefetcher.notify_all();
-        }
-        $.prefetcher.join();
     }
     
     void Priv<TileManager>::prepareTexture()
@@ -235,39 +203,6 @@ namespace Mega {
 #endif
     }
     
-    void Priv<TileManager>::prefetchThread(gl_context_t mainContext)
-    {
-        char const *error;
-        GLContext ourContext(makeSharedGLContext(mainContext, &error));
-        
-        if (!ourContext) {
-            errs() << "unable to create shared GL context for prefetch thread: " << error << '\n';
-            goto done;
-        }
-        
-        setCurrentGLContext(ourContext);
-
-        $$.bindState();
-        
-        errs() << "\nstart";
-        {
-            unique_lock<mutex> lock($.lockPrefetcher);
-            size_t lastViewportAge = 0, viewportAge;
-            while ($.runPrefetcher) {
-                $.cvPrefetcher.wait(lock);
-                
-                while ((viewportAge = $.viewportAge.load()) > lastViewportAge) {
-                    // do some prefetching
-                    lastViewportAge = viewportAge;
-                }
-                errs() << "."; errs().flush();
-            }
-        }
-        
-    done:
-        errs() << "end\n";
-    }
-
     Owner<TileManager> TileManager::create(Canvas c)
     {
         return createOwner<TileManager>(c);
