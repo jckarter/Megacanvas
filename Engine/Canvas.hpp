@@ -35,6 +35,11 @@ namespace Mega {
         bool verifyTiles(std::string *outError);
         MappedFile loadTile(std::size_t index, 
                             std::string *outError);
+        
+        void loadTileInto(std::size_t index,
+                          llvm::MutableArrayRef<std::uint8_t> outBuffer,
+                          std::function<void(bool ok, std::string const &error)> callback);
+        
         std::size_t addTile(void const *buffer, std::string *outError);
         
         bool save(std::string *outError);

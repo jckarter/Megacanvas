@@ -14,6 +14,9 @@
 #include "Engine/Layer.hpp"
 #include "GLTest.hpp"
 
+//fixme mac-specific
+#include <CoreFoundation/CoreFoundation.h>
+
 namespace Mega { namespace test {
     class CanvasTest : public CppUnit::TestFixture {
         CPPUNIT_TEST_SUITE(CanvasTest);
@@ -24,6 +27,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLayerGetSegmentEmptyLayer);
         CPPUNIT_TEST(testVerifyTiles);
         CPPUNIT_TEST(testLoadTile);
+        CPPUNIT_TEST(testLoadTileInto);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -286,6 +290,40 @@ namespace Mega { namespace test {
                 CPPUNIT_ASSERT(tile);
                 CPPUNIT_ASSERT_EQUAL(canvas->tileByteSize(), tile.size());
             }
+        }
+        
+        void testLoadTileInto()
+        {
+            std::string error;
+            Owner<Canvas> canvas = Canvas::load("EngineTests/TestData/Test1.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(std::size_t(20), canvas->tileCount());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(128*128*4), canvas->tileByteSize());
+
+            std::vector<llvm::Optional<std::string>> loadedTiles;
+            std::vector<std::array<std::uint8_t, 128*128*4>> tileBuffers;
+            loadedTiles.resize(20);
+            tileBuffers.resize(20);
+            
+            for (size_t i = 1; i <= 20; ++i) {
+                canvas->loadTileInto(i, {tileBuffers[i-1].begin(), tileBuffers[i-1].end()},
+                                     [&loadedTiles, i](bool ok, std::string const &error) {
+                                         if (ok)
+                                             loadedTiles[i-1] = "";
+                                         else
+                                             loadedTiles[i-1] = error;
+                                     });
+            }
+            
+            //fixme mac-specific
+            do {
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.0, false);
+            } while (std::any_of(loadedTiles.begin(), loadedTiles.end(),
+                                 [](llvm::Optional<std::string> const &x) { return !x.hasValue(); }));
+            
+            for (auto loadedTile : loadedTiles)
+                CPPUNIT_ASSERT(loadedTile);
         }
     };
 

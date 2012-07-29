@@ -79,6 +79,20 @@ namespace Mega {
         struct_traits<typename std::remove_reference<T>::type>
         ::each_field(std::forward<T>(instance), std::forward<Function>(f));
     }
+    
+    template<typename F>
+    struct Finally {
+        F finalizer;
+        
+        ~Finally() { finalizer(); }
+    };
+    
+    template<typename F>
+    Finally<F> makeFinally(F &&x) { return {x}; }
+    
+#define __MEGA_CAT(a, b) a##b
+#define _MEGA_CAT(a, b) __MEGA_CAT(a,b)
+#define MEGA_FINALLY(block) auto _MEGA_CAT(Q_finally_, __LINE__) = makeFinally([&] block)
 }
 
 #endif

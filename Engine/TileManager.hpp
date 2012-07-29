@@ -24,7 +24,8 @@ namespace Mega {
         GLuint texture();
         std::size_t textureSize();
         
-        void require(Vec center, Vec viewport);
+        bool require(Vec center, Vec viewport);
+        bool prefetch();
                 
         bool isTileReady(std::size_t tile);
     };

@@ -8,6 +8,7 @@
 
 #include "Engine/Canvas.hpp"
 #include "Engine/Layer.hpp"
+#include "Engine/Util/StructMeta.hpp"
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringRef.h>
@@ -22,6 +23,9 @@
 #include <llvm/Support/system_error.h>
 #include <functional>
 #include <vector>
+
+//fixme mac-specific
+#include <CoreFoundation/CoreFoundation.h>
 
 namespace Mega {
     //
@@ -394,6 +398,116 @@ error:
         MappedFile f(path, outError);
         f.sequential();
         return f;
+    }
+    
+    struct CallbackInfo {
+        std::function<void (bool, const std::string &)> userCallback;
+        std::uint8_t *ptr;
+        std::size_t size;
+    };
+    
+    static std::string streamErrorString(CFReadStreamRef stream)
+    {
+        CFErrorRef error = CFReadStreamCopyError(stream);
+        MEGA_FINALLY({ CFRelease(error); });
+        CFStringRef desc = CFErrorCopyDescription(error);
+        MEGA_FINALLY({ CFRelease(desc); });
+        
+        std::unique_ptr<char[]> buf(new char[CFStringGetLength(desc)*4+1]);
+        bool ok = CFStringGetCString(desc, buf.get(), CFStringGetLength(desc)*4+1,
+                                     kCFStringEncodingUTF8);
+        assert(ok);
+        
+        return std::string(buf.get());
+    }
+    
+    void loadTileIntoCallback(CFReadStreamRef stream,
+                              CFStreamEventType eventType,
+                              void *clientCallBackInfo)
+    {
+        auto callback = reinterpret_cast<CallbackInfo*>(clientCallBackInfo);
+        switch (eventType) {
+            case kCFStreamEventHasBytesAvailable: {
+                CFIndex read = CFReadStreamRead(stream, callback->ptr, callback->size);
+                if (read == -1)
+                    goto error;
+                else if (read >= callback->size)
+                    goto finished;
+                else if (read == 0)
+                    goto unexpectedEnd;
+                else {
+                    callback->ptr += read;
+                    callback->size -= read;
+                }
+                return;
+            }
+            case kCFStreamEventEndEncountered:
+                goto unexpectedEnd;
+            case kCFStreamEventErrorOccurred:
+                goto error;
+            default:
+                assert(false);
+                return;
+        }
+        
+    error:
+        callback->userCallback(false, streamErrorString(stream));
+        goto cleanup;
+
+    finished:
+        callback->userCallback(true, "");
+        goto cleanup;
+        
+    unexpectedEnd:
+        {
+            std::string error;
+            llvm::raw_string_ostream errors(error);
+            errors << "reached end of file but expected " << callback->size << " more bytes";
+            callback->userCallback(false, errors.str());
+            goto cleanup;
+        }
+
+    cleanup:
+        CFReadStreamClose(stream);
+        CFRelease(stream);
+        delete callback;
+    }
+    
+    void
+    Canvas::loadTileInto(std::size_t index, llvm::MutableArrayRef<std::uint8_t> outBuffer,
+                         std::function<void (bool, const std::string &)> callback)
+    {
+        assert(index >= 1 && index <= $.tileCount);
+        assert(outBuffer.size() >= $$.tileByteSize());
+        llvm::SmallString<260> path;
+        $.makeTilePath(index, &path);
+        
+        CFURLRef url = CFURLCreateFromFileSystemRepresentation(NULL,
+                                                               reinterpret_cast<UInt8 const*>(path.c_str()),
+                                                               path.size(),
+                                                               false);
+        MEGA_FINALLY({ CFRelease(url); });
+        CFReadStreamRef stream = CFReadStreamCreateWithFile(NULL, url);
+        
+        auto callbackBuf = new CallbackInfo{
+            std::move(callback),
+            outBuffer.begin(), outBuffer.size()
+        };
+        
+        CFStreamClientContext context{0, callbackBuf, nullptr, nullptr, nullptr};
+        CFReadStreamSetClient(stream,
+                              kCFStreamEventHasBytesAvailable
+                              | kCFStreamEventEndEncountered | kCFStreamEventErrorOccurred,
+                              loadTileIntoCallback,
+                              &context);
+        CFReadStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        
+        if (!CFReadStreamOpen(stream)) {
+            callbackBuf->userCallback(false, streamErrorString(stream));
+            CFRelease(stream);
+            delete callbackBuf;
+            return;
+        }
     }
 
     //

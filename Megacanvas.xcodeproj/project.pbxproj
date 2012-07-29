@@ -21,6 +21,7 @@
 		D81E143115BF18AF008BB24B /* MappedFile-unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E142F15BF18AF008BB24B /* MappedFile-unix.cpp */; };
 		D81E143415BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
 		D81E143515BF5BD8008BB24B /* TileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81E143315BF5BD8008BB24B /* TileManager.cpp */; };
+		D8B1813D15C601EE005812F8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8B1813C15C601EE005812F8 /* CoreFoundation.framework */; };
 		D8C833EB15C2FE8F00333D4B /* GLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8C833EA15C2FE8F00333D4B /* GLContext.c */; };
 		D8C833EC15C2FE8F00333D4B /* GLContext.c in Sources */ = {isa = PBXBuildFile; fileRef = D8C833EA15C2FE8F00333D4B /* GLContext.c */; };
 		D8C986E6159408E7000D554E /* Canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8C986DB159408E7000D554E /* Canvas.cpp */; };
@@ -95,6 +96,7 @@
 		D81E143215BF5128008BB24B /* TileManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TileManager.hpp; sourceTree = "<group>"; };
 		D81E143315BF5BD8008BB24B /* TileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileManager.cpp; sourceTree = "<group>"; };
 		D8B0C3A1158F90B200A40A70 /* Megacanvas.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Megacanvas.entitlements; sourceTree = "<group>"; };
+		D8B1813C15C601EE005812F8 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D8C833E815C1CB8100333D4B /* TileManager.d */ = {isa = PBXFileReference; explicitFileType = sourcecode.dtrace; name = TileManager.d; path = dtrace/TileManager.d; sourceTree = "<group>"; };
 		D8C833EA15C2FE8F00333D4B /* GLContext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLContext.c; sourceTree = "<group>"; };
 		D8C986DB159408E7000D554E /* Canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Canvas.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -147,6 +149,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8B1813D15C601EE005812F8 /* CoreFoundation.framework in Frameworks */,
 				D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */,
 				D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */,
 				D8FEA33615A25A69005A2EF3 /* OpenGL.framework in Frameworks */,
@@ -251,6 +254,7 @@
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
+				D8B1813C15C601EE005812F8 /* CoreFoundation.framework */,
 				D8EB12B0158BADCD00ED0404 /* prefix.pch */,
 				D8C833E915C1CB9500333D4B /* dtrace */,
 				D8C986EA159408F6000D554E /* EngineTests */,

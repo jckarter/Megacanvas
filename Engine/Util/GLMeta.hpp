@@ -184,11 +184,14 @@ namespace Mega {
         glBindTexture(target, name);
     }
     
+    constexpr struct gen_t {} gen = {};
+    
     template<void Gen(GLsizei, GLuint*), void Delete(GLsizei, const GLuint*)>
     struct GLResource {
         GLuint name = 0;
         
         GLResource() {}
+        GLResource(gen_t) { gen(); }
         
         GLResource(const GLResource&) = delete;
         void operator=(const GLResource&) = delete;

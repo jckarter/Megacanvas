@@ -34,7 +34,7 @@ namespace Mega {
         Rect readyRect = {0.0, 0.0, 0.0, 0.0};
         unique_ptr<Layer::tile_t[]> tileMap;
     };
-    
+        
     template<>
     struct Priv<TileManager> {
         Canvas canvas;
@@ -52,7 +52,7 @@ namespace Mega {
         void prepareTexture();
         ArrayRef<uint8_t> tile(size_t i);
         
-        void loadTilesInView(Vec center, Vec viewport);        
+        bool loadTilesInView(Vec center, Vec viewport);
         
         ArrayRef<uint8_t> zeroTileRef() {
             return {zeroTile.get(), $.canvas.tileByteSize()};
@@ -127,7 +127,7 @@ namespace Mega {
         return file.data;
     }
     
-    void Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
+    bool Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
     {
 #ifdef MEGA_TILE_MANAGER_STATS
         auto begun = chrono::high_resolution_clock::now();
@@ -201,6 +201,8 @@ namespace Mega {
         errs() << "uploaded " << uploads.size() << " tiles in "
         << chrono::duration_cast<chrono::nanoseconds>(ended - begun).count() << " ns\n";
 #endif
+        
+        return true;
     }
     
     Owner<TileManager> TileManager::create(Canvas c)
@@ -221,9 +223,13 @@ namespace Mega {
         return TEXTURE_SIZE;
     }
     
-    void TileManager::require(Vec center, Vec viewport)
+    bool TileManager::require(Vec center, Vec viewport)
     {
-        $.loadTilesInView(center, viewport);
+        return $.loadTilesInView(center, viewport);
+    }
+    
+    bool TileManager::prefetch() {
+        
     }
     
     bool TileManager::isTileReady(size_t tile)
