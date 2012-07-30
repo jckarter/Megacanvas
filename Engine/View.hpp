@@ -26,6 +26,7 @@ namespace Mega {
         void resize(double width, double height);
 
         void render();
+        void renderLayers(std::size_t begin, std::size_t end);
 
         Vec center();
         void center(Vec c);

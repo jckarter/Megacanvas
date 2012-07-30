@@ -46,6 +46,10 @@ namespace Mega {
         
         bool save(std::string *outError);
         bool saveAs(llvm::StringRef path, std::string *outError);
+        
+        void blit(void const *source,
+                  size_t sourcePitch, size_t sourceW, size_t sourceH,
+                  size_t destLayer, size_t destX, size_t destY);
     };
 }
 

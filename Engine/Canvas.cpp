@@ -26,11 +26,9 @@
 
 //fixme mac-specific
 #include <CoreFoundation/CoreFoundation.h>
+#include <unistd.h>
 
 namespace Mega {
-    //
-    // internal representations
-    //
     constexpr std::size_t DEFAULT_LOG_SIZE = 7;
     
     size_t swizzle(std::size_t x, std::size_t y)
@@ -52,24 +50,45 @@ namespace Mega {
         return x | (y << 1);
     }
 
+    //
+    // internal representations
+    //
+
     template<>
     struct Priv<Canvas> {
         const std::size_t tileLogSize, tileLogByteSize;
         std::vector<Priv<Layer>> layers;
         std::string tilesPath;
         std::size_t tileCount;
+        bool isUniquePath;
         
         Priv(std::size_t logSize = DEFAULT_LOG_SIZE, llvm::StringRef tilesPath = "")
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2),
-        tilesPath(tilesPath), tileCount(0)
-        { }
+        tilesPath(tilesPath), tileCount(0),
+        isUniquePath(false)
+        {
+            if (tilesPath.empty()) {
+                $.isUniquePath = true;
+                
+                //fixme proper system-aware temp path
+                $.tilesPath = "/tmp/megacanvas-XXXXXXXXXXXXXXXX";
+                mkdtemp(const_cast<char*>($.tilesPath.c_str()));
+            }
+        }
 
         Priv(std::size_t logSize, std::vector<Priv<Layer>> &&layers,
              llvm::StringRef tilesPath, std::size_t tileCount)
         :
         tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers),
-        tilesPath(tilesPath), tileCount(tileCount)
+        tilesPath(tilesPath), tileCount(tileCount), isUniquePath(false)
         { }
+        
+        ~Priv() {
+            if ($.isUniquePath) {
+                std::uint32_t removed;
+                llvm::sys::fs::remove_all($.tilesPath, removed);
+            }
+        }
         
         void makeTilePath(std::size_t i, llvm::SmallVectorImpl<char> *outPath)
         {
@@ -513,6 +532,7 @@ error:
     void Canvas::wasMoved(llvm::StringRef newPath)
     {
         $.tilesPath = newPath;
+        $.isUniquePath = false;
     }
 
     //

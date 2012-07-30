@@ -207,15 +207,21 @@ namespace Mega {
         $.updateViewport();
     }
     
-    void View::render()
+    void View::renderLayers(std::size_t begin, std::size_t end)
     {
         assert($.good);
         
         $.tiles->require($.center, $.viewport/$.zoom);
         
         glClear(GL_COLOR_BUFFER_BIT);
-        glDrawElements(GL_TRIANGLES, $.eltCount, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_TRIANGLES, 6*(end - begin), GL_UNSIGNED_SHORT,
+                       reinterpret_cast<GLvoid const *>(begin * sizeof(GLushort)));
         MEGA_ASSERT_GL_NO_ERROR;
+    }
+    
+    void View::render()
+    {
+        $$.renderLayers(0, $.canvas.layers().size());
     }
     
     MEGA_PRIV_GETTER(View, center, Vec)
