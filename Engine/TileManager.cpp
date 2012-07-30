@@ -107,7 +107,7 @@ namespace Mega {
         assert($.canvas.layers().size() <= numeric_limits<GLsizei>::max());
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_SRGB8_ALPHA8, 
                      TEXTURE_SIZE, TEXTURE_SIZE, GLsizei($.canvas.layers().size()),
-                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                     0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
@@ -173,6 +173,9 @@ namespace Mega {
         }
 
         for (Upload &upload : uploads) {
+#ifdef MEGA_TILE_MANAGER_STATS
+            auto uploadBegun = chrono::high_resolution_clock::now();
+#endif
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, $.pixelBuffers.next());
             glBufferData(GL_PIXEL_UNPACK_BUFFER,
                          upload.tile.size(), upload.tile.begin(),
@@ -184,12 +187,22 @@ namespace Mega {
              glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);*/
             MEGA_ASSERT_GL_NO_ERROR;
             
+#ifdef MEGA_TILE_MANAGER_STATS
+            auto texImageBegun = chrono::high_resolution_clock::now();
+#endif
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                             GLuint(upload.xw * $.tileSize),
                             GLuint(upload.yw * $.tileSize),
                             GLuint(upload.layer),
                             GLuint($.tileSize), GLuint($.tileSize), 1,
-                            GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                            GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+#ifdef MEGA_TILE_MANAGER_STATS
+            auto uploadEnded = chrono::high_resolution_clock::now();
+            errs() << "glBufferData in "
+            << chrono::duration_cast<chrono::nanoseconds>(texImageBegun - uploadBegun).count() << " ns, "
+            "glTexSubImage3D in "
+            << chrono::duration_cast<chrono::nanoseconds>(uploadEnded - texImageBegun).count() << " ns\n";
+#endif
             MEGA_ASSERT_GL_NO_ERROR;
         }
         

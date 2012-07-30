@@ -322,8 +322,10 @@ namespace Mega { namespace test {
             } while (std::any_of(loadedTiles.begin(), loadedTiles.end(),
                                  [](llvm::Optional<std::string> const &x) { return !x.hasValue(); }));
             
-            for (auto loadedTile : loadedTiles)
-                CPPUNIT_ASSERT(loadedTile);
+            for (auto loadedTile : loadedTiles) {
+                CPPUNIT_ASSERT(loadedTile.hasValue());
+                CPPUNIT_ASSERT_EQUAL(std::string(""), *loadedTile);
+            }
         }
     };
 

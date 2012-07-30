@@ -254,7 +254,6 @@
 		D8EB1293158BADCD00ED0404 = {
 			isa = PBXGroup;
 			children = (
-				D8B1813C15C601EE005812F8 /* CoreFoundation.framework */,
 				D8EB12B0158BADCD00ED0404 /* prefix.pch */,
 				D8C833E915C1CB9500333D4B /* dtrace */,
 				D8C986EA159408F6000D554E /* EngineTests */,
@@ -282,6 +281,7 @@
 		D8EB12A1158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8B1813C15C601EE005812F8 /* CoreFoundation.framework */,
 				D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */,
 				D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */,
 				D813708A1592EEE000A58ADD /* OpenGL.framework */,
