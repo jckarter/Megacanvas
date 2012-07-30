@@ -89,6 +89,12 @@
     return NO;
 }
 
+- (void)setFileURL:(NSURL *)url
+{
+    canvas->wasMoved([[url path] UTF8String]);
+    [super setFileURL:url];
+}
+
 - (NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
     return proposedOptions | NSApplicationPresentationAutoHideToolbar;

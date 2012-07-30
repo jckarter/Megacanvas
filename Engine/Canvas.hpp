@@ -42,6 +42,8 @@ namespace Mega {
         
         std::size_t addTile(void const *buffer, std::string *outError);
         
+        void wasMoved(llvm::StringRef newPath);
+        
         bool save(std::string *outError);
         bool saveAs(llvm::StringRef path, std::string *outError);
     };

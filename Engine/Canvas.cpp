@@ -509,6 +509,11 @@ error:
             return;
         }
     }
+    
+    void Canvas::wasMoved(llvm::StringRef newPath)
+    {
+        $.tilesPath = newPath;
+    }
 
     //
     // Layer implementation
