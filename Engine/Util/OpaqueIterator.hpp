@@ -157,6 +157,10 @@ namespace Mega {
         typedef OpaqueArrayRef<T const, llvm::ArrayRef<T>, llvm::makeArrayRef<T>> super;
 
         Array2DRef() : super(nullptr, 1, 0) {}
+        Array2DRef(T const *begin, std::size_t width, std::size_t height)
+        : super(begin, width, height)
+        {}
+        
         Array2DRef(llvm::ArrayRef<T> array, std::size_t span)
         : super(array.data(), span, array.size() / span)
         {}
@@ -165,7 +169,29 @@ namespace Mega {
         : super(vec.data(), span, vec.size() / span)
         {}
     };
+    
+    template<typename T>
+    llvm::MutableArrayRef<T> makeMutableArrayRef(T *begin, size_t size) {
+        return {begin, size};
+    }
 
+    template<typename T>
+    struct MutableArray2DRef : OpaqueArrayRef<T, llvm::MutableArrayRef<T>, makeMutableArrayRef<T>> {
+        typedef OpaqueArrayRef<T, llvm::MutableArrayRef<T>, makeMutableArrayRef<T>> super;
+        
+        MutableArray2DRef() : super(nullptr, 1, 0) {}
+        MutableArray2DRef(T *begin, std::size_t width, std::size_t height)
+        : super(begin, width, height)
+        {}
+        
+        MutableArray2DRef(llvm::MutableArrayRef<T> array, std::size_t span)
+        : super(array.data(), span, array.size() / span)
+        {}
+        
+        MutableArray2DRef(std::vector<T> &vec, std::size_t span)
+        : super(vec.data(), span, vec.size() / span)
+        {}
+    };
 }
 
 #endif

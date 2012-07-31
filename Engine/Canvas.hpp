@@ -17,11 +17,14 @@
 
 namespace Mega {
     struct Layer;
+    
 
     struct Canvas : HasPriv<Canvas> {
+        typedef std::array<std::uint8_t, 4> pixel_t;
+
         MEGA_PRIV_CTORS(Canvas)
 
-        static Owner<Canvas> create();
+        static Owner<Canvas> create(std::string *outError);
         static Owner<Canvas> load(llvm::StringRef path, std::string *outError);
 
         PrivArrayRef<Layer> layers();
@@ -40,16 +43,18 @@ namespace Mega {
                           llvm::MutableArrayRef<std::uint8_t> outBuffer,
                           std::function<void(bool ok, std::string const &error)> callback);
         
-        std::size_t addTile(void const *buffer, std::string *outError);
-        
         void wasMoved(llvm::StringRef newPath);
-        
-        bool save(std::string *outError);
-        bool saveAs(llvm::StringRef path, std::string *outError);
         
         void blit(void const *source,
                   size_t sourcePitch, size_t sourceW, size_t sourceH,
-                  size_t destLayer, size_t destX, size_t destY);
+                  size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
+                  pixel_t (*blendFunc)(pixel_t src, pixel_t dest));
+
+        bool save(std::string *outError);
+        bool saveAs(llvm::StringRef path, std::string *outError);
+        
+        void undo();
+        void redo();
     };
 }
 

@@ -41,6 +41,8 @@
 		D8EB12CD158BADCE00ED0404 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D8EB12CB158BADCE00ED0404 /* InfoPlist.strings */; };
 		D8EB12D0158BADCE00ED0404 /* MegacanvasTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */; };
 		D8EB12DF158BB1C500ED0404 /* MegaCanvasView.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8EB12DE158BB1C500ED0404 /* MegaCanvasView.mm */; };
+		D8F2CFC715C7313000410DBB /* libtbb_debug.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F2CFC515C7313000410DBB /* libtbb_debug.dylib */; };
+		D8F2CFC815C7313000410DBB /* libtbbmalloc_debug.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D8F2CFC615C7313000410DBB /* libtbbmalloc_debug.dylib */; };
 		D8FEA31F159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */; };
 		D8FEA322159D35DD005A2EF3 /* OpaqueIteratorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8FEA321159D35DD005A2EF3 /* OpaqueIteratorTest.cpp */; };
@@ -129,6 +131,8 @@
 		D8EB12CF158BADCE00ED0404 /* MegacanvasTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = MegacanvasTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D8EB12DD158BB1C500ED0404 /* MegaCanvasView.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; path = MegaCanvasView.hh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D8EB12DE158BB1C500ED0404 /* MegaCanvasView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = MegaCanvasView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D8F2CFC515C7313000410DBB /* libtbb_debug.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtbb_debug.dylib; path = "../others/tbb40_20120613oss/build/macos_intel64_clang-libcxx_cc4.2.1_os10.8_debug/libtbb_debug.dylib"; sourceTree = "<group>"; };
+		D8F2CFC615C7313000410DBB /* libtbbmalloc_debug.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtbbmalloc_debug.dylib; path = "../others/tbb40_20120613oss/build/macos_intel64_clang-libcxx_cc4.2.1_os10.8_debug/libtbbmalloc_debug.dylib"; sourceTree = "<group>"; };
 		D8FEA31415953EF1005A2EF3 /* Vec.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Vec.hpp; sourceTree = "<group>"; };
 		D8FEA319159A7CA5005A2EF3 /* TestData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestData; sourceTree = "<group>"; };
 		D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLLVMSupport.a; path = "../../../../../usr/local/llvm-svn/lib/libLLVMSupport.a"; sourceTree = "<group>"; };
@@ -149,6 +153,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8F2CFC715C7313000410DBB /* libtbb_debug.dylib in Frameworks */,
+				D8F2CFC815C7313000410DBB /* libtbbmalloc_debug.dylib in Frameworks */,
 				D8B1813D15C601EE005812F8 /* CoreFoundation.framework in Frameworks */,
 				D81370A21593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib in Frameworks */,
 				D8FEA320159CB370005A2EF3 /* libLLVMSupport.a in Frameworks */,
@@ -281,6 +287,8 @@
 		D8EB12A1158BADCD00ED0404 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D8F2CFC515C7313000410DBB /* libtbb_debug.dylib */,
+				D8F2CFC615C7313000410DBB /* libtbbmalloc_debug.dylib */,
 				D8B1813C15C601EE005812F8 /* CoreFoundation.framework */,
 				D8FEA31E159CB370005A2EF3 /* libLLVMSupport.a */,
 				D81370A11593155D00A58ADD /* libcppunit-1.12.1.0.0.dylib */,
@@ -609,6 +617,7 @@
 					"\"/usr/local/yaml-cpp/lib\"",
 					"\"/usr/local/llvm-svn/lib\"",
 					/usr/local/Cellar/glew/1.7.0/lib,
+					"\"$(SRCROOT)/../others/tbb40_20120613oss/build/macos_intel64_clang-libcxx_cc4.2.1_os10.8_debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -625,6 +634,7 @@
 					"\"/usr/local/yaml-cpp/lib\"",
 					"\"/usr/local/llvm-svn/lib\"",
 					/usr/local/Cellar/glew/1.7.0/lib,
+					"\"$(SRCROOT)/../others/tbb40_20120613oss/build/macos_intel64_clang-libcxx_cc4.2.1_os10.8_debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -677,11 +687,12 @@
 					.,
 					/usr/local/cppunit/include,
 					"/usr/local/llvm-svn/include",
+					/Users/joe/Documents/Code/others/tbb40_20120613oss/include,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/llvm-svn/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/llvm-svn/include /Users/joe/Documents/Code/others/tbb40_20120613oss/include";
 			};
 			name = Debug;
 		};
@@ -710,10 +721,11 @@
 					.,
 					/usr/local/cppunit/include,
 					"/usr/local/llvm-svn/include",
+					/Users/joe/Documents/Code/others/tbb40_20120613oss/include,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/llvm-svn/include";
+				USER_HEADER_SEARCH_PATHS = ". /usr/local/cppunit/include /usr/local/llvm-svn/include /Users/joe/Documents/Code/others/tbb40_20120613oss/include";
 			};
 			name = Release;
 		};

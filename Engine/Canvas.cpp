@@ -21,6 +21,10 @@
 #include <llvm/Support/YAMLParser.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/system_error.h>
+#include <tbb/blocked_range2d.h>
+#include <tbb/parallel_for.h>
+#include <atomic>
+#include <cstdio>
 #include <functional>
 #include <vector>
 
@@ -62,18 +66,27 @@ namespace Mega {
         std::size_t tileCount;
         bool isUniquePath;
         
-        Priv(std::size_t logSize = DEFAULT_LOG_SIZE, llvm::StringRef tilesPath = "")
+        Priv(std::string *outError,
+             std::size_t logSize = DEFAULT_LOG_SIZE,
+             llvm::StringRef tilesPath = "")
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2),
         tilesPath(tilesPath), tileCount(0),
         isUniquePath(false)
         {
             if (tilesPath.empty()) {
-                $.isUniquePath = true;
-                
                 //fixme proper system-aware temp path
                 $.tilesPath = "/tmp/megacanvas-XXXXXXXXXXXXXXXX";
-                mkdtemp(const_cast<char*>($.tilesPath.c_str()));
+                char *x;
+                do {
+                    x = mkdtemp(const_cast<char*>($.tilesPath.c_str()));
+                } while (!x && errno == EINTR);
+                if (!x) {
+                    *outError = strerror(errno);
+                    return;
+                }
+                $.isUniquePath = true;
             }
+            $.layers.emplace_back();
         }
 
         Priv(std::size_t logSize, std::vector<Priv<Layer>> &&layers,
@@ -98,6 +111,8 @@ namespace Mega {
             os << $.tilesPath << '/' << i << ".rgba";
             os.flush();
         }
+        
+        bool saveTile(std::size_t i, uint8_t const *image, std::string *outError);
     };
     MEGA_PRIV_DTOR(Canvas)
 
@@ -117,44 +132,25 @@ namespace Mega {
         {}
         
         Layer::tile_t *segmentCorner(std::ptrdiff_t quadrantSize,
-                                     std::ptrdiff_t x, std::ptrdiff_t y)
-        {
-            using namespace std;
-            size_t logRadius = $.quadtreeDepth - 1;
-            size_t radius = 1 << logRadius;
-            size_t nodeSize = 1 << (logRadius << 1);
-            size_t xa = x*quadrantSize + radius, ya = y*quadrantSize + radius;
-            assert(xa >= 0 && xa < radius*2 && ya >= 0 && ya < radius*2);
-            Layer::tile_t *corner = tiles.data();
-            
-            while (xa != 0 || ya != 0) {
-                assert(nodeSize > 0 && radius > 0);
-                if (xa >= radius) {
-                    corner += nodeSize;
-                    xa -= radius;
-                }
-                if (ya >= radius) {
-                    corner += 2*nodeSize;
-                    ya -= radius;
-                }
-                nodeSize >>= 2;
-                radius >>= 1;
-            }
-            assert(xa == 0 && ya == 0);
-            
-            return corner;
-        }
+                                     std::ptrdiff_t x, std::ptrdiff_t y);
+        
+        void reserve(ptrdiff_t x, ptrdiff_t y, ptrdiff_t w, ptrdiff_t h,
+                     ptrdiff_t tileSize);
+        void setTile(ptrdiff_t x, ptrdiff_t y, size_t tile);
     };
     MEGA_PRIV_DTOR(Layer)
 
     //
     // Canvas implementation
     //
-    Owner<Canvas> Canvas::create()
+    Owner<Canvas> Canvas::create(std::string *outError)
     {
-        auto r = createOwner<Canvas>();
-        r.priv().layers.emplace_back();
-        return r;
+        outError->clear();
+        auto r = createOwner<Canvas>(outError);
+        if (!outError->empty())
+            return {};
+        else
+            return r;
     }
 
     namespace {
@@ -534,6 +530,110 @@ error:
         $.tilesPath = newPath;
         $.isUniquePath = false;
     }
+    
+    void Canvas::blit(const void *source,
+                      size_t sourcePitch, size_t sourceW, size_t sourceH,
+                      size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
+                      pixel_t (*blendFunc)(pixel_t, pixel_t))
+    {
+        using namespace std;
+        using namespace tbb;
+        Priv<Layer> &layer = $.layers[destLayer];
+        layer.reserve(destX, destY, sourceW, sourceH, $$.tileSize());
+        Array2DRef<pixel_t> sourcePixels(reinterpret_cast<pixel_t const*>(source),
+                                         sourcePitch,
+                                         sourceH);
+        Vec origin = layer.origin;
+        ptrdiff_t tileLogSize = $.tileLogSize;
+        ptrdiff_t tileSize = $$.tileSize();
+        ptrdiff_t destXO = destX - ptrdiff_t(origin.x);
+        ptrdiff_t destYO = destY - ptrdiff_t(origin.y);
+        ptrdiff_t loTileX = destXO >> tileLogSize;
+        ptrdiff_t loTileY = destYO >> tileLogSize;
+        ptrdiff_t hiTileX = (destXO + ptrdiff_t(sourceW) + tileSize - 1) >> tileLogSize;
+        ptrdiff_t hiTileY = (destYO + ptrdiff_t(sourceH) + tileSize - 1) >> tileLogSize;
+        
+        blocked_range2d<ptrdiff_t> range(loTileY, hiTileY, loTileX, hiTileX);
+        std::atomic<size_t> nextTile($.tileCount+1);
+        
+        parallel_for(range, [&](blocked_range2d<ptrdiff_t> const &subrange) {
+            unique_ptr<pixel_t[]> outPixelBuf(new pixel_t[$$.tileArea()]);
+            MutableArray2DRef<pixel_t> outPixels(outPixelBuf.get(), tileSize, tileSize);
+            string error;
+
+            for (ptrdiff_t ytile = subrange.rows().begin(),
+                    ytend = subrange.rows().end(),
+                    ysrc = ytile*tileSize - destYO;
+                 ytile < ytend;
+                 ++ytile, ysrc += tileSize)
+                for (ptrdiff_t xtile = subrange.cols().begin(),
+                        xtend = subrange.cols().end(),
+                        xsrc = xtile*tileSize - destXO;
+                     xtile < xtend;
+                     ++xtile, xsrc += tileSize) {
+                    Layer::tile_t tileIndex = Layer(layer).tile(xtile, ytile);
+
+                    if (tileIndex != 0) {
+                        MappedFile origTile = $$.loadTile(tileIndex, &error);
+                        Array2DRef<pixel_t> destPixels(reinterpret_cast<pixel_t const*>(origTile.data.begin()),
+                                                       tileSize, tileSize);
+                        assert(origTile);
+                        for (ptrdiff_t ypix = 0; ypix < tileSize; ++ypix)
+                            for (ptrdiff_t xpix = 0; xpix < tileSize; ++xpix)
+                                if (xsrc+xpix >= 0 && xsrc+xpix < sourceW && ysrc+ypix >= 0 && ysrc+ypix < sourceH)
+                                    outPixels[ypix][xpix] = blendFunc(sourcePixels[xsrc+xpix][ysrc+ypix],
+                                                                      destPixels[xpix][ypix]);
+                                else
+                                    outPixels[ypix][xpix] = blendFunc({0,0,0,0}, destPixels[xpix][ypix]);
+                    } else {
+                        for (ptrdiff_t ypix = 0; ypix < tileSize; ++ypix)
+                            for (ptrdiff_t xpix = 0; xpix < tileSize; ++xpix)
+                                if (xsrc+xpix >= 0 && xsrc+xpix < sourceW && ysrc+ypix >= 0 && ysrc+ypix < sourceH)
+                                    outPixels[ypix][xpix] = blendFunc(sourcePixels[xsrc+xpix][ysrc+ypix],
+                                                                      {0,0,0,0});
+                                else
+                                    outPixels[ypix][xpix] = blendFunc({0,0,0,0}, {0,0,0,0});
+                    }
+                    
+                    size_t newTile = nextTile.fetch_add(1);
+                    bool ok = $.saveTile(newTile,
+                                         reinterpret_cast<uint8_t const*>(outPixelBuf.get()),
+                                         &error);
+                    assert(ok);
+                    layer.setTile(xtile, ytile, newTile);
+                }
+        });
+        
+        $.tileCount = nextTile.load() - 1;
+    }
+    
+    bool Priv<Canvas>::saveTile(std::size_t index, const uint8_t *image, std::string *outError)
+    {
+        assert(index != 0 && index > $.tileCount);
+        
+        llvm::SmallString<260> path;
+        $.makeTilePath(index, &path);
+
+        FILE *out;
+        do {
+            out = fopen(path.c_str(), "wb");
+        } while (!out && errno == EINTR);
+        if (!out) {
+            *outError = strerror(errno);
+            return false;
+        }
+        
+        size_t written;
+        do {
+            written = fwrite(image, $$.tileByteSize(), 1, out);
+        } while (written == 0 && errno == EINTR);
+        if (written == 0) {
+            *outError = strerror(errno);
+            return false;
+        }
+        
+        return true;
+    }
 
     //
     // Layer implementation
@@ -541,11 +641,9 @@ error:
     MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
     MEGA_PRIV_GETTER(Layer, origin, Vec)
     
-    namespace {
-        bool isPowerOfTwo(std::size_t x) 
-        {
-            return (x & (x - 1)) == 0 && x != 0;
-        }
+    static bool isPowerOfTwo(std::size_t x)
+    {
+        return (x & (x - 1)) == 0 && x != 0;
     }
     
     Layer::SegmentRef
@@ -585,5 +683,70 @@ error:
             Layer::tile_t *segment = $.segmentCorner(segmentSize, x, y);
             return {makeArrayRef(segment, segmentSize*segmentSize), 0};
         }
+    }
+    
+    Layer::tile_t
+    Layer::tile(std::ptrdiff_t x, std::ptrdiff_t y)
+    {
+        return $$.segment(1, x, y)[0];
+    }
+    
+    Layer::tile_t *
+    Priv<Layer>::segmentCorner(std::ptrdiff_t quadrantSize,
+                               std::ptrdiff_t x, std::ptrdiff_t y)
+    {
+        using namespace std;
+        size_t logRadius = $.quadtreeDepth - 1;
+        size_t radius = 1 << logRadius;
+        size_t nodeSize = 1 << (logRadius << 1);
+        size_t xa = x*quadrantSize + radius, ya = y*quadrantSize + radius;
+        assert(xa >= 0 && xa < radius*2 && ya >= 0 && ya < radius*2);
+        Layer::tile_t *corner = tiles.data();
+        
+        while (xa != 0 || ya != 0) {
+            assert(nodeSize > 0 && radius > 0);
+            if (xa >= radius) {
+                corner += nodeSize;
+                xa -= radius;
+            }
+            if (ya >= radius) {
+                corner += 2*nodeSize;
+                ya -= radius;
+            }
+            nodeSize >>= 2;
+            radius >>= 1;
+        }
+        assert(xa == 0 && ya == 0);
+        
+        return corner;
+    }
+    
+    void
+    Priv<Layer>::reserve(ptrdiff_t x, ptrdiff_t y, ptrdiff_t w, ptrdiff_t h, ptrdiff_t tileSize)
+    {
+        if ($.quadtreeDepth == 0) {
+            $.origin = Vec{double(x + w/2), double(y + h/2)};
+            size_t size = tileSize;
+            do {
+                ++$.quadtreeDepth;
+                size <<= 1;
+            } while (size < w || size < h);
+            $.tiles.clear();
+            $.tiles.resize(1 << ($.quadtreeDepth << 1));
+            llvm::errs() << "resized to " << $.quadtreeDepth << "\n";
+        } else {
+            //fixme
+            assert(false && "rite me");
+        }
+    }
+    
+    void
+    Priv<Layer>::setTile(ptrdiff_t x, ptrdiff_t y, size_t tile)
+    {
+        Layer::SegmentRef seg = $$.segment(1, x, y);
+        assert(seg.tiles.size() == 1);
+        
+        //fixme gross, but i don't want SegmentRef to be generally mutable
+        const_cast<Layer::tile_t&>(seg.tiles[0]) = tile;
     }
 }

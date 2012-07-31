@@ -25,9 +25,14 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLoadCanvasFailsWhenNonexistent);
         CPPUNIT_TEST(testLayerGetSegment);
         CPPUNIT_TEST(testLayerGetSegmentEmptyLayer);
+        CPPUNIT_TEST(testLayerGetTile);
         CPPUNIT_TEST(testVerifyTiles);
         CPPUNIT_TEST(testLoadTile);
         CPPUNIT_TEST(testLoadTileInto);
+        CPPUNIT_TEST(testBlitIntoEmptySmall);
+        CPPUNIT_TEST(testBlitIntoEmptyLarge);
+        CPPUNIT_TEST(testBlitOverLayer);
+        CPPUNIT_TEST(testBlitGrowsLayer);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -41,7 +46,8 @@ namespace Mega { namespace test {
 
         void testNewCanvas()
         {
-            Owner<Canvas> canvasOwner = Canvas::create();
+            std::string error;
+            Owner<Canvas> canvasOwner = Canvas::create(&error);
             Canvas canvas = canvasOwner.get();
             CPPUNIT_ASSERT(canvas.tileLogSize() == 7);
             CPPUNIT_ASSERT(canvas.tileSize() == 128);
@@ -249,9 +255,32 @@ namespace Mega { namespace test {
             _MEGA_CPPUNIT_ASSERT_SEGMENT_EMPTY(layer2.segment(8,  1,  1));
         }
         
+        void testLayerGetTile()
+        {
+            using namespace std;
+            std::string error;
+            Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test2.mega", &error);
+            CPPUNIT_ASSERT_EQUAL(std::string(""), error);
+            CPPUNIT_ASSERT(canvasOwner);
+            Canvas canvas = canvasOwner.get();
+            
+            // layer 0: depth 1, tiles 1 thru 4
+            Layer layer0 = canvas.layers()[0];
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(1), layer0.tile(-1, -1));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(2), layer0.tile( 0, -1));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(3), layer0.tile(-1,  0));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(4), layer0.tile( 0,  0));
+            
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), layer0.tile(-2, -1));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), layer0.tile( 1, -1));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), layer0.tile(-1, -2));
+            CPPUNIT_ASSERT_EQUAL(Layer::tile_t(0), layer0.tile(-1,  1));
+        }
+        
         void testLayerGetSegmentEmptyLayer()
         {
-            Owner<Canvas> newCanvas = Canvas::create();
+            std::string error;
+            Owner<Canvas> newCanvas = Canvas::create(&error);
             CPPUNIT_ASSERT(newCanvas->layers().size() == 1);
             Layer layer0 = newCanvas->layers()[0];
 
@@ -326,6 +355,111 @@ namespace Mega { namespace test {
                 CPPUNIT_ASSERT(loadedTile.hasValue());
                 CPPUNIT_ASSERT_EQUAL(std::string(""), *loadedTile);
             }
+        }
+
+#define _MEGA_ASSERT_TILE_VARS \
+    Layer::tile_t tile; \
+    MappedFile tileData; \
+    array<uint8_t,4> const *tilePixels;
+        
+#define _MEGA_ASSERT_TILE_CONTENTS(tilex, tiley, xpred, ypred) \
+    llvm::errs() << #xpred << ' ' << #ypred << '\n'; \
+    tile = layer0.tile(tilex, tiley); \
+    tileData = canvas->loadTile(tile, &error); \
+    tilePixels = reinterpret_cast<array<uint8_t,4> const *>(tileData.data.begin()); \
+    //asm volatile ("int $3\n"); \
+    CPPUNIT_ASSERT_EQUAL(string(""), error); \
+    CPPUNIT_ASSERT(tileData); \
+    for (size_t y = 0; y < 128; ++y) \
+        for (size_t x = 0; x < 128; ++x) \
+            if (xpred && ypred) \
+                CPPUNIT_ASSERT_EQUAL((array<uint8_t,4>{{1,2,3,4}}), tilePixels[y*128+x]); \
+            else \
+                CPPUNIT_ASSERT_EQUAL((array<uint8_t,4>{{0,0,0,0}}), tilePixels[y*128+x]);
+
+        
+        void testBlitIntoEmptySmall()
+        {
+            using namespace std;
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(size_t(0), canvas->tileCount());
+            CPPUNIT_ASSERT_EQUAL(size_t(128*128*4), canvas->tileByteSize());
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            Layer layer0 = canvas->layers()[0];
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit(new array<uint8_t,4>[200*200]);
+            for (size_t i = 0; i < 200*200; ++i) {
+                stuffToBlit[i] = {1,2,3,4};
+            }
+            
+            canvas->blit(stuffToBlit.get(),
+                         200, 200, 200,
+                         0, -15, 130,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d) { return s; });
+
+            CPPUNIT_ASSERT_EQUAL((Vec{85, 230}), layer0.origin());
+            
+            _MEGA_ASSERT_TILE_VARS
+            _MEGA_ASSERT_TILE_CONTENTS(-1, -1, x >= 28, y >= 28)
+            _MEGA_ASSERT_TILE_CONTENTS( 0, -1, x < 100, y >= 28)
+            _MEGA_ASSERT_TILE_CONTENTS(-1,  0, x >= 28, y < 100)
+            _MEGA_ASSERT_TILE_CONTENTS( 0,  0, x < 100, y < 100)
+        }
+        
+        void testBlitIntoEmptyLarge()
+        {
+            using namespace std;
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(size_t(0), canvas->tileCount());
+            CPPUNIT_ASSERT_EQUAL(size_t(128*128*4), canvas->tileByteSize());
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            Layer layer0 = canvas->layers()[0];
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit(new array<uint8_t,4>[301*301]);
+            for (size_t i = 0; i < 301*301; ++i) {
+                stuffToBlit[i] = {1,2,3,4};
+            }
+            
+            canvas->blit(stuffToBlit.get(),
+                         301, 301, 301,
+                         0, 1777, -26,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d) { return s; });
+            
+            CPPUNIT_ASSERT_EQUAL((Vec{1777+150, -26+150}), layer0.origin());
+            
+            _MEGA_ASSERT_TILE_VARS
+            _MEGA_ASSERT_TILE_CONTENTS(-2, -2, x >= 106, y >= 106);
+            _MEGA_ASSERT_TILE_CONTENTS(-1, -2, true,     y >= 106);
+            _MEGA_ASSERT_TILE_CONTENTS( 0, -2, true,     y >= 106);
+            _MEGA_ASSERT_TILE_CONTENTS( 1, -2, x <   22, y >= 106);
+            _MEGA_ASSERT_TILE_CONTENTS(-2, -1, x >= 106, true);
+            _MEGA_ASSERT_TILE_CONTENTS(-1, -1, true,     true);
+            _MEGA_ASSERT_TILE_CONTENTS( 0, -1, true,     true);
+            _MEGA_ASSERT_TILE_CONTENTS( 1, -1, x <   22, true);
+            _MEGA_ASSERT_TILE_CONTENTS(-2,  0, x >= 106, true);
+            _MEGA_ASSERT_TILE_CONTENTS(-1,  0, true,     true);
+            _MEGA_ASSERT_TILE_CONTENTS( 0,  0, true,     true);
+            _MEGA_ASSERT_TILE_CONTENTS( 1,  0, x <   22, true);
+            _MEGA_ASSERT_TILE_CONTENTS(-2,  1, x >= 106, y < 22);
+            _MEGA_ASSERT_TILE_CONTENTS(-1,  1, true,     y < 22);
+            _MEGA_ASSERT_TILE_CONTENTS( 0,  1, true,     y < 22);
+            _MEGA_ASSERT_TILE_CONTENTS( 1,  1, x <   22, y < 22);
+        }
+        
+        void testBlitOverLayer()
+        {
+            CPPUNIT_FAIL("rite me");
+        }
+        
+        void testBlitGrowsLayer()
+        {
+            CPPUNIT_FAIL("rite me");
         }
     };
 

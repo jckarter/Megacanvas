@@ -8,6 +8,7 @@
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <tbb/task_scheduler_init.h>
 
 namespace Mega {
     char const *shaderPath = "Engine/Shaders";
@@ -15,6 +16,8 @@ namespace Mega {
 
 int main(int argc, const char * argv[])
 {
+    tbb::task_scheduler_init tbbInit;
+    
     CppUnit::TextUi::TestRunner runner;
     auto &registry = CppUnit::TestFactoryRegistry::getRegistry();
     runner.addTest(registry.makeTest());

@@ -19,7 +19,7 @@ namespace Mega {
     size_t swizzle(std::size_t x, std::size_t y);
     
     struct Layer : HasPriv<Layer> {
-        using tile_t = std::uint16_t;
+        using tile_t = std::uint32_t;
         
         MEGA_PRIV_CTORS(Layer)
 
@@ -43,6 +43,7 @@ namespace Mega {
             }
         };
         SegmentRef segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y);
+        tile_t tile(std::ptrdiff_t x, std::ptrdiff_t y);
     };
 }
 
