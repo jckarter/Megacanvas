@@ -33,9 +33,12 @@
 #include <unistd.h>
 
 namespace Mega {
-    constexpr std::size_t DEFAULT_LOG_SIZE = 7;
+    using namespace std;
+    using namespace llvm;
     
-    size_t swizzle(std::size_t x, std::size_t y)
+    constexpr size_t DEFAULT_LOG_SIZE = 7;
+    
+    size_t swizzle(size_t x, size_t y)
     {
         assert(x <= 0xFFFF && y <= 0xFFFF);
         static const unsigned int B[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
@@ -60,15 +63,16 @@ namespace Mega {
 
     template<>
     struct Priv<Canvas> {
-        const std::size_t tileLogSize, tileLogByteSize;
-        std::vector<Priv<Layer>> layers;
-        std::string tilesPath;
-        std::size_t tileCount;
+        const size_t tileLogSize, tileLogByteSize;
+        vector<Priv<Layer>> layers;
+        string tilesPath;
+        size_t tileCount;
         bool isUniquePath;
+        vector<MappedFile> tileCache;
         
-        Priv(std::string *outError,
-             std::size_t logSize = DEFAULT_LOG_SIZE,
-             llvm::StringRef tilesPath = "")
+        Priv(string *outError,
+             size_t logSize = DEFAULT_LOG_SIZE,
+             StringRef tilesPath = "")
         : tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2),
         tilesPath(tilesPath), tileCount(0),
         isUniquePath(false)
@@ -89,30 +93,58 @@ namespace Mega {
             $.layers.emplace_back();
         }
 
-        Priv(std::size_t logSize, std::vector<Priv<Layer>> &&layers,
-             llvm::StringRef tilesPath, std::size_t tileCount)
+        Priv(size_t logSize, vector<Priv<Layer>> &&layers,
+             StringRef tilesPath, size_t tileCount)
         :
         tileLogSize(logSize), tileLogByteSize((logSize << 1) + 2), layers(layers),
         tilesPath(tilesPath), tileCount(tileCount), isUniquePath(false)
-        { }
+        {
+            $.tileCache.resize(tileCount);
+        }
         
         ~Priv() {
             if ($.isUniquePath) {
-                std::uint32_t removed;
-                llvm::sys::fs::remove_all($.tilesPath, removed);
+                uint32_t removed;
+                sys::fs::remove_all($.tilesPath, removed);
             }
         }
         
-        void makeTilePath(std::size_t i, llvm::SmallVectorImpl<char> *outPath)
+        void makeTilePath(size_t i, SmallVectorImpl<char> *outPath)
         {
             outPath->clear();
-            llvm::raw_svector_ostream os(*outPath);
-            using namespace llvm::sys;
+            raw_svector_ostream os(*outPath);
+            using namespace sys;
             os << $.tilesPath << '/' << i << ".rgba";
             os.flush();
         }
         
-        bool saveTile(std::size_t i, uint8_t const *image, std::string *outError);
+        // fixme: need to be able to unmap stale tiles after threshold reached
+        ArrayRef<uint8_t> tile(size_t i, string *outError)
+        {
+            assert(i >= 1 && i <= $.tileCount);
+            MappedFile &file = $.tileCache[i-1];
+            if (!file) {
+                string error;
+                file = $.loadTile(i, outError);
+            }
+            if (file)
+                file.willNeed();
+            return file.data;
+        }
+        
+        MappedFile loadTile(size_t index, string *outError)
+        {
+            assert(index >= 1 && index <= $.tileCount);
+            
+            SmallString<260> path;
+            $.makeTilePath(index, &path);
+            
+            MappedFile f(path, outError);
+            f.sequential();
+            return f;
+        }
+        
+        bool saveTile(size_t i, uint8_t const *image, string *outError);
     };
     MEGA_PRIV_DTOR(Canvas)
 
@@ -120,19 +152,19 @@ namespace Mega {
     struct Priv<Layer> {
         Vec parallax;
         Vec origin;
-        std::vector<Layer::tile_t> tiles;
-        std::size_t quadtreeDepth;
+        vector<Layer::tile_t> tiles;
+        size_t quadtreeDepth;
 
         Priv()
         : parallax{1.0, 1.0}, origin{0.0, 0.0}, quadtreeDepth(0)
         {}
 
-        Priv(Vec parallax, Vec origin, std::size_t quadtreeDepth, std::vector<Layer::tile_t> &&tiles)
+        Priv(Vec parallax, Vec origin, size_t quadtreeDepth, vector<Layer::tile_t> &&tiles)
         : parallax(parallax), origin(origin), quadtreeDepth(quadtreeDepth), tiles(tiles)
         {}
         
-        Layer::tile_t *segmentCorner(std::ptrdiff_t quadrantSize,
-                                     std::ptrdiff_t x, std::ptrdiff_t y);
+        Layer::tile_t *segmentCorner(ptrdiff_t quadrantSize,
+                                     ptrdiff_t x, ptrdiff_t y);
         
         void reserve(ptrdiff_t x, ptrdiff_t y, ptrdiff_t w, ptrdiff_t h,
                      ptrdiff_t tileSize);
@@ -143,7 +175,7 @@ namespace Mega {
     //
     // Canvas implementation
     //
-    Owner<Canvas> Canvas::create(std::string *outError)
+    Owner<Canvas> Canvas::create(string *outError)
     {
         outError->clear();
         auto r = createOwner<Canvas>(outError);
@@ -155,7 +187,7 @@ namespace Mega {
 
     namespace {
         template<typename T>
-        llvm::Optional<T> intFromNode(llvm::yaml::Node *node, llvm::SmallVectorImpl<char> &scratch)
+        Optional<T> intFromNode(yaml::Node *node, SmallVectorImpl<char> &scratch)
         {
             using namespace llvm;
             auto sNode = dyn_cast<yaml::ScalarNode>(node);
@@ -168,13 +200,13 @@ namespace Mega {
             return Optional<T>();
         }
 
-        llvm::Optional<Vec> vecFromNode(llvm::yaml::Node *node, llvm::SmallVectorImpl<char> &scratch)
+        Optional<Vec> vecFromNode(yaml::Node *node, SmallVectorImpl<char> &scratch)
         {
             using namespace llvm;
             auto seqNode = dyn_cast<yaml::SequenceNode>(node);
             if (seqNode) {
                 double components[2];
-                std::size_t i = 0;
+                size_t i = 0;
                 for (auto &subnode : *seqNode) {
                     if (i >= 2)
                         return Optional<Vec>();
@@ -194,20 +226,20 @@ namespace Mega {
         }
     }
 
-    Owner<Canvas> Canvas::load(llvm::StringRef path, std::string *outError)
+    Owner<Canvas> Canvas::load(StringRef path, string *outError)
     {
         using namespace std;
         using namespace llvm;
-        using namespace llvm::sys;
+        using namespace sys;
         assert(outError);
         raw_string_ostream errors(*outError);
 #define _MEGA_LOAD_ERROR_IF(cond, inserts) \
     if (cond) { errors << inserts; errors.str(); goto error; } else
 
         Owner<Canvas> result;
-        Optional<std::size_t> version;
-        Optional<std::size_t> tileCount;
-        Optional<std::size_t> logSize;
+        Optional<size_t> version;
+        Optional<size_t> tileCount;
+        Optional<size_t> logSize;
 
         {
             SmallString<256> metaPath(path);
@@ -242,19 +274,19 @@ namespace Mega {
 
                 auto valueNode = kv.getValue();
                 if (key == "mega") {
-                    _MEGA_LOAD_ERROR_IF(!(version = intFromNode<std::size_t>(valueNode, scratch)),
+                    _MEGA_LOAD_ERROR_IF(!(version = intFromNode<size_t>(valueNode, scratch)),
                                         metaPath << ": 'mega' value is not an integer");
                 } else if (key == "tile-size") {
-                    _MEGA_LOAD_ERROR_IF(!(logSize = intFromNode<std::size_t>(valueNode, scratch)),
+                    _MEGA_LOAD_ERROR_IF(!(logSize = intFromNode<size_t>(valueNode, scratch)),
                                         metaPath << ": 'tile-size' value is not an integer");
                 } else if (key == "tile-count") {
-                    _MEGA_LOAD_ERROR_IF(!(tileCount = intFromNode<std::size_t>(valueNode, scratch)),
+                    _MEGA_LOAD_ERROR_IF(!(tileCount = intFromNode<size_t>(valueNode, scratch)),
                                         metaPath << ": 'tile-count' value is not an integer");
                 } else if (key == "layers") {
                     auto layersNode = dyn_cast<yaml::SequenceNode>(valueNode);
                     _MEGA_LOAD_ERROR_IF(!layersNode,
                                         metaPath << ": 'layers' value is not a sequence");
-                    std::size_t layerI = 0;
+                    size_t layerI = 0;
                     for (auto &layerNode : *layersNode) {
                         auto layerMap = dyn_cast<yaml::MappingNode>(&layerNode);
                         _MEGA_LOAD_ERROR_IF(!layerMap,
@@ -262,7 +294,7 @@ namespace Mega {
 
                         Optional<Vec> parallax;
                         Optional<Vec> origin;
-                        Optional<std::size_t> quadtreeDepth;
+                        Optional<size_t> quadtreeDepth;
                         vector<Layer::tile_t> tiles;
 
                         for (auto &layerKV : *layerMap) {
@@ -279,7 +311,7 @@ namespace Mega {
                                 _MEGA_LOAD_ERROR_IF(!(origin = vecFromNode(layerValueNode, scratch)),
                                                     metaPath << ": layer " << layerI << ": 'origin' value is not a vec");
                             } else if (layerKey == "size") {
-                                _MEGA_LOAD_ERROR_IF(!(quadtreeDepth = intFromNode<std::size_t>(layerValueNode, scratch)),
+                                _MEGA_LOAD_ERROR_IF(!(quadtreeDepth = intFromNode<size_t>(layerValueNode, scratch)),
                                                     metaPath << ": layer " << layerI << ": 'size' value is not a vec");
                             } else if (layerKey == "tiles") {
                                 auto tilesNode = dyn_cast<yaml::SequenceNode>(layerValueNode);
@@ -322,36 +354,6 @@ namespace Mega {
 
             result = createOwner<Canvas>(*logSize, move(layers), path, *tileCount);
         }
-        /*
-        {
-            //
-            // load tiles
-            //
-            result.priv().resizeTiles(*tileCount);
-            std::string tileFilename;
-            for (std::size_t tile = 1; tile <= *tileCount; ++tile) {
-                tileFilename.clear();
-                raw_string_ostream paths(tileFilename);
-                paths << tile << ".rgba";
-                SmallString<256> tilePath(path);
-                path::append(tilePath, paths.str());
-
-                OwningPtr<MemoryBuffer> tileBuf;
-                auto errorCode = MemoryBuffer::getFile(tilePath.c_str(), tileBuf);
-                _MEGA_LOAD_ERROR_IF(errorCode,
-                                    tilePath << ": unable to read file: " << errorCode.message());
-
-                MutableArrayRef<uint8_t> destTileData = result.priv().tile(tile);
-
-                _MEGA_LOAD_ERROR_IF(destTileData.size() != tileBuf->getBufferSize(),
-                                    tilePath << ": expected " << destTileData.size() << " bytes, but file has " << tileBuf->getBufferSize() << "bytes");
-
-                memcpy(reinterpret_cast<void*>(destTileData.begin()),
-                       reinterpret_cast<const void*>(tileBuf->getBufferStart()),
-                       destTileData.size());
-            }
-        }
-         */
 
         return result;
 
@@ -361,36 +363,36 @@ error:
         return Owner<Canvas>();
     }
 
-    MEGA_PRIV_GETTER(Canvas, tileLogSize, std::size_t)
+    MEGA_PRIV_GETTER(Canvas, tileLogSize, size_t)
     MEGA_PRIV_GETTER(Canvas, layers, PrivArrayRef<Layer>)
-    MEGA_PRIV_GETTER(Canvas, tileCount, std::size_t)
+    MEGA_PRIV_GETTER(Canvas, tileCount, size_t)
 
-    std::size_t Canvas::tileSize()
+    size_t Canvas::tileSize()
     {
         return 1 << $.tileLogSize;
     }
 
-    std::size_t Canvas::tileArea()
+    size_t Canvas::tileArea()
     {
         return 1 << ($.tileLogSize << 1);
     }
 
-    std::size_t Canvas::tileByteSize()
+    size_t Canvas::tileByteSize()
     {
         return 1 << $.tileLogByteSize;
     }
     
-    bool Canvas::verifyTiles(std::string *outError)
+    bool Canvas::verifyTiles(string *outError)
     {
         using namespace llvm;
-        using namespace llvm::sys;
+        using namespace sys;
         raw_string_ostream errors(*outError);
         SmallString<260> path;
         bool ok = true;
-        for (std::size_t i = 1; i <= $.tileCount; ++i) {
+        for (size_t i = 1; i <= $.tileCount; ++i) {
             $.makeTilePath(i, &path);
             bool isRegular;
-            error_code code = fs::is_regular_file(path.str(), isRegular);
+            llvm::error_code code = fs::is_regular_file(path.str(), isRegular);
             if (code) {
                 errors << path << ": " << code.message() << "\n";
                 ok = false;
@@ -402,38 +404,53 @@ error:
         return ok;
     }
     
-    MappedFile
-    Canvas::loadTile(std::size_t index, std::string *outError)
+    bool
+    Canvas::loadTileInto(size_t index, MutableArrayRef<uint8_t> outBuffer, string *outError)
     {
-        assert(index >= 1 && index <= $.tileCount);
+        assert(outBuffer.size() == $$.tileByteSize());
+        if (index == 0) {
+            memset(outBuffer.begin(), 0, $$.tileByteSize());
+            return true;
+        }
         
-        llvm::SmallString<260> path;
-        $.makeTilePath(index, &path);
-        
-        MappedFile f(path, outError);
-        f.sequential();
-        return f;
+        ArrayRef<uint8_t> tile = $.tile(index, outError);
+        if (!tile.empty()) {
+            assert(outBuffer.size() == tile.size());
+            memcpy(outBuffer.data(), tile.data(), tile.size());
+            return true;
+        } else
+            return false;
+    }
+    
+    void
+    Canvas::wantTile(size_t index)
+    {
+        if (index == 0)
+            return;
+        string error;
+        MappedFile file = $.loadTile(index, &error);
+        file.willNeed();
     }
     
     struct CallbackInfo {
-        std::function<void (bool, const std::string &)> userCallback;
-        std::uint8_t *ptr;
-        std::size_t size;
+        function<void (bool, const string &)> userCallback;
+        uint8_t *ptr;
+        size_t size;
     };
     
-    static std::string streamErrorString(CFReadStreamRef stream)
+    static string streamErrorString(CFReadStreamRef stream)
     {
         CFErrorRef error = CFReadStreamCopyError(stream);
         MEGA_FINALLY({ CFRelease(error); });
         CFStringRef desc = CFErrorCopyDescription(error);
         MEGA_FINALLY({ CFRelease(desc); });
         
-        std::unique_ptr<char[]> buf(new char[CFStringGetLength(desc)*4+1]);
+        unique_ptr<char[]> buf(new char[CFStringGetLength(desc)*4+1]);
         bool ok = CFStringGetCString(desc, buf.get(), CFStringGetLength(desc)*4+1,
                                      kCFStringEncodingUTF8);
         assert(ok);
         
-        return std::string(buf.get());
+        return string(buf.get());
     }
     
     void loadTileIntoCallback(CFReadStreamRef stream,
@@ -475,8 +492,8 @@ error:
         
     unexpectedEnd:
         {
-            std::string error;
-            llvm::raw_string_ostream errors(error);
+            string error;
+            raw_string_ostream errors(error);
             errors << "reached end of file but expected " << callback->size << " more bytes";
             callback->userCallback(false, errors.str());
             goto cleanup;
@@ -489,12 +506,12 @@ error:
     }
     
     void
-    Canvas::loadTileInto(std::size_t index, llvm::MutableArrayRef<std::uint8_t> outBuffer,
-                         std::function<void (bool, const std::string &)> callback)
+    Canvas::loadTileIntoAsync(size_t index, MutableArrayRef<uint8_t> outBuffer,
+                              function<void (bool, const string &)> callback)
     {
         assert(index >= 1 && index <= $.tileCount);
         assert(outBuffer.size() >= $$.tileByteSize());
-        llvm::SmallString<260> path;
+        SmallString<260> path;
         $.makeTilePath(index, &path);
         
         CFURLRef url = CFURLCreateFromFileSystemRepresentation(NULL,
@@ -505,7 +522,7 @@ error:
         CFReadStreamRef stream = CFReadStreamCreateWithFile(NULL, url);
         
         auto callbackBuf = new CallbackInfo{
-            std::move(callback),
+            move(callback),
             outBuffer.begin(), outBuffer.size()
         };
         
@@ -525,7 +542,7 @@ error:
         }
     }
     
-    void Canvas::wasMoved(llvm::StringRef newPath)
+    void Canvas::wasMoved(StringRef newPath)
     {
         $.tilesPath = newPath;
         $.isUniquePath = false;
@@ -574,10 +591,10 @@ error:
                     Layer::tile_t tileIndex = Layer(layer).tile(xtile, ytile);
 
                     if (tileIndex != 0) {
-                        MappedFile origTile = $$.loadTile(tileIndex, &error);
-                        Array2DRef<pixel_t> destPixels(reinterpret_cast<pixel_t const*>(origTile.data.begin()),
+                        ArrayRef<uint8_t> origTile = $.tile(tileIndex, &error);
+                        assert(!origTile.empty());
+                        Array2DRef<pixel_t> destPixels(reinterpret_cast<pixel_t const*>(origTile.data()),
                                                        tileSize, tileSize);
-                        assert(origTile);
                         for (ptrdiff_t ypix = 0; ypix < tileSize; ++ypix)
                             for (ptrdiff_t xpix = 0; xpix < tileSize; ++xpix)
                                 if (xsrc+xpix >= 0 && xsrc+xpix < sourceW && ysrc+ypix >= 0 && ysrc+ypix < sourceH)
@@ -605,13 +622,14 @@ error:
         });
         
         $.tileCount = nextTile.load() - 1;
+        $.tileCache.resize($.tileCount);
     }
     
-    bool Priv<Canvas>::saveTile(std::size_t index, const uint8_t *image, std::string *outError)
+    bool Priv<Canvas>::saveTile(size_t index, const uint8_t *image, string *outError)
     {
         assert(index != 0 && index > $.tileCount);
         
-        llvm::SmallString<260> path;
+        SmallString<260> path;
         $.makeTilePath(index, &path);
 
         FILE *out;
@@ -641,13 +659,13 @@ error:
     MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
     MEGA_PRIV_GETTER(Layer, origin, Vec)
     
-    static bool isPowerOfTwo(std::size_t x)
+    static bool isPowerOfTwo(size_t x)
     {
         return (x & (x - 1)) == 0 && x != 0;
     }
     
     Layer::SegmentRef
-    Layer::segment(std::size_t segmentSize, std::ptrdiff_t x, std::ptrdiff_t y)
+    Layer::segment(size_t segmentSize, ptrdiff_t x, ptrdiff_t y)
     {
         assert(isPowerOfTwo(segmentSize) && segmentSize*segmentSize <= PTRDIFF_MAX);
         using namespace std;
@@ -686,14 +704,14 @@ error:
     }
     
     Layer::tile_t
-    Layer::tile(std::ptrdiff_t x, std::ptrdiff_t y)
+    Layer::tile(ptrdiff_t x, ptrdiff_t y)
     {
         return $$.segment(1, x, y)[0];
     }
     
     Layer::tile_t *
-    Priv<Layer>::segmentCorner(std::ptrdiff_t quadrantSize,
-                               std::ptrdiff_t x, std::ptrdiff_t y)
+    Priv<Layer>::segmentCorner(ptrdiff_t quadrantSize,
+                               ptrdiff_t x, ptrdiff_t y)
     {
         using namespace std;
         size_t logRadius = $.quadtreeDepth - 1;
@@ -733,7 +751,7 @@ error:
             } while (size < w || size < h);
             $.tiles.clear();
             $.tiles.resize(1 << ($.quadtreeDepth << 1));
-            llvm::errs() << "resized to " << $.quadtreeDepth << "\n";
+            errs() << "resized to " << $.quadtreeDepth << "\n";
         } else {
             //fixme
             assert(false && "rite me");

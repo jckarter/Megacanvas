@@ -17,7 +17,6 @@
 
 namespace Mega {
     struct Layer;
-    
 
     struct Canvas : HasPriv<Canvas> {
         typedef std::array<std::uint8_t, 4> pixel_t;
@@ -36,12 +35,14 @@ namespace Mega {
         std::size_t tileCount();
         
         bool verifyTiles(std::string *outError);
-        MappedFile loadTile(std::size_t index, 
-                            std::string *outError);
-        
-        void loadTileInto(std::size_t index,
+        void wantTile(std::size_t index);
+        bool loadTileInto(std::size_t index,
                           llvm::MutableArrayRef<std::uint8_t> outBuffer,
-                          std::function<void(bool ok, std::string const &error)> callback);
+                          std::string *outError);
+        
+        void loadTileIntoAsync(std::size_t index,
+                               llvm::MutableArrayRef<std::uint8_t> outBuffer,
+                               std::function<void(bool ok, std::string const &error)> callback);
         
         void wasMoved(llvm::StringRef newPath);
         
@@ -54,7 +55,7 @@ namespace Mega {
         bool saveAs(llvm::StringRef path, std::string *outError);
         
         void undo();
-        void redo();
+        void redo();        
     };
 }
 

@@ -28,7 +28,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLayerGetTile);
         CPPUNIT_TEST(testVerifyTiles);
         CPPUNIT_TEST(testLoadTile);
-        CPPUNIT_TEST(testLoadTileInto);
+        CPPUNIT_TEST(testLoadTileIntoAsync);
         CPPUNIT_TEST(testBlitIntoEmptySmall);
         CPPUNIT_TEST(testBlitIntoEmptyLarge);
         CPPUNIT_TEST(testBlitOverLayer);
@@ -313,15 +313,17 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT(canvas);
             CPPUNIT_ASSERT_EQUAL(std::size_t(20), canvas->tileCount());
             
+            std::vector<uint8_t> tile;
+            tile.resize(canvas->tileByteSize());
             for (size_t i = 1; i <= 20; ++i) {
-                auto tile = canvas->loadTile(1, &error);
+                bool ok = canvas->loadTileInto(i, tile, &error);
                 CPPUNIT_ASSERT_EQUAL(std::string(""), error);
-                CPPUNIT_ASSERT(tile);
+                CPPUNIT_ASSERT(ok);
                 CPPUNIT_ASSERT_EQUAL(canvas->tileByteSize(), tile.size());
             }
         }
         
-        void testLoadTileInto()
+        void testLoadTileIntoAsync()
         {
             std::string error;
             Owner<Canvas> canvas = Canvas::load("EngineTests/TestData/Test1.mega", &error);
@@ -336,13 +338,13 @@ namespace Mega { namespace test {
             tileBuffers.resize(20);
             
             for (size_t i = 1; i <= 20; ++i) {
-                canvas->loadTileInto(i, {tileBuffers[i-1].begin(), tileBuffers[i-1].end()},
-                                     [&loadedTiles, i](bool ok, std::string const &error) {
-                                         if (ok)
-                                             loadedTiles[i-1] = "";
-                                         else
-                                             loadedTiles[i-1] = error;
-                                     });
+                canvas->loadTileIntoAsync(i, {tileBuffers[i-1].begin(), tileBuffers[i-1].end()},
+                                          [&loadedTiles, i](bool ok, std::string const &error) {
+                                              if (ok)
+                                                  loadedTiles[i-1] = "";
+                                              else
+                                                  loadedTiles[i-1] = error;
+                                          });
             }
             
             //fixme mac-specific
@@ -359,14 +361,16 @@ namespace Mega { namespace test {
 
 #define _MEGA_ASSERT_TILE_VARS \
     Layer::tile_t tile; \
-    MappedFile tileData; \
-    array<uint8_t,4> const *tilePixels;
+    vector<uint8_t> tileData; \
+    tileData.resize(canvas->tileByteSize());\
+    array<uint8_t,4> const *tilePixels; \
+    bool ok;
         
 #define _MEGA_ASSERT_TILE_CONTENTS(tilex, tiley, xpred, ypred) \
     llvm::errs() << #xpred << ' ' << #ypred << '\n'; \
     tile = layer0.tile(tilex, tiley); \
-    tileData = canvas->loadTile(tile, &error); \
-    tilePixels = reinterpret_cast<array<uint8_t,4> const *>(tileData.data.begin()); \
+    ok = canvas->loadTileInto(tile, tileData, &error); \
+    tilePixels = reinterpret_cast<array<uint8_t,4> const *>(tileData.data()); \
     //asm volatile ("int $3\n"); \
     CPPUNIT_ASSERT_EQUAL(string(""), error); \
     CPPUNIT_ASSERT(tileData); \

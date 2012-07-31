@@ -15,7 +15,9 @@
 {
     self = [super init];
     if (self) {
-        canvas = Mega::Canvas::create();
+        std::string error;
+        canvas = Mega::Canvas::create(&error);
+        assert(canvas);
     }
     return self;
 }

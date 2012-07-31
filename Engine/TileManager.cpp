@@ -42,7 +42,6 @@ namespace Mega {
         FlipFlop<GLBuffer> pixelBuffers;
         
         unique_ptr<uint8_t[]> zeroTile;
-        unique_ptr<MappedFile[]> tileCache;
         unique_ptr<TileLayer[]> tileLayers;
         
         size_t tileSize, textureTileSize, textureTileCount;
@@ -50,16 +49,11 @@ namespace Mega {
         Priv(Canvas c);
         
         void prepareTexture();
-        ArrayRef<uint8_t> tile(size_t i);
         
         bool loadTilesInView(Vec center, Vec viewport);
         
         ArrayRef<uint8_t> zeroTileRef() {
             return {zeroTile.get(), $.canvas.tileByteSize()};
-        }
-        
-        MutableArrayRef<MappedFile> tileCacheRef() {
-            return {tileCache.get(), $.canvas.tileCount()};
         }
         
         MutableArrayRef<TileLayer> tileLayersRef() {
@@ -76,7 +70,6 @@ namespace Mega {
     :
     canvas(c),
     zeroTile(new uint8_t[c.tileByteSize()]()),
-    tileCache(new MappedFile[c.tileCount()]()),
     tileLayers(new TileLayer[c.layers().size()]()),
     tileSize(c.tileSize()),
     textureTileSize(TEXTURE_SIZE >> c.tileLogSize()),
@@ -111,32 +104,17 @@ namespace Mega {
         MEGA_ASSERT_GL_NO_ERROR;
     }
     
-    // fixme: need to be able to unmap stale tiles after threshold reached
-    ArrayRef<uint8_t> Priv<TileManager>::tile(size_t i)
-    {
-        assert(i >= 0 && i <= $.canvas.tileCount());
-        if (i == 0)
-            return $.zeroTileRef();
-        MappedFile &file = $.tileCacheRef()[i-1];
-        if (!file) {
-            string error;
-            file = $.canvas.loadTile(i, &error);
-            assert(file);
-        }
-        file.willNeed();
-        return file.data;
-    }
-    
     bool Priv<TileManager>::loadTilesInView(Vec center, Vec viewport)
     {
 #ifdef MEGA_TILE_MANAGER_STATS
         auto begun = chrono::high_resolution_clock::now();
 #endif
         size_t tileSize = $.tileSize;
+        size_t tileByteSize = $.canvas.tileByteSize();
         auto layers = $.canvas.layers();
         Vec radius = 0.5*viewport;
         
-        struct Upload { ArrayRef<uint8_t> tile; size_t xw; size_t yw; size_t layer; };
+        struct Upload { size_t tile; size_t xw; size_t yw; size_t layer; };
         SmallVector<Upload, 16> uploads;
         
         if (viewport.x > (TEXTURE_SIZE - $.tileSize)
@@ -165,7 +143,8 @@ namespace Mega {
                     
                     if (loadedTile != layerTile) {
                         loadedTile = layerTile;
-                        uploads.push_back(Upload{$.tile(layerTile), xw, yw, i});
+                        uploads.push_back(Upload{layerTile, xw, yw, i});
+                        $.canvas.wantTile(layerTile);
                     }
                 }
             
@@ -173,18 +152,19 @@ namespace Mega {
         }
 
         for (Upload &upload : uploads) {
+            std::string error;
 #ifdef MEGA_TILE_MANAGER_STATS
             auto uploadBegun = chrono::high_resolution_clock::now();
 #endif
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER, $.pixelBuffers.next());
-            glBufferData(GL_PIXEL_UNPACK_BUFFER,
-                         upload.tile.size(), upload.tile.begin(),
-                         GL_STREAM_DRAW);
-            /*glBufferData(GL_PIXEL_UNPACK_BUFFER, tile.size(), nullptr, GL_STREAM_DRAW);
-             void *buf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-             assert(buf);
-             memcpy(buf, tile.begin(), tile.size());
-             glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);*/
+            glBufferData(GL_PIXEL_UNPACK_BUFFER, tileByteSize, nullptr, GL_STREAM_DRAW);
+            void *buf = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            assert(buf);
+            bool ok = $.canvas.loadTileInto(upload.tile,
+                                            {reinterpret_cast<uint8_t*>(buf), tileByteSize},
+                                            &error);
+            assert(ok);
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
             MEGA_ASSERT_GL_NO_ERROR;
             
 #ifdef MEGA_TILE_MANAGER_STATS
