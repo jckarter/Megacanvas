@@ -46,7 +46,8 @@ namespace Mega {
         
         void wasMoved(llvm::StringRef newPath);
         
-        void blit(void const *source,
+        void blit(llvm::StringRef name,
+                  void const *source,
                   size_t sourcePitch, size_t sourceW, size_t sourceH,
                   size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
                   pixel_t (*blendFunc)(pixel_t src, pixel_t dest));
@@ -55,7 +56,9 @@ namespace Mega {
         bool saveAs(llvm::StringRef path, std::string *outError);
         
         void undo();
-        void redo();        
+        void redo();
+        llvm::StringRef undoName();
+        llvm::StringRef redoName();
     };
 }
 

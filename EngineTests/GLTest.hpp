@@ -98,9 +98,12 @@ namespace Mega { namespace test {
 
 namespace std {
     template<typename T, size_t N>
-    std::ostream &operator<<(std::ostream &os, std::array<T,N> a) {
+    inline std::ostream &operator<<(std::ostream &os, std::array<T,N> a) {
         Mega::test::pArray(os, llvm::ArrayRef<T>{a.begin(), a.end()});
         return os;
+    }
+    inline std::ostream &operator<<(std::ostream &os, uint8_t byte) {
+        return os << (int)byte;
     }
 }
 

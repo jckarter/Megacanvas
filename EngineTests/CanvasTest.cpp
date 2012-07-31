@@ -31,7 +31,7 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testLoadTileIntoAsync);
         CPPUNIT_TEST(testBlitIntoEmptySmall);
         CPPUNIT_TEST(testBlitIntoEmptyLarge);
-        CPPUNIT_TEST(testBlitOverLayer);
+        CPPUNIT_TEST(testBlitBlending);
         CPPUNIT_TEST(testBlitGrowsLayer);
         CPPUNIT_TEST_SUITE_END();
 
@@ -367,7 +367,6 @@ namespace Mega { namespace test {
     bool ok;
         
 #define _MEGA_ASSERT_TILE_CONTENTS(tilex, tiley, xpred, ypred) \
-    llvm::errs() << #xpred << ' ' << #ypred << '\n'; \
     tile = layer0.tile(tilex, tiley); \
     ok = canvas->loadTileInto(tile, tileData, &error); \
     tilePixels = reinterpret_cast<array<uint8_t,4> const *>(tileData.data()); \
@@ -399,7 +398,8 @@ namespace Mega { namespace test {
                 stuffToBlit[i] = {1,2,3,4};
             }
             
-            canvas->blit(stuffToBlit.get(),
+            canvas->blit("test",
+                         stuffToBlit.get(),
                          200, 200, 200,
                          0, -15, 130,
                          [](Canvas::pixel_t s, Canvas::pixel_t d) { return s; });
@@ -430,7 +430,8 @@ namespace Mega { namespace test {
                 stuffToBlit[i] = {1,2,3,4};
             }
             
-            canvas->blit(stuffToBlit.get(),
+            canvas->blit("test",
+                         stuffToBlit.get(),
                          301, 301, 301,
                          0, 1777, -26,
                          [](Canvas::pixel_t s, Canvas::pixel_t d) { return s; });
@@ -455,10 +456,79 @@ namespace Mega { namespace test {
             _MEGA_ASSERT_TILE_CONTENTS( 0,  1, true,     y < 22);
             _MEGA_ASSERT_TILE_CONTENTS( 1,  1, x <   22, y < 22);
         }
+#undef _MEGA_ASSERT_TILE_VARS
+#undef _MEGA_ASSERT_TILE_CONTENTS
         
-        void testBlitOverLayer()
+        void testBlitBlending()
         {
-            CPPUNIT_FAIL("rite me");
+            using namespace std;
+            using namespace llvm;
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(size_t(0), canvas->tileCount());
+            CPPUNIT_ASSERT_EQUAL(size_t(128*128*4), canvas->tileByteSize());
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            Layer layer0 = canvas->layers()[0];
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit1(new array<uint8_t,4>[256*256]);
+            fill(&stuffToBlit1[0], &stuffToBlit1[256*256], array<uint8_t,4>{{1,2,3,4}});
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit2(new array<uint8_t,4>[128*128]);
+            fill(&stuffToBlit2[0], &stuffToBlit2[128*128], array<uint8_t,4>{{5,6,7,8}});
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit3(new array<uint8_t,4>[64*64]);
+            fill(&stuffToBlit3[0], &stuffToBlit3[64*64], array<uint8_t,4>{{9,10,11,12}});
+            
+            vector<uint8_t> tileData;
+            tileData.resize(canvas->tileByteSize());
+            Array2DRef<Canvas::pixel_t> pixels{
+                reinterpret_cast<Canvas::pixel_t const*>(tileData.data()),
+                canvas->tileSize(), canvas->tileSize()
+            };
+            
+            canvas->blit("test1", stuffToBlit1.get(),
+                         256, 256, 256,
+                         0, 0, 0,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            
+            canvas->blit("test2", stuffToBlit2.get(),
+                         128, 128, 128,
+                         0, 1, 1,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d) {
+                             return Canvas::pixel_t{{
+                                 uint8_t(s[0]+d[0]),
+                                 uint8_t(s[1]+d[1]),
+                                 uint8_t(s[2]+d[2]),
+                                 uint8_t(s[3]+d[3])
+                             }};
+                         });
+            
+            bool ok = canvas->loadTileInto(layer0.tile(-1, -1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{6,8,10,12}}), pixels[1][1]);
+            ok = canvas->loadTileInto(layer0.tile(0, 0), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{6,8,10,12}}), pixels[0][0]);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[1][1]);
+            
+            canvas->blit("test3", stuffToBlit3.get(),
+                         64, 64, 64,
+                         0, 2, 2,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d) {
+                             return Canvas::pixel_t{{
+                                 uint8_t(d[0]-s[0]),
+                                 uint8_t(d[1]-s[1]),
+                                 uint8_t(d[2]-s[2]),
+                                 uint8_t(d[3]-s[3])
+                             }};
+                         });
+            ok = canvas->loadTileInto(layer0.tile(-1, -1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{6,8,10,12}}), pixels[1][1]);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{253,254,255,0}}), pixels[2][2]);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{6,8,10,12}}), pixels[66][66]);
         }
         
         void testBlitGrowsLayer()

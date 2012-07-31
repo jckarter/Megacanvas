@@ -548,7 +548,10 @@ error:
         $.isUniquePath = false;
     }
     
-    void Canvas::blit(const void *source,
+    // fixme leave empty tiles as 0
+    // fixme don't copy unaffected tiles
+    void Canvas::blit(StringRef name,
+                      const void *source,
                       size_t sourcePitch, size_t sourceW, size_t sourceH,
                       size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
                       pixel_t (*blendFunc)(pixel_t, pixel_t))
@@ -753,8 +756,10 @@ error:
             $.tiles.resize(1 << ($.quadtreeDepth << 1));
             errs() << "resized to " << $.quadtreeDepth << "\n";
         } else {
-            //fixme
-            assert(false && "rite me");
+            ptrdiff_t radius = tileSize << ($.quadtreeDepth - 1);
+            Vec origin = $.origin, lo = origin - radius, hi = origin + radius;
+            if (x < lo.x || y < lo.y || x+w > hi.x || y+h > hi.y)
+                assert(false && "rite me");
         }
     }
     
