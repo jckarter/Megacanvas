@@ -60,6 +60,8 @@ namespace Mega {
     //
     // internal representations
     //
+    
+    struct CanvasHistory;
 
     template<>
     struct Priv<Canvas> {
@@ -69,6 +71,7 @@ namespace Mega {
         size_t tileCount;
         bool isUniquePath;
         vector<MappedFile> tileCache;
+        vector<CanvasHistory> undo, redo;
         
         Priv(string *outError,
              size_t logSize = DEFAULT_LOG_SIZE,
@@ -145,6 +148,8 @@ namespace Mega {
         }
         
         bool saveTile(size_t i, uint8_t const *image, string *outError);
+        
+        void applyHistory(vector<CanvasHistory> &from, vector<CanvasHistory> &to);
     };
     MEGA_PRIV_DTOR(Canvas)
 
@@ -171,6 +176,18 @@ namespace Mega {
         void setTile(ptrdiff_t x, ptrdiff_t y, size_t tile);
     };
     MEGA_PRIV_DTOR(Layer)
+
+    struct CanvasHistory {
+        string name;
+        Priv<Layer> layer;
+        size_t index;
+        bool replaced;
+        
+        CanvasHistory() = default;
+        CanvasHistory(StringRef name, Priv<Layer> const &layer, size_t index, bool replaced)
+        : name(name), layer(layer), index(index), replaced(replaced)
+        {}
+    };
 
     //
     // Canvas implementation
@@ -559,6 +576,7 @@ error:
         using namespace std;
         using namespace tbb;
         Priv<Layer> &layer = $.layers[destLayer];
+        $.undo.emplace_back(name, layer, destLayer, true);
         layer.reserve(destX, destY, sourceW, sourceH, $$.tileSize());
         Array2DRef<pixel_t> sourcePixels(reinterpret_cast<pixel_t const*>(source),
                                          sourcePitch,
@@ -654,6 +672,47 @@ error:
         }
         
         return true;
+    }
+    
+    StringRef
+    Canvas::undoName()
+    {
+        if ($.undo.empty())
+            return {};
+        else
+            return $.undo.back().name;
+    }
+
+    StringRef
+    Canvas::redoName()
+    {
+        if ($.redo.empty())
+            return {};
+        else
+            return $.redo.back().name;
+    }
+    
+    void
+    Canvas::undo()
+    {
+        $.applyHistory($.undo, $.redo);
+    }
+    
+    void
+    Canvas::redo()
+    {
+        $.applyHistory($.redo, $.undo);
+    }
+    
+    void
+    Priv<Canvas>::applyHistory(vector<CanvasHistory> &from, vector<CanvasHistory> &to)
+    {
+        assert(!from.empty());
+        CanvasHistory item = move(from.back());
+        from.pop_back();
+        assert(item.replaced || "rite me"); //fixme
+        swap(item.layer, $.layers[item.index]);
+        to.emplace_back(move(item));
     }
 
     //
