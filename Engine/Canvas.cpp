@@ -813,12 +813,41 @@ error:
             } while (size < w || size < h);
             $.tiles.clear();
             $.tiles.resize(1 << ($.quadtreeDepth << 1));
-            errs() << "resized to " << $.quadtreeDepth << "\n";
+            errs() << "initialized layer to depth " << $.quadtreeDepth << "\n";
         } else {
             ptrdiff_t radius = tileSize << ($.quadtreeDepth - 1);
             Vec origin = $.origin, lo = origin - radius, hi = origin + radius;
-            if (x < lo.x || y < lo.y || x+w > hi.x || y+h > hi.y)
-                assert(false && "rite me");
+            if (x >= lo.x && y >= lo.y && x+w <= hi.x && y+h <= hi.y)
+                return;
+            vector<Layer::tile_t> newTiles;
+            if (x < lo.x || y < lo.y) {
+                size_t targetSize = max(hi.x - x, hi.y - y);
+                size_t size = radius << 1, depth = $.quadtreeDepth;
+                do {
+                    ++depth;
+                    origin -= Vec{double(size >> 1), double(size >> 1)};
+                    size <<= 1;
+                } while (size < targetSize);
+                newTiles.resize(1 << (depth << 1));
+                copy($.tiles.begin(), $.tiles.end(), newTiles.end() - $.tiles.size());
+                $.tiles = move(newTiles);
+                $.quadtreeDepth = depth;
+                $.origin = origin;
+                radius = size >> 1;
+                lo = origin - radius;
+            }
+            if (x+w > hi.x || y+h > hi.y) {
+                size_t targetSize = max(x+w - lo.x, y+h - lo.y);
+                size_t size = radius << 1, depth = $.quadtreeDepth;
+                do {
+                    ++depth;
+                    origin += Vec{double(size >> 1), double(size >> 1)};
+                    size <<= 1;
+                } while (size < targetSize);
+                $.tiles.resize(1 << (depth << 1));
+                $.quadtreeDepth = depth;
+                $.origin = origin;
+            }
         }
     }
     

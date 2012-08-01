@@ -533,7 +533,8 @@ namespace Mega { namespace test {
         }
         
         void testUndoRedoBlit()
-        {            using namespace std;
+        {
+            using namespace std;
             using namespace llvm;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
@@ -650,7 +651,150 @@ namespace Mega { namespace test {
         
         void testBlitGrowsLayer()
         {
-            CPPUNIT_FAIL("rite me");
+            using namespace std;
+            using namespace llvm;
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            CPPUNIT_ASSERT_EQUAL(size_t(0), canvas->tileCount());
+            CPPUNIT_ASSERT_EQUAL(size_t(128*128*4), canvas->tileByteSize());
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            Layer layer0 = canvas->layers()[0];
+            
+            CPPUNIT_ASSERT(canvas->undoName().empty());
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit(new array<uint8_t,4>[256*256]);
+            fill(&stuffToBlit[0], &stuffToBlit[256*256], array<uint8_t,4>{{1,2,3,4}});
+            
+            vector<uint8_t> tileData;
+            tileData.resize(canvas->tileByteSize());
+            Array2DRef<Canvas::pixel_t> pixels{
+                reinterpret_cast<Canvas::pixel_t const*>(tileData.data()),
+                canvas->tileSize(), canvas->tileSize()
+            };
+            
+            auto sourceOnly = [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; };
+            
+            canvas->blit("test1", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, -128, -128,
+                         sourceOnly);
+            CPPUNIT_ASSERT_EQUAL((Vec{0.0, 0.0}), layer0.origin());
+            // **
+            // **
+            bool ok = canvas->loadTileInto(layer0.tile(-1, -1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+
+            canvas->blit("test2", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, -256, -256,
+                         sourceOnly);
+            CPPUNIT_ASSERT_EQUAL((Vec{-128.0, -128.0}), layer0.origin());
+            // .. **
+            // .* **
+            //
+            // .* *.
+            // .. ..
+            ok = canvas->loadTileInto(layer0.tile(-2, -2), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(-1, -1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(-1, 1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(1, -1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(1, 1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+
+            canvas->blit("test3", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 0, 0,
+                         sourceOnly);
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), layer0.origin());
+            // .... ....
+            // .... ....
+            // .... ....
+            // ...* *...
+            //
+            // ..** *...
+            // .*** ....
+            // .**. ....
+            // .... ....
+            ok = canvas->loadTileInto(layer0.tile(-4, -4), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(-3, -3), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(0, 0), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(1, 1), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+            
+            //fixme form-fitting quadrant growth
+            canvas->blit("test3", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 512, -512,
+                         sourceOnly);
+            CPPUNIT_ASSERT_EQUAL((Vec{640.0, 640.0}), layer0.origin());
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            //                                        
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            //                                        
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            //                                        
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            //                    X                   
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... ...* *... .... .... .... ....
+            //                                        
+            // .... .... ..** *... .... .... .... ....
+            // .... .... .*** .... .... .... .... ....
+            // .... .... .**. .... .... .... .... ....
+            // .... .... .... ...* *... .... .... ....
+            //                                        
+            // .... .... .... ...* *... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            //                                        
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            // .... .... .... .... .... .... .... ....
+            ok = canvas->loadTileInto(layer0.tile(-1, -8), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(-1, -9), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{1,2,3,4}}), pixels[0][0]);
+            ok = canvas->loadTileInto(layer0.tile(-1, -10), tileData, &error);
+            CPPUNIT_ASSERT(ok);
+            CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
         }
     };
 
