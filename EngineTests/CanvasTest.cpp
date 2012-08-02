@@ -18,6 +18,9 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 namespace Mega { namespace test {
+    using namespace std;
+    using namespace llvm;
+
     class CanvasTest : public CppUnit::TestFixture {
         CPPUNIT_TEST_SUITE(CanvasTest);
         CPPUNIT_TEST(testNewCanvas);
@@ -33,7 +36,9 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testBlitIntoEmptyLarge);
         CPPUNIT_TEST(testBlitBlending);
         CPPUNIT_TEST(testBlitGrowsLayer);
+        CPPUNIT_TEST(testInsertDeleteLayer);
         CPPUNIT_TEST(testUndoRedoBlit);
+        CPPUNIT_TEST(testUndoRedoInsertDeleteLayer);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -104,7 +109,6 @@ namespace Mega { namespace test {
 
         void testLayerGetSegment()
         {
-            using namespace std;
             std::string error;
             Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test2.mega", &error);
             CPPUNIT_ASSERT_EQUAL(std::string(""), error);
@@ -258,7 +262,6 @@ namespace Mega { namespace test {
         
         void testLayerGetTile()
         {
-            using namespace std;
             std::string error;
             Owner<Canvas> canvasOwner = Canvas::load("EngineTests/TestData/test2.mega", &error);
             CPPUNIT_ASSERT_EQUAL(std::string(""), error);
@@ -384,7 +387,6 @@ namespace Mega { namespace test {
         
         void testBlitIntoEmptySmall()
         {
-            using namespace std;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
             CPPUNIT_ASSERT_EQUAL(string(""), error);
@@ -416,7 +418,6 @@ namespace Mega { namespace test {
         
         void testBlitIntoEmptyLarge()
         {
-            using namespace std;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
             CPPUNIT_ASSERT_EQUAL(string(""), error);
@@ -462,8 +463,6 @@ namespace Mega { namespace test {
         
         void testBlitBlending()
         {
-            using namespace std;
-            using namespace llvm;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
             CPPUNIT_ASSERT_EQUAL(string(""), error);
@@ -534,8 +533,6 @@ namespace Mega { namespace test {
         
         void testUndoRedoBlit()
         {
-            using namespace std;
-            using namespace llvm;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
             CPPUNIT_ASSERT_EQUAL(string(""), error);
@@ -651,8 +648,6 @@ namespace Mega { namespace test {
         
         void testBlitGrowsLayer()
         {
-            using namespace std;
-            using namespace llvm;
             string error;
             Owner<Canvas> canvas = Canvas::create(&error);
             CPPUNIT_ASSERT_EQUAL(string(""), error);
@@ -795,6 +790,177 @@ namespace Mega { namespace test {
             ok = canvas->loadTileInto(layer0.tile(-1, -10), tileData, &error);
             CPPUNIT_ASSERT(ok);
             CPPUNIT_ASSERT_EQUAL((Canvas::pixel_t{{0,0,0,0}}), pixels[0][0]);
+        }
+        
+        void testInsertDeleteLayer()
+        {
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit(new array<uint8_t,4>[256*256]);
+            fill(&stuffToBlit[0], &stuffToBlit[256*256], array<uint8_t,4>{{1,2,3,4}});
+            
+            canvas->blit("test1", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 0, 0,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[0].origin());
+            
+            canvas->insertLayer("test2", 0);
+            canvas->blit("test3", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 128, 128,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            
+            canvas->insertLayer("test4", 2);
+            canvas->blit("test5", stuffToBlit.get(),
+                         256, 256, 256,
+                         2, 256, 256,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(3), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[2].origin());
+            
+            canvas->insertLayer("test6", 1);
+            canvas->blit("test7", stuffToBlit.get(),
+                         256, 256, 256,
+                         1, 384, 384,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(4), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{512.0, 512.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[2].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[3].origin());
+            
+            canvas->deleteLayer("test8", 1);
+            CPPUNIT_ASSERT_EQUAL(size_t(3), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[2].origin());
+
+            canvas->deleteLayer("test9", 0);
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[1].origin());
+
+            canvas->deleteLayer("test10", 1);
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[0].origin());
+
+            canvas->deleteLayer("test11", 0);
+            CPPUNIT_ASSERT_EQUAL(size_t(0), canvas->layers().size());
+        }
+        
+        void testUndoRedoInsertDeleteLayer()
+        {
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            
+            unique_ptr<array<uint8_t,4>[]> stuffToBlit(new array<uint8_t,4>[256*256]);
+            fill(&stuffToBlit[0], &stuffToBlit[256*256], array<uint8_t,4>{{1,2,3,4}});
+            
+            canvas->blit("blit1", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 0, 0,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+
+            canvas->insertLayer("insert1", 0);
+            CPPUNIT_ASSERT_EQUAL(string("insert1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            
+            fill(&stuffToBlit[0], &stuffToBlit[256*256], array<uint8_t,4>{{5,6,7,8}});
+            canvas->blit("blit2", stuffToBlit.get(),
+                         256, 256, 256,
+                         0, 128, 128,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+
+            canvas->insertLayer("insert2", 2);
+            CPPUNIT_ASSERT_EQUAL(string("insert2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+
+            fill(&stuffToBlit[0], &stuffToBlit[256*256], array<uint8_t,4>{{9,10,11,12}});
+            canvas->blit("blit3", stuffToBlit.get(),
+                         256, 256, 256,
+                         2, 256, 256,
+                         [](Canvas::pixel_t s, Canvas::pixel_t d){ return s; });
+            CPPUNIT_ASSERT_EQUAL(size_t(3), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[2].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit3"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            
+            canvas->deleteLayer("delete1", 1);
+            CPPUNIT_ASSERT_EQUAL(string("delete1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[1].origin());
+            
+            canvas->undo();
+            CPPUNIT_ASSERT_EQUAL(size_t(3), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[2].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit3"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("delete1"), string(canvas->redoName()));
+            
+            canvas->undo();
+            canvas->undo();
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("insert2"), string(canvas->redoName()));
+            
+            canvas->undo();
+            canvas->undo();
+            CPPUNIT_ASSERT_EQUAL(size_t(1), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("insert1"), string(canvas->redoName()));
+            
+            canvas->redo();
+            canvas->redo();
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL(string("blit2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("insert2"), string(canvas->redoName()));
+            
+            canvas->redo();
+            canvas->redo();
+            CPPUNIT_ASSERT_EQUAL(string("blit3"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("delete1"), string(canvas->redoName()));
+            CPPUNIT_ASSERT_EQUAL(size_t(3), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[2].origin());
+            
+            canvas->redo();
+            CPPUNIT_ASSERT_EQUAL(string("delete1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            CPPUNIT_ASSERT_EQUAL(size_t(2), canvas->layers().size());
+            CPPUNIT_ASSERT_EQUAL((Vec{256.0, 256.0}), canvas->layers()[0].origin());
+            CPPUNIT_ASSERT_EQUAL((Vec{384.0, 384.0}), canvas->layers()[1].origin());
         }
     };
 

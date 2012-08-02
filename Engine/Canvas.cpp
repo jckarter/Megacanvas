@@ -177,15 +177,17 @@ namespace Mega {
     };
     MEGA_PRIV_DTOR(Layer)
 
+    enum class LayerOp { Replace, Insert, Delete };
+    
     struct CanvasHistory {
         string name;
         Priv<Layer> layer;
         size_t index;
-        bool replaced;
+        LayerOp op;
         
         CanvasHistory() = default;
-        CanvasHistory(StringRef name, Priv<Layer> const &layer, size_t index, bool replaced)
-        : name(name), layer(layer), index(index), replaced(replaced)
+        CanvasHistory(StringRef name, Priv<Layer> const &layer, size_t index, LayerOp op)
+        : name(name), layer(layer), index(index), op(op)
         {}
     };
 
@@ -576,7 +578,7 @@ error:
         using namespace std;
         using namespace tbb;
         Priv<Layer> &layer = $.layers[destLayer];
-        $.undo.emplace_back(name, layer, destLayer, true);
+        $.undo.emplace_back(name, layer, destLayer, LayerOp::Replace);
         layer.reserve(destX, destY, sourceW, sourceH, $$.tileSize());
         Array2DRef<pixel_t> sourcePixels(reinterpret_cast<pixel_t const*>(source),
                                          sourcePitch,
@@ -646,6 +648,21 @@ error:
         $.tileCache.resize($.tileCount);
     }
     
+    void Canvas::insertLayer(llvm::StringRef undoName, size_t index)
+    {
+        assert(index <= $.layers.size());
+        $.layers.emplace($.layers.begin()+index);
+        $.undo.emplace_back(undoName, Priv<Layer>{}, index, LayerOp::Delete);
+    }
+    
+    void Canvas::deleteLayer(llvm::StringRef undoName, size_t index)
+    {
+        assert(index < $.layers.size());
+        auto it = $.layers.begin()+index;
+        $.undo.emplace_back(undoName, move(*it), index, LayerOp::Insert);
+        $.layers.erase(it);
+    }
+    
     bool Priv<Canvas>::saveTile(size_t index, const uint8_t *image, string *outError)
     {
         assert(index != 0 && index > $.tileCount);
@@ -710,9 +727,23 @@ error:
         assert(!from.empty());
         CanvasHistory item = move(from.back());
         from.pop_back();
-        assert(item.replaced || "rite me"); //fixme
-        swap(item.layer, $.layers[item.index]);
-        to.emplace_back(move(item));
+        switch (item.op) {
+            case LayerOp::Replace:
+                swap(item.layer, $.layers[item.index]);
+                to.emplace_back(move(item));
+                break;
+            case LayerOp::Delete: {
+                auto it = $.layers.begin() + item.index;
+                to.emplace_back(move(item.name), move(*it), item.index, LayerOp::Insert);
+                $.layers.erase(it);
+                break;
+            }
+            case LayerOp::Insert: {
+                $.layers.emplace($.layers.begin() + item.index, move(item.layer));
+                to.emplace_back(move(item.name), Priv<Layer>{}, item.index, LayerOp::Delete);
+                break;
+            }
+        }
     }
 
     //
