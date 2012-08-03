@@ -61,7 +61,7 @@ namespace Mega {
     // internal representations
     //
     
-    struct CanvasHistory;
+    struct History;
 
     template<>
     struct Priv<Canvas> {
@@ -71,7 +71,7 @@ namespace Mega {
         size_t tileCount;
         bool isUniquePath;
         vector<MappedFile> tileCache;
-        vector<CanvasHistory> undo, redo;
+        vector<History> undo, redo;
         
         Priv(string *outError,
              size_t logSize = DEFAULT_LOG_SIZE,
@@ -149,7 +149,7 @@ namespace Mega {
         
         bool saveTile(size_t i, uint8_t const *image, string *outError);
         
-        void applyHistory(vector<CanvasHistory> &from, vector<CanvasHistory> &to);
+        void applyHistory(vector<History> &from, vector<History> &to);
     };
     MEGA_PRIV_DTOR(Canvas)
 
@@ -177,18 +177,80 @@ namespace Mega {
     };
     MEGA_PRIV_DTOR(Layer)
 
-    enum class LayerOp { Replace, Insert, Delete };
-    
-    struct CanvasHistory {
-        string name;
-        Priv<Layer> layer;
+    struct ReplaceOp {
         size_t index;
-        LayerOp op;
+        Priv<Layer> layer;
+    };
+    struct InsertOp {
+        size_t index;
+        Priv<Layer> layer;
+    };
+    struct EraseOp {
+        size_t index;
+    };
+    struct MoveOp {
+        size_t oldIndex;
+        size_t newIndex;
+    };
+
+    struct History {
+        string name;
+        enum class Tag { Replace, Insert, Erase, Move } tag;
         
-        CanvasHistory() = default;
-        CanvasHistory(StringRef name, Priv<Layer> const &layer, size_t index, LayerOp op)
-        : name(name), layer(layer), index(index), op(op)
+        union {
+            ReplaceOp replace;
+            InsertOp insert;
+            EraseOp erase;
+            MoveOp move;
+        };
+        
+        History(StringRef name, ReplaceOp &&replace)
+        : name(name), tag(Tag::Replace), replace(replace)
         {}
+        History(StringRef name, InsertOp &&insert)
+        : name(name), tag(Tag::Insert), insert(insert)
+        {}
+        History(StringRef name, EraseOp &&erase)
+        : name(name), tag(Tag::Erase), erase(erase)
+        {}
+        History(StringRef name, MoveOp &&move)
+        : name(name), tag(Tag::Move), move(move)
+        {}
+
+        History(History &&h)
+        : name(std::move(h.name)), tag(h.tag)
+        {
+            switch (tag) {
+                case Tag::Replace:
+                    new (&replace) ReplaceOp(std::move(h.replace));
+                    break;
+                case Tag::Insert:
+                    new (&insert) InsertOp(std::move(h.insert));
+                    break;
+                case Tag::Erase:
+                    new (&erase) EraseOp(std::move(h.erase));
+                    break;
+                case Tag::Move:
+                    new (&move) MoveOp(std::move(h.move));
+                    break;
+            }
+        }
+        ~History() {
+            switch (tag) {
+                case Tag::Replace:
+                    replace.~ReplaceOp();
+                    break;
+                case Tag::Insert:
+                    insert.~InsertOp();
+                    break;
+                case Tag::Erase:
+                    erase.~EraseOp();
+                    break;
+                case Tag::Move:
+                    move.~MoveOp();
+                    break;
+            }
+        }
     };
 
     //
@@ -578,7 +640,7 @@ error:
         using namespace std;
         using namespace tbb;
         Priv<Layer> &layer = $.layers[destLayer];
-        $.undo.emplace_back(name, layer, destLayer, LayerOp::Replace);
+        $.undo.emplace_back(name, ReplaceOp{destLayer, layer});
         layer.reserve(destX, destY, sourceW, sourceH, $$.tileSize());
         Array2DRef<pixel_t> sourcePixels(reinterpret_cast<pixel_t const*>(source),
                                          sourcePitch,
@@ -652,14 +714,14 @@ error:
     {
         assert(index <= $.layers.size());
         $.layers.emplace($.layers.begin()+index);
-        $.undo.emplace_back(undoName, Priv<Layer>{}, index, LayerOp::Delete);
+        $.undo.emplace_back(undoName, EraseOp{index});
     }
     
     void Canvas::deleteLayer(llvm::StringRef undoName, size_t index)
     {
         assert(index < $.layers.size());
         auto it = $.layers.begin()+index;
-        $.undo.emplace_back(undoName, move(*it), index, LayerOp::Insert);
+        $.undo.emplace_back(undoName, InsertOp{index, move(*it)});
         $.layers.erase(it);
     }
     
@@ -689,6 +751,11 @@ error:
         }
         
         return true;
+    }
+    
+    void Canvas::moveLayer(llvm::StringRef undoName, size_t oldIndex, size_t newIndex)
+    {
+        swap($.layers[oldIndex], $.layers[newIndex]);
     }
     
     StringRef
@@ -722,34 +789,38 @@ error:
     }
     
     void
-    Priv<Canvas>::applyHistory(vector<CanvasHistory> &from, vector<CanvasHistory> &to)
+    Priv<Canvas>::applyHistory(vector<History> &from, vector<History> &to)
     {
         assert(!from.empty());
-        CanvasHistory item = move(from.back());
+        History item = move(from.back());
         from.pop_back();
-        switch (item.op) {
-            case LayerOp::Replace:
-                swap(item.layer, $.layers[item.index]);
+        switch (item.tag) {
+            case History::Tag::Replace:
+                swap(item.replace.layer, $.layers[item.replace.index]);
                 to.emplace_back(move(item));
                 break;
-            case LayerOp::Delete: {
-                auto it = $.layers.begin() + item.index;
-                to.emplace_back(move(item.name), move(*it), item.index, LayerOp::Insert);
+            case History::Tag::Erase: {
+                auto it = $.layers.begin() + item.erase.index;
+                to.emplace_back(move(item.name), InsertOp{item.erase.index, move(*it)});
                 $.layers.erase(it);
                 break;
             }
-            case LayerOp::Insert: {
-                $.layers.emplace($.layers.begin() + item.index, move(item.layer));
-                to.emplace_back(move(item.name), Priv<Layer>{}, item.index, LayerOp::Delete);
+            case History::Tag::Insert: {
+                $.layers.emplace($.layers.begin() + item.insert.index, move(item.insert.layer));
+                to.emplace_back(move(item.name), EraseOp{item.insert.index});
                 break;
             }
+            case History::Tag::Move:
+                swap($.layers[item.move.oldIndex], $.layers[item.move.newIndex]);
+                to.emplace_back(move(item));
+                break;
         }
     }
 
     //
     // Layer implementation
     //
-    MEGA_PRIV_GETTER_SETTER(Layer, parallax, Vec)
+    MEGA_PRIV_GETTER(Layer, parallax, Vec)
     MEGA_PRIV_GETTER(Layer, origin, Vec)
     
     static bool isPowerOfTwo(size_t x)

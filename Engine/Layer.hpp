@@ -24,8 +24,6 @@ namespace Mega {
         MEGA_PRIV_CTORS(Layer)
 
         Vec parallax();
-        void parallax(Vec x);
-
         Vec origin();
         
         struct SegmentRef {        

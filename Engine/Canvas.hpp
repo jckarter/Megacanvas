@@ -14,6 +14,7 @@
 #include "Engine/Util/MappedFile.hpp"
 #include "Engine/Util/OpaqueIterator.hpp"
 #include "Engine/Util/Priv.hpp"
+#include "Engine/Vec.hpp"
 
 namespace Mega {
     struct Layer;
@@ -46,14 +47,6 @@ namespace Mega {
         
         void wasMoved(llvm::StringRef newPath);
         
-        void blit(llvm::StringRef undoName,
-                  void const *source,
-                  size_t sourcePitch, size_t sourceW, size_t sourceH,
-                  size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
-                  pixel_t (*blendFunc)(pixel_t src, pixel_t dest));
-        void insertLayer(llvm::StringRef undoName, size_t index);
-        void deleteLayer(llvm::StringRef undoName, size_t index);
-
         bool save(std::string *outError);
         bool saveAs(llvm::StringRef path, std::string *outError);
         
@@ -61,6 +54,16 @@ namespace Mega {
         void redo();
         llvm::StringRef undoName();
         llvm::StringRef redoName();
+
+        void blit(llvm::StringRef undoName,
+                  void const *source,
+                  size_t sourcePitch, size_t sourceW, size_t sourceH,
+                  size_t destLayer, ptrdiff_t destX, ptrdiff_t destY,
+                  pixel_t (*blendFunc)(pixel_t src, pixel_t dest));
+        void insertLayer(llvm::StringRef undoName, size_t index);
+        void deleteLayer(llvm::StringRef undoName, size_t index);
+        void moveLayer(llvm::StringRef undoName, size_t oldIndex, size_t newIndex);
+        void setLayerParallax(llvm::StringRef undoName, size_t index, Vec parallax);
     };
 }
 
