@@ -192,16 +192,21 @@ namespace Mega {
         size_t oldIndex;
         size_t newIndex;
     };
+    struct SetParallaxOp {
+        size_t index;
+        Vec parallax;
+    };
 
     struct History {
         string name;
-        enum class Tag { Replace, Insert, Erase, Move } tag;
+        enum class Tag { Replace, Insert, Erase, Move, SetParallax } tag;
         
         union {
             ReplaceOp replace;
             InsertOp insert;
             EraseOp erase;
             MoveOp move;
+            SetParallaxOp setParallax;
         };
         
         History(StringRef name, ReplaceOp &&replace)
@@ -215,6 +220,9 @@ namespace Mega {
         {}
         History(StringRef name, MoveOp &&move)
         : name(name), tag(Tag::Move), move(move)
+        {}
+        History(StringRef name, SetParallaxOp &&set)
+        : name(name), tag(Tag::SetParallax), setParallax(set)
         {}
 
         History(History &&h)
@@ -233,6 +241,9 @@ namespace Mega {
                 case Tag::Move:
                     new (&move) MoveOp(std::move(h.move));
                     break;
+                case Tag::SetParallax:
+                    new (&setParallax) SetParallaxOp(std::move(h.setParallax));
+                    break;
             }
         }
         ~History() {
@@ -248,6 +259,9 @@ namespace Mega {
                     break;
                 case Tag::Move:
                     move.~MoveOp();
+                    break;
+                case Tag::SetParallax:
+                    setParallax.~SetParallaxOp();
                     break;
             }
         }
@@ -755,7 +769,14 @@ error:
     
     void Canvas::moveLayer(llvm::StringRef undoName, size_t oldIndex, size_t newIndex)
     {
+        $.undo.emplace_back(undoName, MoveOp{oldIndex, newIndex});
         swap($.layers[oldIndex], $.layers[newIndex]);
+    }
+    
+    void Canvas::setLayerParallax(llvm::StringRef undoName, size_t index, Mega::Vec parallax)
+    {
+        $.undo.emplace_back(undoName, SetParallaxOp{index, $.layers[index].parallax});
+        $.layers[index].parallax = parallax;
     }
     
     StringRef
@@ -812,6 +833,10 @@ error:
             }
             case History::Tag::Move:
                 swap($.layers[item.move.oldIndex], $.layers[item.move.newIndex]);
+                to.emplace_back(move(item));
+                break;
+            case History::Tag::SetParallax:
+                swap($.layers[item.setParallax.index].parallax, item.setParallax.parallax);
                 to.emplace_back(move(item));
                 break;
         }

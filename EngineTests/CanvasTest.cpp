@@ -41,6 +41,8 @@ namespace Mega { namespace test {
         CPPUNIT_TEST(testUndoRedoInsertDeleteLayer);
         CPPUNIT_TEST(testMoveLayer);
         CPPUNIT_TEST(testUndoMoveLayer);
+        CPPUNIT_TEST(testSetLayerParallax);
+        CPPUNIT_TEST(testUndoSetLayerParallax);
         CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -1025,6 +1027,59 @@ namespace Mega { namespace test {
             CPPUNIT_ASSERT_EQUAL((Vec{128.0, 128.0}), canvas->layers()[1].origin());
             CPPUNIT_ASSERT_EQUAL(string("move1"), string(canvas->undoName()));
             CPPUNIT_ASSERT(canvas->redoName().empty());
+        }
+        
+        void testSetLayerParallax()
+        {
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+
+            CPPUNIT_ASSERT_EQUAL((Vec{1.0, 1.0}), canvas->layers()[0].parallax());
+            
+            canvas->setLayerParallax("parallax1", 0, Vec{0.5, 0.5});
+            CPPUNIT_ASSERT_EQUAL((Vec{0.5, 0.5}), canvas->layers()[0].parallax());
+            canvas->insertLayer("insert1", 1);
+            canvas->setLayerParallax("parallax2", 1, Vec{2.0, 2.0});
+            CPPUNIT_ASSERT_EQUAL((Vec{2.0, 2.0}), canvas->layers()[1].parallax());
+        }
+
+        void testUndoSetLayerParallax()
+        {
+            string error;
+            Owner<Canvas> canvas = Canvas::create(&error);
+            CPPUNIT_ASSERT_EQUAL(string(""), error);
+            CPPUNIT_ASSERT(canvas);
+            
+            canvas->setLayerParallax("parallax1", 0, Vec{0.5, 0.5});
+            canvas->insertLayer("insert1", 1);
+            canvas->setLayerParallax("parallax2", 1, Vec{2.0, 2.0});
+            
+            CPPUNIT_ASSERT_EQUAL(string("parallax2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            
+            canvas->undo();
+            CPPUNIT_ASSERT_EQUAL((Vec{1.0, 1.0}), canvas->layers()[1].parallax());
+            CPPUNIT_ASSERT_EQUAL(string("insert1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("parallax2"), string(canvas->redoName()));
+            
+            canvas->undo();
+            canvas->undo();
+            CPPUNIT_ASSERT_EQUAL((Vec{1.0, 1.0}), canvas->layers()[0].parallax());
+            CPPUNIT_ASSERT(canvas->undoName().empty());
+            CPPUNIT_ASSERT_EQUAL(string("parallax1"), string(canvas->redoName()));
+
+            canvas->redo();
+            CPPUNIT_ASSERT_EQUAL(string("parallax1"), string(canvas->undoName()));
+            CPPUNIT_ASSERT_EQUAL(string("insert1"), string(canvas->redoName()));
+            CPPUNIT_ASSERT_EQUAL((Vec{0.5, 0.5}), canvas->layers()[0].parallax());
+
+            canvas->redo();
+            canvas->redo();
+            CPPUNIT_ASSERT_EQUAL(string("parallax2"), string(canvas->undoName()));
+            CPPUNIT_ASSERT(canvas->redoName().empty());
+            CPPUNIT_ASSERT_EQUAL((Vec{2.0, 2.0}), canvas->layers()[1].parallax());
         }
     };
 
